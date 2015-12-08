@@ -1,0 +1,52 @@
+\usepackage{color}
+\usepackage{listings}
+%\usepackage{tabularx}
+
+% uncomment to enable clever references
+\ifdefined\noauthorea
+\usepackage{cleveref} 
+\AtBeginDocument{\renewcommand{\ref}[1]{\Cref{#1}}}
+\AtBeginDocument{\renewcommand{\eqref}[1]{\Cref{#1}}}
+\fi
+
+% commands
+\ifdefined\noauthorea
+\newcommand{\ifauthorea}[2]{#2}
+\else
+\newcommand{\ifauthorea}[2]{#1}
+\fi
+
+\newcommand{\mynote}[1]{\medskip\noindent{\small[{\bf Note:} {\em #1}]}}
+
+\ifdefined\noauthorea
+\newcommand{\mysection}{}
+\newcommand{\mydefinition}{}
+\newcommand{\myfigure}{}
+\newcommand{\mytable}{}
+\newcommand{\mylemma}{}
+\newcommand{\mytheorem}{}
+\newcommand{\myequation}{}
+\else
+\newcommand{\mysection}{Section~}
+\newcommand{\mydefinition}{Definition~}
+\newcommand{\myfigure}{Figure~}
+\newcommand{\mytable}{Table~}
+\newcommand{\mylemma}{Lemma~}
+\newcommand{\mytheorem}{Theorem~}
+\newcommand{\myequation}{Equation~}
+\fi
+
+% theorems
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{property}{Property}
+\newtheorem{example}{Example}
+
+% env
+\newenvironment{myproof}
+{\noindent{\sc Proof.}}{\hspace*{\fill}$\Box$\par\vspace{2mm}}
+
+\newenvironment{myproofsketch}
+{\noindent{\sc Proof} (Sketch).}{\hspace*{\fill}$\Box$\par\vspace{2mm}}
