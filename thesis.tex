@@ -1,4 +1,4 @@
-\documentclass[PhD,binding=0.6cm]{sapthesis}
+\documentclass[PhD,binding=0cm,noexaminfo]{sapthesis}
 \usepackage{microtype} % http://www.khirevich.com/latex/microtype/
 
 \usepackage[utf8]{inputenx}
@@ -7,7 +7,7 @@
 \hypersetup{
   colorlinks = true, % colours links instead of ugly boxes
   urlcolor = blue, %  colour for external hyperlinks
-  linkcolor = blue, % colour of internal links
+  linkcolor = black, % colour of internal links
   citecolor = red % colour of citations
   pdftitle = {On-Stack Replacementy Everywhere},
   pdfauthor= {Daniele Cono D'Elia}
@@ -34,6 +34,18 @@
 \frontmatter
 
 \maketitle
+
+\tableofcontents
+
+\mainmatter
+
+\input{introduction}
+\input{state-of-art}
+\input{perf-profiling}
+\input{continuous-opt}
+\input{experiments}
+\input{case-studies}
+\input{conclusions}
 
 \backmatter
 
