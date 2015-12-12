@@ -1,12 +1,17 @@
 \chapter{Introduction}
 
-Translating programming languages into a form that can {\em efficiently} execute on a target platform is one of the most challenging problems in computer science. Historically, there are two approaches to translation: interpretation and compilation. An interpreter reads the source code of a program, stepping through its expressions to determine which operation is to perform next. A compiler translates a program into a form that is more amenable to execution, analyzing the source code once and generating code that would give the same effects as interpreting the program.
+Translating programming languages into a form that can {\em efficiently} execute on a target platform is a very challenging problem for computer scientists. Historically, there are two approaches to translation: interpretation and compilation. An interpreter reads the source code of a program, stepping through its expressions to determine which operation to perform next. A compiler instead translates a program into a form that is more amenable to execution, analyzing its source code only once and generating code that would give the same effects as interpreting it.
 
-These two approaches show different advantages in terms of execution speed, code footprint, portability, and access to run-time information.
-%As programming languages have been evolving over the years,
-%Modern interpreters translate source code into an intermediate representation that is easier to work with, and can optionally perform optimizations based on the current workload.
+The two approaches have different benefits in terms of execution speed, portability, footprint, and optimization opportunities. Compiled programs typically execute faster, as a compiler can devote an arbitrary amount of time to {\em static} (i.e., prior to run-time) code analysis and optimization. On the other hand, an interpreter can access run-time information such as taken control-flow, input parameter values, and variable types, thus enabling optimizations that static compilation would miss. Indeed, this information may be subject to changes across different runs, or may not be obtainable in general through sole source code inspection.
+
+Additionally, the evolution of programming languages over the past three decades has provided software developers with a plethora of useful features such as dynamic typing and class loading, reflection, and closures that may hinder efficient code generation in a static compiler. In response, industry and academia have significantly invested in {\em adaptive optimization} technology, which consists in observing the run-time behavior of a program in order to drive optimization decisions.
+
+%This thesis tackles problems arising while analyzing the behavior of a running program, within and across the boundaries of a procedure, 
 
 \section{Context and Motivations}
+
+%especially when the target form is directly executable on hardware. Interpreters on the other hand can 
+%Modern interpreters translate source code into an intermediate representation that is easier to work with, and can optionally perform optimizations based on the current workload.
 
 \section{Addressed Problems}
 
