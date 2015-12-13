@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% sapthesis.cls                                                   %%
-%% version 3.7                                                     %%
-%% 2013-07-20                                                      %%
+%% version 3.8                                                     %%
+%% 2015-12-04                                                      %%
 %% author: Francesco Biccari                                       %%
 %% contact: biccari@gmail.com                                      %%
 %%                                                                 %%
@@ -20,9 +20,9 @@
 
 \NeedsTeXFormat{LaTeX2e}[2009/01/01]
 \ProvidesClass{sapthesis}%
-[2013/07/20 Sapienza - University of Rome thesis class]
+[2015/12/04 Sapienza - University of Rome thesis class]
 
-\def\SAP@classVersion{3.7}
+\def\SAP@classVersion{3.8}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -836,14 +836,23 @@
 \vspace*{1.5cm}
 \fi
 
-\ifSAP@noexaminfo
+\ifSAP@noexaminfo\relax
 \else
 \if?\SAP@examdate?
-  \SAP@ThesisNotDefensedLabel%
+  \ifcase\SAP@examinercount
+    \SAP@ThesisNotDefensedLabel%
+  \else
+    \ClassError{sapthesis}{You have specified one or more examiners but not
+    the date of the final exam}{E.g. \protect\examdate{17 July 2015}}
+  \fi
 \else
-  \SAP@ThesisDefensedLabelA\ \SAP@examdate\\
-  \SAP@ThesisDefensedLabelB:\\[2mm]
-  \the\SAP@examinertoks%
+  \ifcase\SAP@examinercount
+    \ClassError{sapthesis}{You have specified the final exam date but no examiner}{E.g. \protect\examiner{Prof. Giulio Cesare}}
+  \else
+    \SAP@ThesisDefensedLabelA\ \SAP@examdate\\
+    \SAP@ThesisDefensedLabelB:\\[2mm]
+    \the\SAP@examinertoks%
+  \fi
 \fi
 \fi
 
@@ -1043,6 +1052,7 @@
   \ifxetex
     \ProvideTextCommandDefault{\C}{\celsius}
   \else
+  
     \providecommand{\C}{\celsius}
   \fi
   
@@ -1081,11 +1091,41 @@
     \providecommand{\di}{\mathop{}\!d}
   \fi
   
-  % derivative and partial derivative (only math) 
-  \providecommand*{\der}[3][]{\frac{d\if?#1?\else^{#1}\fi#2}{d #3\if?#1?\else^{#1}\fi}} 
-  \providecommand*{\pder}[3][]{% 
-    \frac{\partial\if?#1?\else^{#1}\fi#2}{\partial #3\if?#1?\else^{#1}\fi}% 
-  }
+  % derivative and partial derivative (only math)
+  % see http://www.guit.sssup.it/phpbb/viewtopic.php?p=42199#42199
+  \providecommand{\der}[2]{\begingroup 
+    \@tempswafalse\toks@={}\count@=\z@ 
+    \@for\next:=#2\do 
+      {\expandafter\check@var\next\@nil 
+       \advance\count@\der@exp 
+       \if@tempswa 
+         \toks@=\expandafter{\the\toks@\,}% 
+       \else 
+         \@tempswatrue 
+       \fi 
+       \toks@=\expandafter{\the\expandafter\toks@\expandafter\partial\der@var}}%
+    \frac{\partial\ifnum\count@=\@ne\else^{\number\count@}\fi#1}{\the\toks@}% 
+    \endgroup} 
+  \def\check@var{\@ifstar{\mult@var}{\one@var}} 
+  \def\mult@var#1#2\@nil{\def\der@var{#2^{#1}}\def\der@exp{#1}} 
+  \def\one@var#1\@nil{\def\der@var{#1}\chardef\der@exp\@ne}
+  
+  \providecommand{\pder}[2]{\begingroup
+    \@tempswafalse\toks@={}\count@=\z@
+    \@for\next:=#2\do
+      {\expandafter\check@var\next\@nil
+       \advance\count@\der@exp
+       \if@tempswa
+         \toks@=\expandafter{\the\toks@\,}%
+       \else
+         \@tempswatrue
+       \fi
+       \toks@=\expandafter{\the\expandafter\toks@\expandafter\partial\der@var}}%
+    \frac{\partial\ifnum\count@=\@ne\else^{\number\count@}\fi#1}{\the\toks@}%
+    \endgroup}
+  \def\check@var{\@ifstar{\mult@var}{\one@var}} 
+  \def\mult@var#1#2\@nil{\def\der@var{#2^{#1}}\def\der@exp{#1}} 
+  \def\one@var#1\@nil{\def\der@var{#1}\chardef\der@exp\@ne}
 
   % subscript and superscript in text mode
   \DeclareRobustCommand*\textsubscript[1]{\@textsubscript{\selectfont#1}} 
