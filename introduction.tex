@@ -16,13 +16,19 @@ Application virtualization technology has been brought to the mass market by the
 
 Modern virtual machines typically implement a mixed-mode execution environment, in which an interpreter is used for executing portions of a program until it becomes profitable to compile them through {\em just-in-time} (JIT) compilation and continue the execution in the native code. For efficiency reasons, source code is usually translated into an {\em intermediate representation} (IR) - also known as {\em bytecode} - that is easier to analyze and process. Multiple levels of JIT compilation are possible, each with a different trade-off between compilation time and expected code quality.
 
-Adaptive optimization technology is a central element for the performance of runtime systems. JIT compilation indeed does not come for free: a virtual machine should be able to exploit run-time information to tailor optimized code generation to the current workload in order to achieve effective performance improvements. %Observing the run-time behavior of a program 
+Adaptive optimization technology is a central element for the performance of runtime systems. JIT compilation indeed does not come for free: a virtual machine should be able to exploit run-time information to tailor optimized code generation to the current workload in order to achieve effective performance improvements. 
+
+Analyzing the run-time behavior of a program is useful also in the context of statically compiled code. {\em Profile-guided optimization} (PGO) techniques adopt a dual-compilation model in which a program is compiled and executed on representative input sets during an initial training stage, and is eventually recompiled using feedback information to generate the final optimized version.
+
+%Observing the run-time behavior of a program 
 
 %especially when the target form is directly executable on hardware. Interpreters on the other hand can 
 
 %Modern interpreters translate source code into an intermediate representation that is easier to work with, and can optionally perform optimizations based on the current workload.
 
 \section{Addressed Problems}
+
+Collecting accurate profiling information with a minimal impact on a running program is a key factor for an effective deployment of adaptive optimization techniques. In principle, developers and VM builders may leverage hardware performance counters provided by modern processors to collect low-level profiling information with no impact on a running program. However, the difficulty in mapping low-level counter data to high-level constructs such as classes and objects discourages their use for implementing complex analyses in runtime systems.
 
 \section{Contributions of the Thesis}
 
