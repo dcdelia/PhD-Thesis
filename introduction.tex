@@ -30,6 +30,9 @@ Analyzing the run-time behavior of a program is useful also in the context of st
 
 Collecting accurate profiling information with a minimal impact on a running program is a key factor for an effective deployment of adaptive optimization techniques. In principle, developers and VM builders may leverage hardware performance counters provided by modern processors to collect low-level profiling information with no impact on a running program. However, the difficulty in mapping low-level counter data to high-level constructs such as classes and objects discourages their use for implementing complex analyses in runtime systems.
 
+In this thesis, we devise two {\em dynamic} (i.e., run-time) analyses for collecting fine-grained profiling information based on efficient and elegant algorithmic techniques. The first analysis works at {\em intra-procedural} level and identifies cyclic paths that are taken in the control-flow graph of a single procedure, thus spanning multiple loop iterations.
+The second analysis is {\em inter-procedural} as it focuses on identifying the calling contexts of function invocations that are most frequently encountered during the execution of a real-world application, where a {\em calling context} is defined as the sequence of functions concurrently active on the stack when a function call is performed. Both techniques can provide valuable information for program understanding and performance analysis, as they can be used to direct optimizations to portions of the code where most resources are consumed.
+
 \section{Contributions of the Thesis}
 
 \section{Structure of the Thesis}
