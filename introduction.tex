@@ -6,36 +6,40 @@ The two approaches have different benefits in terms of execution speed, portabil
 
 Additionally, the evolution of programming languages over the years has provided software developers with a plethora of useful features such as dynamic typing and class loading, reflection, and closures that may hinder efficient code generation in a static compiler. In response, industry and academia have significantly invested in {\em adaptive optimization} technology, which consists in observing the run-time behavior of a program in order to drive optimization decisions.
 
-%This thesis tackles problems arising while analyzing the behavior of a running program, within and across the boundaries of a procedure, 
-
 \section{Context and Motivations}
 
 The past two decades have witnessed the widespread adoption of programming languages designed to run on {\em application virtual machines} (VMs). Compared to statically compiled software, these execution environments provide several advantages from a software engineering perspective, including portability, automatic memory and concurrency management, safety, and ease of implementation for {\em dynamic} features of a programming language such as adding new code, extending object definitions, and modifying the type system.
 
-Application virtualization technology has been brought to the mass market by the Java programming language and later by the Common Language Runtime for the execution of .NET programs. Virtual machines are nowadays available for every popular language, including JavaScript, MATLAB, Python, R, and Ruby.
+Application virtualization technology has been brought to the mainstream market by the Java programming language and later by the Common Language Runtime for the execution of .NET programs. Virtual machines are nowadays available for every popular language, including JavaScript, MATLAB, Python, R, and Ruby.
 
 Modern virtual machines typically implement a mixed-mode execution environment, in which an interpreter is used for executing portions of a program until it becomes profitable to compile them through {\em just-in-time} (JIT) compilation and continue the execution in the native code. For efficiency reasons, source code is usually translated into an {\em intermediate representation} (IR) - also known as {\em bytecode} - that is easier to analyze and process. Multiple levels of JIT compilation are possible, each with a different trade-off between compilation time and expected code quality.
 
-Adaptive optimization technology is a central element for the performance of runtime systems. JIT compilation indeed does not come for free: a virtual machine should be able to exploit run-time information to tailor optimized code generation to the current workload in order to achieve effective performance improvements. 
+Adaptive optimization technology is a central element for the performance of runtime systems. JIT compilation indeed does not come for free: a virtual machine should be able to exploit run-time information to tailor optimized code generation to the current workload, so that the expected performance gains can counterbalance the overheads coming from collecting the profile and performing the optimizations.
+%a virtual machine should be able to exploit run-time information to tailor optimized code generation to the current workload in order to achieve effective performance improvements. 
 
 Analyzing the run-time behavior of a program is useful also in the context of statically compiled code. {\em Profile-guided optimization} (PGO) techniques adopt a dual-compilation model in which a program is compiled and executed on representative input sets during an initial training stage, and is eventually recompiled using feedback information to generate the final optimized version.
 
-%Observing the run-time behavior of a program 
-
-%especially when the target form is directly executable on hardware. Interpreters on the other hand can 
-
-%Modern interpreters translate source code into an intermediate representation that is easier to work with, and can optionally perform optimizations based on the current workload.
-
 \section{Addressed Problems}
 
-Collecting accurate profiling information with a minimal impact on a running program is a key factor for an effective deployment of adaptive optimization techniques. In principle, developers and VM builders may leverage hardware performance counters provided by modern processors to collect low-level profiling information with no impact on a running program. However, the difficulty in mapping low-level counter data to high-level constructs such as classes and objects discourages their use for implementing complex analyses in runtime systems.
+Collecting accurate profiling information with a minimal impact on a running program is a key factor for an effective deployment of adaptive optimization techniques. In principle, developers and VM builders may leverage hardware performance counters provided by modern processors to collect low-level profiling information with no impact on the performance of a running program. However, the difficulty in mapping low-level counter data to high-level constructs such as classes and objects discourages their use for implementing complex analyses in runtime systems.
 
-In this thesis, we devise two {\em dynamic} (i.e., run-time) analyses for collecting fine-grained profiling information based on efficient and elegant algorithmic techniques. The first analysis works at {\em intra-procedural} level and identifies cyclic paths that are taken in the control-flow graph of a single procedure, thus spanning multiple loop iterations. The second analysis is {\em inter-procedural} as it focuses on identifying the calling contexts of function invocations that are most frequently encountered during the execution of a real-world application, where a {\em calling context} is defined as the sequence of functions concurrently active on the stack when a function call is performed. Both techniques can provide valuable information for program understanding and performance analysis, as they can be used to direct optimizations to portions of the code where most resources are consumed.
+In the past three decades many sophisticated software-based techniques have been proposed for collecting fine-grained information regarding individual statements, objects, or control-flow paths. These techniques are typically based on program instrumentation, sampling, or a combination of both. For some problems, however, the size of the domain can be particularly large and extant techniques do not scale well or may even run out of space when analyzing real-world programs. In this thesis we investigate how data structure-based techniques from the algorithmic community can be used to devise efficient performance profiling tools. 
 
-Another key ingredient for adaptive optimization is the ability of a runtime to divert the execution to newly generated code {\em while} the original function is executing. In fact, in the presence of long-running methods it is not sustainable for a VM to wait for the original function to complete and let only subsequent invocations of it run the new version. This problem is formally known as {\em on-stack replacement} (OSR); production virtual machines implement OSR to dynamically replace code with (more) optimized code, and also to invalidate aggressive optimizations and continue into a safe code version when a speculative assumption no longer holds.
 
-%This raises a fundamental question: how to divert the execution into optimized code?
+Another key ingredient for adaptive optimization is the ability of a runtime to divert the execution to the newly generated optimized code {\em while} the original function is executing. In fact, in the presence of long-running methods it is not sustainable for a VM to wait for the original function to complete and let only subsequent invocations run the optimized version. The problem of handling transitions between different compiled versions is formally known as {\em on-stack replacement} (OSR). Modern VMs implement OSR techniques to dynamically replace code with (more) optimized code, and also to invalidate aggressive, speculative optimizations and continue in a safe code version when an assumption made during the compilation no longer holds.
+
+Supporting OSR in a runtime system raises a number of fundamental questions. What is the set of program points at which OSR can safely occur, and how is it affected by compiler optimizations? Can we guarantee the soundness of an OSR transition? What is the impact of OSR machinery on running code? In this thesis, we address these questions from both a methodological and a practical perspective.
 
 \section{Contributions of the Thesis}
 
+%In this thesis, we devise two {\em dynamic} (i.e., run-time) analyses for collecting fine-grained profiling information based on efficient and elegant algorithmic techniques. The first analysis works at {\em intra-procedural} level and identifies cyclic paths that are taken in the control-flow graph of a single procedure, thus spanning multiple loop iterations. The second analysis is {\em inter-procedural} as it focuses on identifying the calling contexts of function invocations that are most frequently encountered during the execution of a real-world application, where a {\em calling context} is defined as the sequence of functions concurrently active on the stack when a function call is performed. Both techniques can provide valuable information for program understanding and performance analysis, as they can be used to direct optimizations to portions of the code where most resources are consumed.
+
+%The main contributions of this thesis can 
+
 \section{Structure of the Thesis}
+
+
+%This thesis tackles problems arising while analyzing the behavior of a running program, within and across the boundaries of a procedure, 
+
+%especially when the target form is directly executable on hardware. Interpreters on the other hand can 
+%Modern interpreters translate source code into an intermediate representation that is easier to work with, and can optionally perform optimizations based on the current workload.
