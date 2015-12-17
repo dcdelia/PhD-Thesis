@@ -2,12 +2,13 @@
 \usepackage{microtype} % http://www.khirevich.com/latex/microtype/
 \usepackage[utf8]{inputenx}
 \usepackage{hyperref}
+\usepackage[numbers,square]{natbib}
 
 \hypersetup{
   colorlinks = true, % colours links instead of ugly boxes
   urlcolor = blue, %  colour for external hyperlinks
   linkcolor = black, % colour of internal links
-  citecolor = red % colour of citations
+  citecolor = black, % colour of citations
   pdftitle = {New Techniques for Adaptive Optimization},
   pdfauthor= {Daniele Cono D'Elia}
 }	
@@ -50,5 +51,8 @@
 \input{conclusions}
 
 \backmatter
+
+\bibliographystyle{abbrvnat}
+\bibliography{bibliography/biblio.bib}
 
 \end{document}
