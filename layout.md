@@ -1,7 +1,6 @@
 introduction.tex
 state-of-art.tex
 perf-profiling.tex
-hcct.tex
 kblpp.tex
 continuous-opt.tex
 experiments.tex
