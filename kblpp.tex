@@ -1,0 +1,17 @@
+\section{Intraprocedural Profiling}
+
+Path profiling is a powerful {\em intraprocedural} methodology for identifying performance bottlenecks in a program. The well-known Ball and Larus algorithm for {\em intraprocedural} path profiling can efficiently encode {\em acyclic} paths that are taken across the control-flow graph of a function. Previous attempts to extend it to encode {\em cyclic} paths, and thus to span multiple loop iterations in order to capture more optimization opportunities, are based on rather complex algorithms that incur severe performance overheads even for short cyclic paths. In this thesis we present a new, data-structure based approach to {\em multi-iteration} path profiling built on top of the original Ball-Larus numbering technique. Starting from the observation that any cyclic path can be described as a concatenation of Ball-Larus acyclic paths, we show how to accurately profile all executed paths obtained as a concatenation of up to $k$ Ball-Larus paths, where $k$ is a user-defined parameter.
+
+%We provide examples showing that this method can reveal optimization opportunities that acyclic-path profiling would miss, and we present an extensive experimental investigation on a large variety of Java benchmarks in the Jikes RVM. Experiments show that our approach can be even faster than a hash table-based implementation of the Ball-Larus algorithm due to fewer operations on smaller tables, producing compact representations of cyclic paths even for large values of $k$.
+
+\subsection{Motivation and Contributions}
+
+\subsection{Approach}
+
+\subsection{Algorithms}
+
+\subsection{Implementation}
+
+\subsection{Comparison with Related Work}
+
+\subsection{Discussion}
