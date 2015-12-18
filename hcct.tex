@@ -6,12 +6,16 @@ The first contribution we present in this thesis is an {\em interprocedural} tec
 The dynamic {\em calling context} of a routine invocation is defined as the sequence of functions that are concurrently active on the run-time stack. A calling context leads to an exact program location, as it corresponds to the sequence of un-returned calls from a program’s root function to the routine invocation it is associated with.
 
 Context-sensitive profiling information provides valuable information for program understanding, performance analysis, and runtime optimizations. Previous works demonstrated its effectiveness for tasks such as residual testing~\cite{PavlopoulouY99,Vaswani07}, function inlining~\cite{Chang92}, statistical bug isolation~\cite{Feng03,Liblit03}, performance bug detection~\cite{Nistor13}, object allocation analysis~\cite{Nethercote07}, event logging~\cite{Zhang06}, or anomaly-based intrusion detection~\cite{Bond07}.
-% sync with PCCE paper
+% this is a sync with PCCE paper
 Calling-context information can also be employed in unit test generation~\cite{Villazon09}, testing of sensor network applications~\cite{Lai08}, and reverse engineering of protocol formats~\cite{Lin08}.
 
-%~\cite{}
-%Context-sensitive profiling provides 
+\mynote{Add reference to related work section for the CCT}
 
+Calling context trees (CCTs) offer a compact representation for context-sensitive information, and many techniques have been proposed to reduce the overhead for CCT construction by trading accuracy for performance. However, as noticed in previous works, CCTs may be very large and difficult to analyze in several applications. Moreover, their sheer size might hurt execution time because of poor access locality during construction and query. Under the optimistic assumption that each CCT nodes requires 20 bytes for its representation on 32-bit architectures, numbers shown in {\bf XXX} already result in almost 1 GB needed just to store a CCT with 48 million nodes for an application such as OpenOffice Calc.
+
+%~\cite{}
+
+%Context-sensitive profiling provides 
 %These algorithms allow us to distinguish between hot and cold context on-the-fly, and we show both theoretically and experimentally that for collected metrics the HCCT achieves a similar precision as the CCT in a space that is several orders of magnitude smaller. We show on prominent benchmarks that our implementation, shipping as a plugin for the \gcc\ compiler, incurs a slowdown competitive with the \gprof\ profiler while collecting much finer-grained profiles.
 
 \subsection{Approach}
