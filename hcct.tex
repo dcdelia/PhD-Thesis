@@ -9,3 +9,47 @@ Context-sensitive profiling information provides valuable information for progra
 % this is a sync with PCCE paper
 Calling-context information can also be employed in unit test generation~\cite{Villazon09}, testing of sensor network applications~\cite{Lai08}, and reverse engineering of protocol formats~\cite{Lin08}.
 
+\begin{table}[ht]
+%\centering
+\begin{center}
+\begin{tabular}{|l|r r r r|}
+\hline
+Application & $|$Call graph$|$ & Call sites & $|$CCT$|$ & $|$Call tree$|$\\
+\hline
+amarok & 13\,754 & 113\,362 & 13\,794\,470 & 991\,112\,563 \\
+ark & 9\,933 & 76\,547 & 8\,171\,612 & 216\,881\,324 \\
+audacity & 6\,895 & 79\,656 & 13\,131\,115 & 924\,534\,168 \\
+bluefish & 5\,211 & 64\,239 & 7\,274\,132 & 248\,162\,281 \\
+dolphin & 10\,744 & 84\,152 & 11\,667\,974 & 390\,134\,028 \\
+firefox & 6\,756 & 145\,883 & 30\,294\,063 & 625\,133\,218 \\
+gedit & 5\,063 & 57\,774 & 4\,183\,946 & 407\,906\,721 \\
+ghex2 & 3\,816 & 39\,714 & 1\,868\,555 & 80\,988\,952 \\
+gimp & 5\,146 & 93\,372 & 26\,107\,261 & 805\,947\,134 \\
+gwenview & 11\,436 & 86\,609 & 9\,987\,922 & 494\,753\,038 \\
+inkscape & 6\,454 & 89\,590 & 13\,896\,175 & 675\,915\,815 \\
+oocalc & 30\,807 & 394\,913 & 48\,310\,585 & 551\,472\,065 \\
+ooimpress & 16\,980 & 256\,848 & 43\,068\,214 & 730\,115\,446 \\
+oowriter & 17\,012 & 253\,713 & 41\,395\,182 & 563\,763\,684 \\
+pidgin & 7\,195 & 80\,028 & 10\,743\,073 & 404\,787\,763 \\
+quanta & 13\,263 & 113\,850 & 27\,426\,654 & 602\,409\,403 \\
+sudoku & 5\,340 & 49\,885 & 2\,794\,177 & 325\,944\,813 \\
+vlc & 5\,692 & 47\,481 & 3\,295\,907 & 125\,436\,877 \\
+%\hline
+botan & 3\,388 & 27\,114 & 308\,550 & 26\,272\,804\,980 \\
+cairo-perf-trace & 1\,408 & 3\,696 & 137\,920 & 15\,976\,619\,734 \\
+crafty & 107 & 516 & 36\,434\,095 & 10\,403\,074\,070 \\
+fhourstones & 18 & 32 & OOM & 39\,272\,563\,944 \\
+gobmk & 1\,133 & 4\,049 & OOM & 21\,909\,088\,291 \\
+ice-labyrinth & 2\,335 & 8\,050 & 2\,160\,052 & 1\,637\,076\,406 \\
+mount-herring & 2\,318 & 8\,269 & 3\,733\,120 & 3\,311\,257\,932 \\
+overworld & 14\,173 & 50\,394 & 3\,774\,937 & 4\,112\,679\,880 \\
+scotland & 13\,932 & 51\,206 & 1\,813\,368 & 5\,982\,612\,379 \\
+sjeng & 57 & 221 & OOM & 28\,370\,207\,811 \\
+\hline
+\end{tabular}
+\vspace{4mm}
+\caption{\label{tab:CCTsize} Number of nodes of call graph, call tree, calling context tree, and number of distinct call sites for different applications. OOM stands for {\em Out Of Memory} (i.e., the CCT is too large to be constructed in main memory on a 32-bit architecture). %Game PlanetPenguin Racer has been run on two different courses (mount-herring and ice-labyrinth). Similarly, game SuperTuxKart has been run on tracks overworld and scotland.
+}
+\end{center}
+\end{table}
+\vspace{-8mm}
