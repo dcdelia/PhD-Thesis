@@ -61,14 +61,6 @@ However, even CCTs may be very large and difficult to analyze in several applica
 
 In a performance profiling scenario, only the most frequent contexts are of interest, as they represent the hot spots to which optimizations must be directed. As observed in~\cite{Zhuang06}: ``Accurately collecting information about hot edges may be more useful than accurately constructing an entire CCT that includes rarely called paths.''  shows that, for different applications, only a small fraction of contexts are hot: in conformance with the Pareto principle, nearly 90\% of routine calls take place in only 10\% of contexts. The skewness of function-call distribution suggests that space could be greatly reduced by keeping information about hot contexts only and discarding on the fly contexts that are likely to be cold, i.e., to have low frequency.
 
-\ifdefined\noauthorea
-\begin{figure}[hb]
-\begin{center}
-\includegraphics[width=0.95\columnwidth]{figures/hcct-skewness/hcct-skewness.eps}
-\caption{\protect\input{figures/hcct-skewness/caption}}
-\end{center}
-\end{figure}
-\fi
 
 %~\cite{}
 
