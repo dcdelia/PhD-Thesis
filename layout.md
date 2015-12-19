@@ -2,6 +2,7 @@ introduction.tex
 state-of-art.tex
 perf-profiling.tex
 hcct.tex
+figures/hcct-skewness/hcct-skewness.png
 kblpp.tex
 continuous-opt.tex
 experiments.tex
