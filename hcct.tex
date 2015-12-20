@@ -10,7 +10,7 @@ Context-sensitive profiling information provides valuable information for progra
 Calling-context information can also be employed in unit test generation~\cite{Villazon09}, testing of sensor network applications~\cite{Lai08}, and reverse engineering of protocol formats~\cite{Lin08}.
 
 \begin{table}[ht]
-%\centering
+\begin{small}
 \begin{center}
 \begin{tabular}{|l|r r r r|}
 \hline
@@ -51,8 +51,9 @@ sjeng & 57 & 221 & OOM & 28\,370\,207\,811 \\
 \caption{\label{tab:CCTsize} Number of nodes of call graph, call tree, calling context tree, and number of distinct call sites for different applications. OOM stands for {\em Out Of Memory} (i.e., the CCT is too large to be constructed in main memory on a 32-bit architecture). %Game PlanetPenguin Racer has been run on two different courses (mount-herring and ice-labyrinth). Similarly, game SuperTuxKart has been run on tracks overworld and scotland.
 }
 \end{center}
+\end{small}
 \end{table}
-\vspace{-8mm}
+\vspace{-6mm}
 
 \ifauthorea{\newline}{}
 
@@ -73,7 +74,6 @@ In a performance profiling scenario, only the most frequent contexts are of inte
 \end{figure}
 \fi
 
-Lorem ipsum...
 %~\cite{}
 
 %Context-sensitive profiling provides 
