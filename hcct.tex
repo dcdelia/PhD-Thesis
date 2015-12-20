@@ -11,7 +11,7 @@ Calling-context information can also be employed in unit test generation~\cite{V
 
 \begin{table}[ht]
 \begin{small}
-\begin{center}
+\centering
 \begin{tabular}{|l|r r r r|}
 \hline
 Application & $|$Call graph$|$ & Call sites & $|$CCT$|$ & $|$Call tree$|$\\
@@ -48,14 +48,11 @@ sjeng & 57 & 221 & OOM & 28\,370\,207\,811 \\
 \hline
 \end{tabular}
 \vspace{4mm}
-\caption{\label{tab:CCTsize} Number of nodes of call graph, call tree, calling context tree, and number of distinct call sites for different applications. OOM stands for {\em Out Of Memory} (i.e., the CCT is too large to be constructed in main memory on a 32-bit architecture). %Game PlanetPenguin Racer has been run on two different courses (mount-herring and ice-labyrinth). Similarly, game SuperTuxKart has been run on tracks overworld and scotland.
+\caption{\label{tab:CCTsize} Number of nodes of call graph, call tree, calling context tree, and number of distinct call sites for different applications. OOM stands for {\em Out Of Memory} (i.e., the CCT is too large to be constructed in main memory on a 32-bit architecture). Game PlanetPenguin Racer has been run on courses mount-herring and ice-labyrinth; similarly, game SuperTuxKart has been run on tracks overworld and scotland.
 }
-\end{center}
 \end{small}
 \end{table}
-\vspace{-6mm}
-
-\ifauthorea{\newline}{}
+\ifauthorea{\newline}{\vspace{-6mm}}
 
 \mynote{Add reference to related work section for the CCT}
 Calling context trees (CCTs) offer a compact representation for context-sensitive information. In fact, a CCT yields a more accurate profile than a {\em call graph} (which can sometimes drive to misleading conclusions~\cite{Ponder88, Spivey04}) in a space that is typically several orders of magnitude smaller than the one required to maintain a {\em call tree}. Many techniques have also been proposed over the years to reduce the overhead for its construction.
