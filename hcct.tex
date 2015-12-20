@@ -79,11 +79,50 @@ In a performance profiling scenario, we remark that only the most frequent conte
 
 \subsection{Approach}
 
-A {\em calling context tree} (CCT) compactly represents all calling contexts encountered during the execution of a program. Calling contexts can be intuitively mapped to paths in a tree: nodes represent un-returned function calls, and each path from the root to a node $v$ encodes the calling context of the call associated with $v$. As in a tree the path from the root to any of its nodes is always unique, we can also say that each calling context is uniquely represented by a node. CCTs represent identical calling contexts just once, aggregating their metrics. A routine with multiple contexts will instead appear more than once in the tree. Slightly extended CCT definitions can also be given to bound its depth in the presence of direct recursion and to distinguish calls that take place at different call sites of the same calling procedure~\cite{Ammons97}.
+\paragraph*{Calling Context Trees.} A {\em calling context tree} (CCT) can be used to compactly represent all calling contexts encountered during the execution of a program. Calling contexts can be straightforwardly mapped to paths in a tree: nodes represent un-returned function calls, and each path from the root to a node $v$ encodes the calling context of the call associated with $v$. As in a tree the path from the root to any of its nodes is always unique, we can also say that each calling context is uniquely represented by a node. CCTs represent identical calling contexts just once, aggregating their metrics. A routine with multiple contexts will instead appear more than once in the tree. Slightly extended CCT definitions can also be given to bound its depth in the presence of direct recursion and to distinguish calls that take place at different call sites of the same calling procedure~\cite{Ammons97}.
 
 %The call stack of a program can be mapped to a tree data structure by associating nodes with calls to procedures, so that each path from the root to a node $v$ represents the calling context of the call mapped to $v$. A routine with multiple contexts will appear more than once, but each calling context is represented just once in the CCT and metrics for identical contexts are aggregated.
 
 A CCT can be constructed on-the-fly during the execution of a program. Let $v$ be a cursor pointer that points to the current context, i.e., to the node corresponding to the calling context of the currently active routine ($v$ is initialized to the CCT root node). At each routine invocation, the algorithm checks whether $v$ has a child associated with the called routine. If this is the case, the existing child is used and its metrics are updated, if necessary. Otherwise, a new child of $v$ is added to the CCT.  In both cases, the cursor is moved to the callee. Upon routine termination, the cursor is moved back to the parent node in the CCT. %This approach can be implemented either by instrumenting every routine call and return or by performing stack-walking if sampling is used to inhibit redundant profiling~\cite{AS00,W00,ZSCC06}.
+
+\paragraph*{Introducing the HCCT.} In order to introduce the hot calling context tree, we have first to define when a context can be called hot. Let $N$ be the number of calling contexts encountered during a program's execution: $N$ equals the number of nodes of the call tree, the sum of the frequency counts of CCT nodes, as well as the number of routine invocations in the execution trace. 
+
+\begin{definition}
+A calling context is {\em hot} with respect to a frequency threshold $\phi\in[0,1]$ if and only if the frequency count of its corresponding CCT node is $\geq \lfloor\phi N\rfloor$. 
+\end{definition}
+
+\noindent Any calling context that is not hot is said to be {\em cold}. 
+
+\begin{definition}
+The {\em Hot Calling Context Tree (HCCT)} is the (unique) subtree of the CCT obtained by pruning all cold nodes that are not ancestors of a hot node.
+\end{definition}
+
+\noindent In graph theory, the HCCT corresponds to the Steiner tree of the CCT with hot nodes and the root used as terminals, i.e., to the minimal connected subtree of the CCT spanning hot nodes and the root. The HCCT includes all the hot nodes, and all its leaves are necessarily hot. An example of HCCT is given in \myfigure\ref{fig:hcct-example}(b). 
+
+\ifdefined\noauthorea
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.95\columnwidth]{figures/hcct-example/hcct-example.eps}
+\caption{\protect\input{figures/hcct-example/caption}}
+\end{center}
+\end{figure}
+\fi
+
+\paragraph*{Mining Frequent Items.} Finding the space lower bound for computing the HCCT online can be reconducted to the {\em frequent items} (a.k.a. heavy hitters) problem, which has been extensively studied in data streaming computational models. Given a frequency threshold $\phi\in[0,1]$ and a stream of length $N$, the problem (in its simplest formulation) is to find all items that appear in the stream at least $\lfloor\phi N\rfloor$ times, i.e., having frequency $\ge\lfloor\phi N\rfloor$. For instance, for $\phi=0.1$ the problem seeks all items that appear in the stream at least $10\%$ of the times. Notice that at most $1/\phi$ items can have frequency larger than $\lfloor\phi N\rfloor$.  It can be proved that any algorithm that outputs an exact solution requires $\Omega(N)$ bits, even using randomization~\cite{Muthukrishnan05}. Hence, researchers focused on solving an approximate version of the problem:
+
+\begin{definition} 
+{\mbox{$(\phi,\varepsilon)$-heavy hitters problem.}} Given two parameters $\phi,\varepsilon\in[0,1]$, with $\varepsilon<\phi$, an algorithm has to return all items with frequency $\ge\lfloor\phi N\rfloor$ and no item with frequency $\le\lfloor(\phi-\varepsilon) N\rfloor$.
+\end{definition} 
+
+\noindent In the approximate solution, false negatives are not allowed, i.e., all frequent items must be returned. Instead, some false positives can exist, but their actual frequency is guaranteed to be at most $\varepsilon N$-far from the threshold $\lfloor\phi N\rfloor$. For the HCCT construction, we focus on a variant of the problem where, besides returning the heavy hitters, it is necessary to estimate accurately their true frequencies, the stream length $N$ is not known in advance, and all items in the stream have the same weight.
+
+\paragraph*{Data Streaming Algorithms.} In the data streaming computational model, algorithms should be able to perform near-real time analyses on massive data streams, where input data come at a very high rate and cannot be stored entirely due to their huge, possibly unbounded size~\cite{Demetrescu07,Muthukrishnan05}. This line of research has been mainly motivated by networking and database applications: for instance, a relevant IP traffic analysis task consists of monitoring the packet log over a given link in order to estimate how many distinct IP addresses used that link in a given period of time. Since the stream may be very long and stream items may also be drawn from a very large universe (e.g., the set of source-destination IP address pairs), space-efficient data streaming algorithms can maintain a compact data structure that is dynamically updated upon arrival of new input data, supporting a variety of application-dependent queries. Approximate answers are allowed when it is impossible to obtain an exact solution using only limited space. Streaming algorithms are therefore designed to optimize space usage and update/query time while guaranteeing high solution quality.
+
+%For our purposes, we focus on counter-based algorithms that maintain frequency estimates for the heavy hitters from an unweighted stream of items whose length is not known in advance.
+
+%track a subset of items from the input and monitor counts associated with them. For each new arrival, the algorithms decide whether to store the item or not, and, if so, what counts to associate with it. Update times are typically dominated by a small (constant) number of dictionary or heap operations. These algorithms, according to extensive experimental studies~\cite{CH08}, have superior performance with respect to space, running time, and accuracy compared to other classes of algorithm for $(\phi,\varepsilon)$-heavy hitters that have been proposed in the literature in the last 10 years.
+
+%In this article we focus on counter-based algorithms that, according to extensive experimental studies~\cite{CH08}, have superior performance with respect to space, running time, and accuracy. Counter-based algorithms track a subset of items from the input and monitor counts associated with them. For each new arrival, the algorithms decide whether to store the item or not, and, if so, what counts to associate with it. Update times are typically dominated by a small (constant) number of dictionary or heap operations.
 
 \subsection{Algorithms}
 
@@ -92,3 +131,5 @@ A CCT can be constructed on-the-fly during the execution of a program. Let $v$ b
 \subsection{Comparison with Related Work}
 
 \subsection{Discussion}
+
+% dire dello spazio asintoticamente minore
