@@ -1,9 +1,10 @@
 \usepackage{color}
 \usepackage{listings}
 \usepackage{enumitem}
-%\usepackage{algorithm}
-\usepackage{algorithm2e}
-\usepackage{wrapfig}
+
+\let\oldnl\nl% Store \nl in \oldnl
+\newcommand{\nonl}{\renewcommand{\nl}{\let\nl\oldnl}}% Remove line number for one line
+
 %\usepackage{algorithm2e}
 %\usepackage{tabularx}
 

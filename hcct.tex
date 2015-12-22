@@ -159,39 +159,74 @@ Our $(\phi,\varepsilon)$-HCCT construction algorithm has to maintain the MCCT dy
 \end{description}
 %\end{enumerate}
 
+\ifauthorea{}{\par\begingroup \parfillskip 0pt \relax}
 \noindent As with the CCT, during the construction of the MCCT we maintain a cursor pointer that points to the current calling context, creating a new node if the current context $x$ is encountered for the first time. Additionally, we prune the MCCT according to the victim contexts returned by the streaming {\tt update} operation (these contexts are no longer monitored in M). The pseudocode of the pruning algorithm is given in \myalgorithm\ref{alg:hcct-update}. Since the tree must remain connected, victims can be removed from
+\ifauthorea{}{\par\endgroup}
 
 \ifdefined\noauthorea
-  \begin{wrapfigure}{L}{0.5\textwidth}
-    \begin{minipage}{0.5\textwidth}
-      \begin{algorithm}[H]
-	\SetAlgoNoLine
+\begin{figure}[h!]
+\IncMargin{2em}
+\begin{algorithm}[H]
+\LinesNumbered
+\SetAlgoNoLine
+\SetNlSkip{1.5em} 
+\Indm\Indmm
+\nonl\hrulefill\\
+\KwIn{MCCT; node $x$ to be pruned.}
+\KwOut{Pruned MCCT.}
 \vspace{-2mm}\hrulefill\\
-	\KwIn{MCCT; node $x$ to be pruned.}
-	\KwOut{Pruned MCCT.}
-\vspace{-2mm}\hrulefill\\
-	$V$ $\gets$ {\tt update}(x, M);\\
-	\ForEach{context $v\in V\,\backslash \{x\}$}{
-	    \While{$(v$ is a leaf in MCCT$)$ $\wedge$ $(v\not\in$ M$)$}{
-	        remove $v$ from MCCT\\
-	        $v$ $\gets$ parent$(v)$
-	}
-	}
-	\vspace{-2mm}
-\hrulefill\vspace{1mm}
-      \caption{On-line pruning algorithm.}
-      \label{alg:hcct-update}
-      \end{algorithm}
-    \end{minipage}
-  \end{wrapfigure}
+\Indp\Indpp
+$V$ $\gets$ {\tt update}(x, M);\\
+\ForEach{context $v\in V\,\backslash \{x\}$}{
+    \While{$(v$ is a leaf in MCCT$)$ $\wedge$ $(v\not\in$ M$)$}{
+        remove $v$ from MCCT\\
+        $v$ $\gets$ parent$(v)$
+    }
+}
+\vspace{-2mm}
+\Indm\Indmm
+\nonl\hrulefill\vspace{1mm}\\
+\DecMargin{2em}
+\caption{\label{alg:hcct-update} Online pruning algorithm for MCCT construction.}
+\end{algorithm}
+\end{figure}
+
+
 \noindent
-\fi the MCCT only if they are leaves. Moreover, removing a victim might expose a path of unmonitored ancestors that no longer have descendants in M: these nodes are pruned as well. The node for the current context $x$ is never removed from the MCCT, even if the context is not necessarily monitored in M. This guarantees that no node in the path from the tree root to $x$ will be removed: these nodes have at least $x$ as a descendant and the leaf test (line 3 in Algorithm~\ref{alg:hcct-update}) will always fail.
+\fi
+the MCCT only if they are leaves. Moreover, removing a victim might expose a path of unmonitored ancestors that no longer have descendants in M: these nodes are pruned as well. The node for the current context $x$ is never removed from the MCCT, even if the context is not necessarily monitored in M. This guarantees that no node in the path from the tree root to $x$ will be removed: these nodes have at least $x$ as a descendant and the leaf test (line 3 in \myalgorithm\ref{alg:hcct-update}) will always fail.
 A similar pruning strategy can be used to compute the $(\phi,\varepsilon)$-HCCT from the MCCT. The streaming {\tt query} operation is first invoked on M, returning the support A of the $(\phi,\varepsilon)$-HCCT. All MCCT nodes that have no descendant in A are then removed, following bottom-up path traversals as in the prune operation.
 
+\ifx\noauthorea\undefined
+\begin{figure}[ht]
+\begin{small}
+\begin{minipage}{0.9\textwidth}
+\hrulefill\\
+\textbf{Input}: {MCCT; node $x$ to be pruned.}\\
+\textbf{Output}: {Pruned MCCT.}
+
+\vspace{-1mm}
+\hrulefill\\
+1. ~~ $V$ $\gets$ {\tt update}(x, M);\\
+2. ~~ \textbf{foreach} context $v\in V\,\backslash \{x\}$ \textbf{do}\\
+3. ~~ ~~~~ \textbf{while} $(v$ is a leaf in MCCT$)$ $\wedge$ $(v\not\in$ M$)$ \textbf{do}\\
+4. ~~ ~~~~ ~~~~ remove $v$ from MCCT\\
+5. ~~ ~~~~ ~~~~ $v$ $\gets$ parent$(v)$\\
+6. ~~ ~~~~ \textbf{end}\\
+7. ~~ \textbf{end}
+
+\vspace{-1mm}
+\hrulefill
+\vspace{-2mm}
+\caption{\label{alg:hcct-update} Online pruning algorithm for MCCT construction.}
+\end{minipage}
+\end{small}
+\end{figure}
+\fi
 
 %Algorithmic details on updating and querying M and MCCT are given in \mysection\ref{ss:hcct-algorithms}.
 
-\subsection{Implementation}
+%\subsection{Implementation}
 
 \subsection{Comparison with Related Work}
 
