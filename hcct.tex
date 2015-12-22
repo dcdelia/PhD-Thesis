@@ -72,8 +72,6 @@ In a performance profiling scenario, we remark that only the most frequent conte
 
 \paragraph*{Contributions.} In this thesis, we introduce a novel run-time data structure, called {\em Hot Calling Context Tree (HCCT)}, that compactly represents all the hot calling contexts encountered during a program's execution, offering an additional intermediate point in the spectrum of data structures for representing interprocedural control flow. The HCCT is a subtree of the CCT that includes only hot nodes and their ancestors, also maintaining estimates of performance metrics (e.g., frequency counts) for hot calling contexts. We cast the problem of identifying the most frequent contexts into a data streaming setting: we show that the HCCT can be computed without storing the exact frequency of all calling contexts, by using fast and space-efficient algorithms for mining frequent items in data streams. These algorithms allow us to distinguish between hot and cold contexts on the fly, with the accuracy of maintained frequency estimates being formally guaranteed.
 
-%~\cite{}
-
 %Context-sensitive profiling provides 
 %These algorithms allow us to distinguish between hot and cold context on-the-fly, and we show both theoretically and experimentally that for collected metrics the HCCT achieves a similar precision as the CCT in a space that is several orders of magnitude smaller. We show on prominent benchmarks that our implementation, shipping as a plugin for the \gcc\ compiler, incurs a slowdown competitive with the \gprof\ profiler while collecting much finer-grained profiles.
 
@@ -162,8 +160,8 @@ Our $(\phi,\varepsilon)$-HCCT construction algorithm has to maintain the MCCT dy
 \ifauthorea{}{\par\begingroup \parfillskip 0pt \relax}
 \noindent As with the CCT, during the construction of the MCCT we maintain a cursor pointer that points to the current calling context, creating a new node if the current context $x$ is encountered for the first time. Additionally, we prune the MCCT according to the victim contexts returned by the streaming {\tt update} operation (these contexts are no longer monitored in M). The pseudocode of the pruning algorithm is given in \myalgorithm\ref{alg:hcct-update}. Since the tree must remain connected, victims can be removed from
 \ifauthorea{}{\par\endgroup}
-
 \ifdefined\noauthorea
+
 \begin{figure}[h!]
 \IncMargin{2em}
 \begin{algorithm}[H]
@@ -229,6 +227,24 @@ A similar pruning strategy can be used to compute the $(\phi,\varepsilon)$-HCCT 
 %\subsection{Implementation}
 
 \subsection{Comparison with Related Work}
+
+CCTs have been introduced in~\cite{Ammons97} as a practical data structure to associate performance metrics with paths through a program's call graph: Ammons, Ball, and Larus suggest to build a CCT by instrumenting procedure code and to compute metrics by exploiting hardware counters available in modern processors. It has been later observed, however, that exhaustive instrumentation can incur large slowdowns.
+
+\paragraph*{Reducing Overhead.} To reduce the overhead from instrumentation, in~\cite{Bernat07} the authors generate path profiles including only methods of interest, while statistical profilers~\cite{Arnold00,Froyd05,Hall93,Whaley00} attribute metrics to calling contexts through periodic sampling of the call stack. For call-intensive programs, sample-driven stack-walking can be orders of magnitude faster than exhaustive instrumentation, but may incur significant loss of accuracy with respect to the complete CCT: sampling guarantees neither high coverage~\cite{Bond07} nor accuracy of performance metrics~\cite{Zhuang06}, and its results may be highly inconsistent in different executions.
+
+A variety of works explores the combination of sampling with bursting~\cite{Arnold01,Hirzel01,Zhuang06}. Most recently, Zhuang {\em et al.} suggest to perform stack-walking followed by a burst during which the profiler traces every routine call and return~\cite{Zhuang06}: experiments show that adaptive bursting can yield very accurate results. In~\cite{Serrano09}, the profiler infrequently collects small call traces that are merged afterwards to build large calling context trees: ambiguities might emerge during this process, and the lack of information about where the partial CCTs should be merged to does not allow reconstructing the entire CCT univocally.
+
+The main goal of all these works is to reduce profiling overhead without incurring significant loss of accuracy. Our approach is orthogonal to this line of research and regards space efficiency as an additional resource optimization criterion besides profile accuracy and time efficiency. When the purpose of profiling is to identify hot contexts, exhaustive instrumentation, sampling, and bursting might all be combined with our approach and benefit of our space reduction technique.
+
+In a recent work~\cite{Huang13}, a novel data structure is proposed to avoid the node lookup operation in dynamic bug detectors. A new node is instead allocated for each context, and the costs of allocations are mitigated by extending the garbage collector not only to collect unused node, but also to merge duplicate ones lazily.
+
+\paragraph*{Reducing Space.} A few previous works have addressed techniques to reduce profile data (or at least the amount of data presented to the user) in context sensitive profiling. Incremental call-path profiling lets the user choose a subset of routines to be analyzed~\cite{Bernat07}. Call path refinement helps users focus the attention on performance bottlenecks by limiting and aggregating the information revealed to the user~\cite{Hall95}. These works are quite different in spirit from our approach, where only hot contexts are profiled and identified automatically during program's execution.
+
+Probabilistic calling contexts have been introduced as an extremely compact representation (just a 32-bit value per context), especially useful for tasks such as residual testing, statistical bug isolation, and anomaly-based intrusion detection~\cite{Bond07}. Bond and McKinley target applications where coverage of both hot and cold contexts is necessary, but their inspection is unnecessary. This is not the case in performance analysis, where identifying and understanding a few hot contexts is typically sufficient to guide code optimization. Hence, although sharing with~\cite{Bond07} the common goal of space reduction, our approach targets a rather different application context.
+
+Somner et al. proposed a technique called {\em Precise Calling Context Encoding} (PCCE) that encodes acyclic paths in the call graph of a program into one number, while recursive call paths are divided into acyclic subsequences and encoded independently~\cite{Sumner12}. Different calling contexts are guaranteed to have different IDs that can be faithfully decoded, and experiments on a prototype implementation for C programs show negligible overhead. However, PCCE would not work in the presence of virtual methods and dynamic class loading in object-oriented languages, and the encoding scheme shows scalability problems when handling large-scale software~\cite{Bond10,Zeng14}. These limitations, which are absent from our solution, have been recently addressed in~\cite{Zeng14}, and it would be interesting to investigate whether their approach can be extended to collect performance metrics and in turn filter the collected data on-the-fly using a data streaming approach as we do in this work.
+
+%~\cite{}
 
 \subsection{Discussion}
 
