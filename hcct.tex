@@ -159,6 +159,33 @@ Our $(\phi,\varepsilon)$-HCCT construction algorithm has to maintain the MCCT dy
 \end{description}
 %\end{enumerate}
 
+\noindent As with the CCT, during the construction of the MCCT we maintain a cursor pointer that points to the current calling context, creating a new node if the current context $x$ is encountered for the first time. Additionally, we prune the MCCT according to the victim contexts returned by the streaming {\tt update} operation (these contexts are no longer monitored in M). The pseudocode of the pruning algorithm is given in \myalgorithm\ref{alg:hcct-update}. Since the tree must remain connected, victims can
+  
+  \begin{wrapfigure}{L}{0.5\textwidth}
+    \begin{minipage}{0.5\textwidth}
+      \begin{algorithm}[H]
+	\SetAlgoNoLine
+\vspace{-2mm}\hrulefill\\
+	\KwIn{MCCT; node $x$ to be pruned.}
+	\KwOut{Pruned MCCT.}
+\vspace{-2mm}\hrulefill\\
+	$V$ $\gets$ {\tt update}(x, M);\\
+	\ForEach{context $v\in V\,\backslash \{x\}$}{
+	    \While{$(v$ is a leaf in MCCT$)$ $\wedge$ $(v\not\in$ M$)$}{
+	        remove $v$ from MCCT\\
+	        $v$ $\gets$ parent$(v)$
+	}
+	}
+	\vspace{-2mm}
+\hrulefill\vspace{1mm}
+      \caption{On-line pruning algorithm.}
+      \label{alg:hcct-update}
+      \end{algorithm}
+    \end{minipage}
+  \end{wrapfigure}
+\noindent be removed from the MCCT only if they are leaves. Moreover, removing a victim might expose a path of unmonitored ancestors that no longer have descendants in M: these nodes are pruned as well. The node for the current context $x$ is never removed from the MCCT, even if the context is not necessarily monitored in M. This guarantees that no node in the path from the tree root to $x$ will be removed: these nodes have at least $x$ as a descendant and the leaf test (line 3 in Algorithm~\ref{alg:hcct-update}) will always fail.
+A similar pruning strategy can be used to compute the $(\phi,\varepsilon)$-HCCT from the MCCT. The streaming {\tt query} operation is first invoked on M, returning the support A of the $(\phi,\varepsilon)$-HCCT. All MCCT nodes that have no descendant in A are then removed, following bottom-up path traversals as in the prune operation.
+
 
 %Algorithmic details on updating and querying M and MCCT are given in \mysection\ref{ss:hcct-algorithms}.
 
