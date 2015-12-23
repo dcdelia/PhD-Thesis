@@ -16,14 +16,27 @@ While the original Ball-Larus approach was restricted to acyclic paths obtained 
 
 Different authors have proposed techniques to profile cyclic paths by modifying the original Ball-Larus path numbering scheme in order to identify paths that extend across multiple loop iterations~\cite{Tallam04,Roy09,Li12}. Unfortunately, all known solutions require rather complex algorithms that incur severe performance overheads even for short cyclic paths, leaving the interesting open question of finding simpler and more efficient alternative methods.
 
-\paragraph*{Contributions.}
+\paragraph*{Contributions.} In this thesis, we present a novel, data structure-based approach to multi-iteration path profiling. Our method stems from the observation that any cyclic execution path in the control flow graph of a routine can be described as a concatenation of Ball-Larus acyclic paths (BL paths). In particular, we show how to accurately profile {\em all executed paths} obtained as a concatenation of up to $k$ BL paths, where $k$ is a user-defined parameter. We reduce multi-iteration path profiling to the problem of counting $n$-grams, i.e., contiguous sequences of $n$ items from a given sequence. To compactly represent collected profiles, we organize them in a forest of prefix trees (or tries)~\cite{Fredkin60} of depth up to $k$, where each node is labeled with a BL path, and paths in a tree represent concatenations of BL paths that were actually executed by the program, along with their frequencies. We also present an efficient construction algorithm based on a variant of the \ksf\ data structure presented in~\cite{Ausiello12}. 
 
 \subsection{Approach}
 
+Differently from previous techniques~\cite{Tallam04,Roy09,Li12}, which rely on modifying the Ball-Larus path numbering to cope with cycles, our method does not	require
+\ifdefined\noauthorea
+\begin{wrapfigure}{l}{0.5\textwidth}
+\vspace{-2mm}
+\centering
+\includegraphics[width=0.45\textwidth]{figures/kblpp-approach/kblpp-approach.eps}
+\caption{\protect\input{figures/kblpp-approach/caption}}
+\end{wrapfigure}
+%\vspace{2mm}
+\noindent
+\fi
+any modification of the original numbering technique described in~\cite{Ball96}. The main idea behind our approach is to fully decouple the task of tracing Ball-Larus acyclic paths at run time from the task of concatenating and storing them in a data structure to keep track of multiple iterations. The decoupling is performed by letting the Ball-Larus profiling algorithm issue a stream of BL path IDs (see \myfigure\ref{fig:kblpp-approach}), where each ID is generated when a back edge in the control flow graph is traversed or the current procedure is abandoned. As a consequence of this modular approach, our method can be implemented on top of existing Ball-Larus path profilers, making it simpler to code and maintain.
+
+%~\cite{}
+
 \subsection{Algorithms}
 
-%\subsection{Implementation}
+\subsection{Discussion}
 
 \subsection{Comparison with Related Work}
-
-\subsection{Discussion}

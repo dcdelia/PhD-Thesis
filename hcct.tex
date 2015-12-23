@@ -64,7 +64,7 @@ In a performance profiling scenario, we remark that only the most frequent conte
 \ifdefined\noauthorea
 \begin{figure}[hb]
 \begin{center}
-\includegraphics[width=0.95\columnwidth]{figures/hcct-skewness/hcct-skewness.eps}
+\includegraphics[width=0.95\textwidth]{figures/hcct-skewness/hcct-skewness.eps}
 \caption{\protect\input{figures/hcct-skewness/caption}}
 \end{center}
 \end{figure}
@@ -99,7 +99,7 @@ The {\em Hot Calling Context Tree (HCCT)} is the (unique) subtree of the CCT obt
 \ifdefined\noauthorea
 \begin{figure}[ht]
 \begin{center}
-\includegraphics[width=0.95\columnwidth]{figures/hcct-example/hcct-example.eps}
+\includegraphics[width=0.95\textwidth]{figures/hcct-example/hcct-example.eps}
 \caption{\protect\input{figures/hcct-example/caption}}
 \end{center}
 \end{figure}
@@ -132,7 +132,7 @@ Given a set A of $(\phi,\varepsilon)$-heavy hitters, the {\em $(\phi,\varepsilon
 \ifdefined\noauthorea
 \begin{figure}[ht]
 \begin{center}
-\includegraphics[width=0.95\columnwidth]{figures/hcct-venn/hcct-venn.eps}
+\includegraphics[width=0.95\textwidth]{figures/hcct-venn/hcct-venn.eps}
 \caption{\protect\input{figures/hcct-venn/caption}}
 \end{center}
 \end{figure}
@@ -313,7 +313,19 @@ After a {\tt find-min} query, the lazy priority queue correctly returns the mini
 To analyze the running time, let $\Delta$ be the value of {\tt min} after $k$ {\tt find-min} and {\tt increment} operations. Since there are $|M|$ counters $\ge\Delta$, counters are initialized to $0$, and each {\tt increment} operation adds 1 to the value of a single counter, it must be $k\ge |M|\cdot\Delta$. For each distinct value assumed by {\tt min}, the array is scanned twice. We therefore have at most $2\cdot\Delta$ array scans each of length $|M|$, and the total cost of {\tt find-min} operations throughout the whole sequence of operations is upper bounded by $2\cdot|M|\cdot\Delta$. It follows that the amortized cost is $(2\cdot|M|\cdot\Delta)/k\leq 2$.
 \end{myproof}
 
-%\subsection{Implementation}
+\subsection{Discussion}
+
+Compared to the standard approach of maintaining the entire CCT, our solution requires storing the heavy hitters data structure M and the subtree MCCT spanning nodes in M. The space required by M depends on the specific streaming algorithm that is used as a subroutine and on the value chosen for the error threshold $\varepsilon$. For \spacesaving\, this space is proportional to $1/\varepsilon$ and can thus be customized by appropriately choosing $\varepsilon$, e.g., according to the desired accuracy or to the amount of available memory for profiling. Such a choice appears to be crucial for the effectiveness of our approach: smaller values of $\varepsilon$ guarantee more accurate results (i.e., fewer false positives and more precise counters), but imply a larger memory footprint. As we will see experimentally in Section \missing, the high skewness of context frequency distribution guarantees the existence of convenient tradeoffs between accuracy and space.
+
+The MCCT consists of nodes corresponding to contexts monitored in M and of all their ancestors, which may be cold contexts without a corresponding entry in M. Hence, the space required by the MCCT  dominates the space required by M. The number of cold ancestors is difficult to analyze theoretically: it depends on properties of the execution trace and on the structure of the calling context tree. In Section \missing\ we will show that in practice this amount is negligible compared to the size of M.
+
+Updates of the MCCT can be performed very quickly. As we will see in Section \missing, the streaming {\tt update} operation requires constant time. Moreover, we devise an implementation that hinges upon very simple and cache-efficient data structures, with no need for time-consuming hashing. A simple amortized analysis argument also shows that the amortized running time of tree pruning is constant.
+
+Unlike previous approaches such as, e.g., adaptive bursting~\cite{Zhuang06}, the MCCT adapts automatically to the case where the hot calling contexts vary over time, and new calling patterns are not likely to be lost. Contexts that are growing more popular are added to the tree as they become more frequent, while contexts that lose their popularity are gradually replaced by hotter contexts and are finally discarded. This guarantees that heavy hitters queries can be issued at any point in time, and will always be able to return the set of hot contexts up to that time.
+
+Our data streaming-based approach is orthogonal to previous techniques and can be integrated, e.g., with sampled stack-walking~\cite{Arnold00,Whaley00} or with more recent techniques such as static and adaptive bursting~\cite{Zhuang06}. We will show an example of integration with static bursting, which results in faster running times without substantially affecting accuracy.
+
+%In addition to frequency counts, it can be extended to support arbitrary performance metrics (e.g., execution time, cache misses, instruction stalls), exploiting the ability of some streaming algorithms to mine heavy hitters in weighted item sets.
 
 \subsection{Comparison with Related Work}
 
@@ -332,21 +344,3 @@ In a recent work~\cite{Huang13}, a novel data structure is proposed to avoid the
 Probabilistic calling contexts have been introduced as an extremely compact representation (just a 32-bit value per context), especially useful for tasks such as residual testing, statistical bug isolation, and anomaly-based intrusion detection~\cite{Bond07}. Bond and McKinley target applications where coverage of both hot and cold contexts is necessary, but their inspection is unnecessary. This is not the case in performance analysis, where identifying and understanding a few hot contexts is typically sufficient to guide code optimization. Hence, although sharing with~\cite{Bond07} the common goal of space reduction, our approach targets a rather different application context.
 
 Somner et al. proposed a technique called {\em Precise Calling Context Encoding} (PCCE) that encodes acyclic paths in the call graph of a program into one number, while recursive call paths are divided into acyclic subsequences and encoded independently~\cite{Sumner10,Sumner12}. Different calling contexts are guaranteed to have different IDs that can be faithfully decoded, and experiments on a prototype implementation for C programs show negligible overhead. However, PCCE would not work in the presence of virtual methods and dynamic class loading in object-oriented languages, and the encoding scheme shows scalability problems when handling large-scale software~\cite{Bond10,Zeng14}. These limitations, which are absent from our solution, have been recently addressed in~\cite{Zeng14}, and it would be interesting to investigate whether their approach can be extended to collect performance metrics and in turn filter the collected data on-the-fly using a data streaming approach as we do in this thesis.
-
-%\paragraph*{Other Related Work.} 
-
-%~\cite{}
-
-\subsection{Discussion}
-
-Compared to the standard approach of maintaining the entire CCT, our solution requires storing the heavy hitters data structure M and the subtree MCCT spanning nodes in M. The space required by M depends on the specific streaming algorithm that is used as a subroutine and on the value chosen for the error threshold $\varepsilon$. For \spacesaving\, this space is proportional to $1/\varepsilon$ and can thus be customized by appropriately choosing $\varepsilon$, e.g., according to the desired accuracy or to the amount of available memory for profiling. Such a choice appears to be crucial for the effectiveness of our approach: smaller values of $\varepsilon$ guarantee more accurate results (i.e., fewer false positives and more precise counters), but imply a larger memory footprint. As we will see experimentally in Section \missing, the high skewness of context frequency distribution guarantees the existence of convenient tradeoffs between accuracy and space.
-
-The MCCT consists of nodes corresponding to contexts monitored in M and of all their ancestors, which may be cold contexts without a corresponding entry in M. Hence, the space required by the MCCT  dominates the space required by M. The number of cold ancestors is difficult to analyze theoretically: it depends on properties of the execution trace and on the structure of the calling context tree. In Section \missing\ we will show that in practice this amount is negligible compared to the size of M.
-
-Updates of the MCCT can be performed very quickly. As we will see in Section \missing, the streaming {\tt update} operation requires constant time. Moreover, we devise an implementation that hinges upon very simple and cache-efficient data structures, with no need for time-consuming hashing. A simple amortized analysis argument also shows that the amortized running time of tree pruning is constant.
-
-Unlike previous approaches such as, e.g., adaptive bursting~\cite{Zhuang06}, the MCCT adapts automatically to the case where the hot calling contexts vary over time, and new calling patterns are not likely to be lost. Contexts that are growing more popular are added to the tree as they become more frequent, while contexts that lose their popularity are gradually replaced by hotter contexts and are finally discarded. This guarantees that heavy hitters queries can be issued at any point in time, and will always be able to return the set of hot contexts up to that time.
-
-Our data streaming-based approach is orthogonal to previous techniques and can be integrated, e.g., with sampled stack-walking~\cite{Arnold00,Whaley00} or with more recent techniques such as static and adaptive bursting~\cite{Zhuang06}. We will show an example of integration with static bursting, which results in faster running times without substantially affecting accuracy.
-
-%In addition to frequency counts, it can be extended to support arbitrary performance metrics (e.g., execution time, cache misses, instruction stalls), exploiting the ability of some streaming algorithms to mine heavy hitters in weighted item sets.
