@@ -224,6 +224,7 @@ A similar pruning strategy can be used to compute the $(\phi,\varepsilon)$-HCCT 
 \end{figure}
 \fi
 
+\ifauthorea{\newline}{}
 \paragraph*{Choosing a Streaming Algorithm.} {\em \spacesaving}~\cite{Metwally06} is a deterministic, counter-based algorithm for finding the heavy hitters and the top-$k$ elements~\cite{Charikar02} in data streams. The algorithm is space-optimal, as its requirements are within a constant factor of the lower bound for counter-based algorithms solving the $(\phi,\varepsilon)$-heavy hitters problem. Additionally, \spacesaving\ provides tight error guarantees on maintained frequency estimates. In an earlier work~\cite{Delia2011}, we presented a thorough
 experimental evaluation of the {\em Lossy Counting}~\cite{Manku02} algorithm, resulting in similar accuracy but higher running time and memory usage compared to \spacesaving. Experimental studies~\cite{Cormode08,Manerikar2009} also show that \spacesaving\ outperforms other counter-based algorithms across a wide range of data sets and parameters. For these reasons, in the remainder of this thesis we will focus on the \spacesaving\ algorithm only.
 
@@ -303,6 +304,7 @@ We (lazily) maintain the value {\tt min} of the minimum counter and the smallest
 \end{figure}
 \fi
 
+\ifauthorea{\newline}{}
 %Algorithmic details on updating and querying M and MCCT are given in \mysection\ref{ss:hcct-algorithms}.
 
 %\subsection{Implementation}
