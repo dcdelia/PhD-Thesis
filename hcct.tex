@@ -305,7 +305,13 @@ We (lazily) maintain the value {\tt min} of the minimum counter and the smallest
 \fi
 
 \ifauthorea{\newline}{}
-%Algorithmic details on updating and querying M and MCCT are given in \mysection\ref{ss:hcct-algorithms}.
+\begin{theorem}
+After a {\tt find-min} query, the lazy priority queue correctly returns the minimum counter value in O(1) amortized time.
+\end{theorem}
+\begin{myproof} Counters are never decremented. Hence, at any time, if a monitored item with counter equal to {\tt min} exists, it must be found in a position larger than or equal to {\tt min-idx}. This yields correctness.
+
+To analyze the running time, let $\Delta$ be the value of {\tt min} after $k$ {\tt find-min} and {\tt increment} operations. Since there are $|M|$ counters $\ge\Delta$, counters are initialized to $0$, and each {\tt increment} operation adds 1 to the value of a single counter, it must be $k\ge |M|\cdot\Delta$. For each distinct value assumed by {\tt min}, the array is scanned twice. We therefore have at most $2\cdot\Delta$ array scans each of length $|M|$, and the total cost of {\tt find-min} operations throughout the whole sequence of operations is upper bounded by $2\cdot|M|\cdot\Delta$. It follows that the amortized cost is $(2\cdot|M|\cdot\Delta)/k\leq 2$.
+\end{myproof}
 
 %\subsection{Implementation}
 
