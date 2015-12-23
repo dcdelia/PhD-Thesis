@@ -109,7 +109,9 @@ The {\em Hot Calling Context Tree (HCCT)} is the (unique) subtree of the CCT obt
 
 In the data streaming computational model, algorithms should be able to perform near-real time analyses on massive data streams, where input data come at a very high rate and cannot be stored entirely due to their huge, possibly unbounded size~\cite{Demetrescu07,Muthukrishnan05}. This line of research has been mainly motivated by networking and database applications: for instance, a relevant IP traffic analysis task consists of monitoring the packet log over a given link in order to estimate how many distinct IP addresses used that link in a given period of time. Space-efficient data streaming algorithms can maintain a compact data structure that is dynamically updated upon arrival of new input data, supporting a variety of application-dependent queries. Approximate answers are allowed when it is impossible to obtain an exact solution using only limited space. Streaming algorithms are therefore designed to optimize space usage and update/query time while guaranteeing high solution quality.
 
-\paragraph*{Finding Frequent Items in a Stream.} The problem of computing the HCCT online can be reconducted to the {\em frequent items} (a.k.a. heavy hitters) problem, which has been extensively studied in the data streaming model. Given a frequency threshold $\phi\in[0,1]$ and a stream of length $N$, the problem (in its simplest formulation) is to find all items that appear in the stream at least $\lfloor\phi N\rfloor$ times, i.e., having frequency $\ge\lfloor\phi N\rfloor$. For instance, for $\phi=0.1$ the problem seeks all items that appear in the stream at least $10\%$ of the times. Notice that at most $1/\phi$ items can have frequency larger than $\lfloor\phi N\rfloor$.  It can be proved that any algorithm that outputs an exact solution requires $\Omega(N)$ bits, even using randomization~\cite{Muthukrishnan05}. Note that this lower bound result extends to the problem of computing the HCCT, which thus cannot be calculated exactly in a space asymptotically smaller than the entire CCT. Hence, researchers have focused on solving an approximate version of the problem:
+\mynote{Requirements of dynamic program analysis}
+
+\paragraph*{Finding Frequent Items in a Stream.} The problem of computing the HCCT online can be reconducted to the {\em frequent items} (a.k.a. heavy hitters) problem, which has been extensively studied in the data streaming model. Given a frequency threshold $\phi\in[0,1]$ and a stream of length $N$, the problem (in its simplest formulation) is to find all items that appear in the stream at least $\lfloor\phi N\rfloor$ times, i.e., having frequency $\ge\lfloor\phi N\rfloor$. For instance, for $\phi=0.1$ the problem seeks all items that appear in the stream at least $10\%$ of the times. Notice that at most $1/\phi$ items can have frequency larger than $\lfloor\phi N\rfloor$.  It can be proved that any algorithm that outputs an exact solution requires $\Omega(N)$ bits, even using randomization~\cite{Muthukrishnan05}. Note that this lower bound result extends to the problem of computing the HCCT, which thus cannot be calculated exactly in a space asymptotically smaller than the entire CCT. Hence, researchers have focused on solving an approximate version of the heavy hitters problem~\cite{Muthukrishnan05}:
 
 \begin{definition} 
 {\mbox{$(\phi,\varepsilon)$-heavy hitters problem.}} Given two parameters $\phi,\varepsilon\in[0,1]$, with $\varepsilon<\phi$, an algorithm has to return all items with frequency $\ge\lfloor\phi N\rfloor$ and no item with frequency $\le\lfloor(\phi-\varepsilon) N\rfloor$.
@@ -117,7 +119,7 @@ In the data streaming computational model, algorithms should be able to perform 
 
 \noindent In the approximate solution, false negatives are not allowed, i.e., all frequent items must be returned. Instead, some false positives can exist, but their actual frequency is guaranteed to be at most $\varepsilon N$-far from the threshold $\lfloor\phi N\rfloor$. For the HCCT construction, we focus on a variant of the problem where, besides returning the heavy hitters, it is necessary to estimate accurately their true frequencies, the stream length $N$ is not known in advance, and all the items in the stream have equal weight.
 
-Counter-based streaming algorithms solve this problem by tracking a subset of items from the input and monitoring counts associated with them. For each new arrival, these algorithms decide whether to store the item or not, and, if so, what counts to associate with it. Update times are typically dominated by a small (constant) number of dictionary or heap operations. These algorithms, according to extensive experimental studies~\cite{Cormode08}, have superior performance with respect to space, running time, and accuracy compared to other classes of algorithm for $(\phi,\varepsilon)$-heavy hitters that have been proposed in the literature in the last 15 years.
+Counter-based streaming algorithms solve this problem by tracking a subset of items from the input and monitoring counts associated with them. For each new arrival, these algorithms decide whether to store the item or not, and, if so, what counts to associate with it. Update times are typically dominated by a small (constant) number of dictionary or heap operations. These algorithms, according to extensive experimental studies~\cite{Cormode08,Manerikar2009}, have superior performance with respect to space, running time, and accuracy compared to other classes of algorithm for $(\phi,\varepsilon)$-heavy hitters that have been proposed in the literature in the last 15 years.
 
 \paragraph*{Approximate HCCT.} Streaming algorithms for mining frequent items can be used to solve a relaxed version of the HCCT construction problem. We thus compute an {\em Approximate Hot Calling Context Tree} that we denote by {\em $(\phi,\varepsilon)$-HCCT}, where $\varepsilon<\phi$ controls the degree of approximation:
 
@@ -125,7 +127,7 @@ Counter-based streaming algorithms solve this problem by tracking a subset of it
 Given a set A of $(\phi,\varepsilon)$-heavy hitters, the {\em $(\phi,\varepsilon)$-HCCT} is the minimal subtree of the CCT spanning all the nodes in A and the CCT root.
 \end{definition}
 
-\noindent A $(\phi,\varepsilon)$-HCCT contains all hot nodes (true positives), but may possibly contain some cold nodes without hot descendants (false positives). The true frequency of these false positives, however, is guaranteed to be at least $\lfloor(\phi-\varepsilon) N\rfloor$. Unlike the HCCT, a $(\phi,\varepsilon)$-HCCT is not uniquely defined, since the set of $(\phi,\varepsilon)$-heavy hitters is not unique: nodes with frequencies smaller than $\lfloor\phi N\rfloor$ and larger than $\lfloor(\phi-\varepsilon) N\rfloor$ may be either in such a set or not depending on the streaming algorithm being used. On the other hand, the HCCT is always a subtree of any $(\phi,\varepsilon)$-HCCT.
+\noindent A $(\phi,\varepsilon)$-HCCT contains all hot nodes (true positives), but may possibly contain some cold nodes without hot descendants (false positives). The true frequency of these false positives, however, is guaranteed to be at least $\lfloor(\phi-\varepsilon) N\rfloor$. Unlike the HCCT, a $(\phi,\varepsilon)$-HCCT is not uniquely defined, since the set of $(\phi,\varepsilon)$-heavy hitters is not unique: nodes with frequencies smaller than $\lfloor\phi N\rfloor$ and larger than $\lfloor(\phi-\varepsilon) N\rfloor$ may be either in such a set or not depending on the streaming algorithm being used. On the other hand, the HCCT is always a subtree of any $(\phi,\varepsilon)$-HCCT, as the latter always contains the hot nodes and all their cold ancestors up to the CCT root.
 
 \ifdefined\noauthorea
 \begin{figure}[ht]
@@ -139,7 +141,7 @@ Given a set A of $(\phi,\varepsilon)$-heavy hitters, the {\em $(\phi,\varepsilon
 \subsection{Algorithms}
 \label{ss:hcct-algorithms}
 
-Computing a $(\phi,\varepsilon)$-HCCT online requires extending the canonical CCT construction algorithm with an online pruning strategy, which is implicitly driven by the actions of an underlying streaming algorithm. Constructing a CCT on-the-fly during the execution of a program is a straightforward task. Let $v$ be a cursor pointer that points to the current context, i.e., to the node corresponding to the calling context of the currently active routine ($v$ is initialized to the CCT root node). At each routine invocation, the algorithm checks whether $v$ has a child associated with the called routine. If this is the case, the existing child is used and its metrics are updated, if needed. Otherwise, a new child of $v$ is added to the CCT. In both cases, the cursor is moved to the callee. Upon routine termination, the cursor is moved back to the parent node in the CCT. Note that this approach can be implemented either by instrumenting every routine call and return or by performing stack-walking if sampling is used to inhibit redundant profiling~\cite{Arnold00,Whaley00,Zhuang06}.
+Computing a $(\phi,\varepsilon)$-HCCT online requires extending the canonical CCT construction algorithm with an online pruning strategy, driven by the underlying streaming algorithm. Constructing a CCT on-the-fly during the execution of a program is a straightforward task. Let $v$ be a cursor pointer that points to the current context, i.e., to the node corresponding to the calling context of the currently active routine ($v$ is initialized to the CCT root node). At each routine invocation, the algorithm checks whether $v$ has a child associated with the called routine. If this is the case, the existing child is used and its metrics are updated, if needed. Otherwise, a new child of $v$ is added to the CCT. In both cases, the cursor is moved to the callee. Upon routine termination, the cursor is moved back to the parent node in the CCT. Note that this approach can be implemented either by instrumenting every routine call and return or by performing stack-walking if sampling is used to inhibit redundant profiling~\cite{Arnold00,Whaley00,Zhuang06}.
 
 In order to computer the set A of $(\phi,\varepsilon)$-heavy hitters, counter-based streaming algorithms need to monitor a slightly larger set M$\,\supseteq\,$A of elements. Nodes in M$\,\setminus\,$A can be either ancestors of nodes in A and thus already in the $(\phi,\varepsilon)$-HCCT, or nodes not in the $(\phi,\varepsilon)$-HCCT; for the latter category, we have to retain information about their ancestors as well, which might not be in the $(\phi,\varepsilon)$-HCCT. We denote as MCCT the minimal subtree of the CCT spanning all the nodes in M and the CCT root. \myfigure\ref{fig:hcct-venn} graphically illustrates the relationships among all our data structures.
 
@@ -222,6 +224,85 @@ A similar pruning strategy can be used to compute the $(\phi,\varepsilon)$-HCCT 
 \end{figure}
 \fi
 
+\paragraph*{Choosing a Streaming Algorithm.} {\em \spacesaving}~\cite{Metwally06} is a deterministic, counter-based algorithm for finding the heavy hitters and the top-$k$ elements~\cite{Charikar02} in data streams. The algorithm is space-optimal, as its requirements are within a constant factor of the lower bound for counter-based algorithms solving the $(\phi,\varepsilon)$-heavy hitters problem. Additionally, \spacesaving\ provides tight error guarantees on maintained frequency estimates. In an earlier work~\cite{Delia2011}, we presented a thorough
+experimental evaluation of the {\em Lossy Counting}~\cite{Manku02} algorithm, resulting in similar accuracy but higher running time and memory usage compared to \spacesaving. Experimental studies~\cite{Cormode08,Manerikar2009} also show that \spacesaving\ outperforms other counter-based algorithms across a wide range of data sets and parameters. For these reasons, in the remainder of this thesis we will focus on the \spacesaving\ algorithm only.
+
+%Sticky Sampling~\cite{Manku02} is probabilistic: it fails to produce the correct answer with a minuscole probability, say $\delta$, and uses at most $\frac{2}{\varepsilon} \log(\phi^{-1}\delta^{-1})$ entries in its data structure. Lossy Counting~\cite{Manku02} is deterministic and maintains up to $\frac{1}{\varepsilon}\log(\varepsilon N)$ entries.
+
+\spacesaving\ monitors a set of $1/\varepsilon=|M|$ pairs of the form $(item, count)$, initialized by the first $1/\varepsilon$ distinct items and their exact counts. After the init phase, when a context $c$ is observed in the stream the {\tt update} operation works as follows: 
+
+\begin{enumerate}[parsep=0pt]
+\item if $c$ is monitored, the corresponding counter is incremented; 
+\item if $c$ is not monitored, the $(item, count)$ pair with the smallest count is chosen as a victim and has its item replaced with $c$ and its count incremented.
+\end{enumerate}
+
+\noindent It can be shown that the minimum counter value $min$ among monitored items is never greater than $\varepsilon N$, and that the maintained $count$ for a monitored element is an overestimation of its true frequency by at most $min$. The overestimation derives from the initial assignment of the $count$ from the evicted pair. Items that are stored early in the stream and never removed thus have very accurate frequency estimates.
+
+The update time is bounded by the dictionary operation of checking whether an item is monitored, and by the operations of finding and maintaining the item with minimum count. In our setting, we can avoid the dictionary operation by maintaining a flag for each node, which can directly be accessed for the current context using the cursor pointer to the MCCT.
+
+A {\tt query} operation is answered by returning entries in M such that $count \geq \lfloor\phi N\rfloor$.
+
+\paragraph*{Engineering \spacesaving.} In~\cite{Metwally06}, the authors present an implementation of \spacesaving\ based on the {\em Stream-Summary} data structure, which is essentially an ordered bucket list, where each bucket points to a list of items with the same count, and buckets are ordered by increasing count values. We devised a more efficient variant based on a lazy priority queue that uses an unordered array M of size $1/\varepsilon$, where each entry points to an MCCT node. The queue supports two operations, {\tt find-min} and {\tt increment}, which return the item with minimum count and increment a counter, respectively.
+
+We (lazily) maintain the value {\tt min} of the minimum counter and the smallest index {\tt min-idx} of an array entry that points to a monitored node with counter equal to {\tt min}. The {\tt increment} operation does not change M, since counters are stored directly inside MCCT nodes. However, {\tt min} and {\tt min-idx} may become temporarily out of date after an {\tt increment}: this is why we call the approach lazy. The {\tt find-min} operation described in \myalgorithm\ref{alg:hcct-findMin} restores the invariant property on {\tt min} and {\tt min-idx}: it finds the next index in M with counter equal to {\tt min}. If such an index does not exist, it completely rescans M in order to find a new {\tt min} value and its corresponding {\tt min-idx}.
+
+\ifdefined\noauthorea
+\begin{figure}[h!]
+\IncMargin{2em}
+\begin{algorithm}[H]
+\LinesNumbered
+\SetAlgoNoLine
+\SetNlSkip{1.5em} 
+\Indm\Indmm
+\nonl\hrulefill\\
+\KwIn{M, {\tt min}, and {\tt min-idx}.}
+\KwOut{Min value in the lazy priority queue.}
+\vspace{-2mm}\hrulefill\\
+\Indp\Indpp
+\While{$(M[$min-idx$] \neq$ min $)\,\wedge\,($ min-idx $\leq M)$}{
+    min-idx $\gets$ min-idx $+ 1$}
+\If{min-idx $> M$}{
+    min $\gets$ minimum in $M$ \\
+    min-idx $\gets$ smallest index $j$ s.t. $M[j] =$ min \\
+}
+\Return{min}\\
+\vspace{-2mm}
+\Indm\Indmm
+\nonl\hrulefill\vspace{1mm}\\
+\DecMargin{3.5em}
+\caption{\label{alg:hcct-findMin} {\tt find-min} operation used in {\em lazy} Space Saving.}
+\IncMargin{1.5em}
+\end{algorithm}
+\end{figure}
+
+\else
+\begin{figure}[ht]
+\caption{\label{alg:hcct-findMin} {\tt find-min} operation used in {\em lazy} Space Saving.}
+\begin{small}
+\begin{minipage}{0.9\textwidth}
+\hrulefill\\
+\textbf{Input}: {M, {\tt min}, and {\tt min-idx}.}\\
+\textbf{Output}: {Min value in the lazy priority queue.}
+
+\vspace{-1mm}
+\hrulefill\\
+1. ~~ \textbf{while} $(M[$min-idx$] \neq$ min $)\,\wedge\,($ min-idx $\leq M)$ \textbf{do}\\
+2. ~~ ~~~~ min-idx $\gets$ min-idx $+ 1$\\
+3. ~~ \textbf{end}\\
+4. ~~ \textbf{if} min-idx $> M$ \textbf{then}\\
+5. ~~ ~~~~ min $\gets$ minimum in $M$\\
+6. ~~ ~~~~ min-idx $\gets$ smallest index $j$ s.t. $M[j] =$ min\\
+7. ~~ \textbf{end}\\
+8. ~~ \textbf{return} min
+
+\vspace{-1mm}
+\hrulefill
+\vspace{-2mm}
+\end{minipage}
+\end{small}
+\end{figure}
+\fi
+
 %Algorithmic details on updating and querying M and MCCT are given in \mysection\ref{ss:hcct-algorithms}.
 
 %\subsection{Implementation}
@@ -242,10 +323,22 @@ In a recent work~\cite{Huang13}, a novel data structure is proposed to avoid the
 
 Probabilistic calling contexts have been introduced as an extremely compact representation (just a 32-bit value per context), especially useful for tasks such as residual testing, statistical bug isolation, and anomaly-based intrusion detection~\cite{Bond07}. Bond and McKinley target applications where coverage of both hot and cold contexts is necessary, but their inspection is unnecessary. This is not the case in performance analysis, where identifying and understanding a few hot contexts is typically sufficient to guide code optimization. Hence, although sharing with~\cite{Bond07} the common goal of space reduction, our approach targets a rather different application context.
 
-Somner et al. proposed a technique called {\em Precise Calling Context Encoding} (PCCE) that encodes acyclic paths in the call graph of a program into one number, while recursive call paths are divided into acyclic subsequences and encoded independently~\cite{Sumner12}. Different calling contexts are guaranteed to have different IDs that can be faithfully decoded, and experiments on a prototype implementation for C programs show negligible overhead. However, PCCE would not work in the presence of virtual methods and dynamic class loading in object-oriented languages, and the encoding scheme shows scalability problems when handling large-scale software~\cite{Bond10,Zeng14}. These limitations, which are absent from our solution, have been recently addressed in~\cite{Zeng14}, and it would be interesting to investigate whether their approach can be extended to collect performance metrics and in turn filter the collected data on-the-fly using a data streaming approach as we do in this work.
+Somner et al. proposed a technique called {\em Precise Calling Context Encoding} (PCCE) that encodes acyclic paths in the call graph of a program into one number, while recursive call paths are divided into acyclic subsequences and encoded independently~\cite{Sumner10,Sumner12}. Different calling contexts are guaranteed to have different IDs that can be faithfully decoded, and experiments on a prototype implementation for C programs show negligible overhead. However, PCCE would not work in the presence of virtual methods and dynamic class loading in object-oriented languages, and the encoding scheme shows scalability problems when handling large-scale software~\cite{Bond10,Zeng14}. These limitations, which are absent from our solution, have been recently addressed in~\cite{Zeng14}, and it would be interesting to investigate whether their approach can be extended to collect performance metrics and in turn filter the collected data on-the-fly using a data streaming approach as we do in this thesis.
+
+%\paragraph*{Other Related Work.} 
 
 %~\cite{}
 
 \subsection{Discussion}
 
-% dire dello spazio asintoticamente minore
+Compared to the standard approach of maintaining the entire CCT, our solution requires storing the heavy hitters data structure M and the subtree MCCT spanning nodes in M. The space required by M depends on the specific streaming algorithm that is used as a subroutine and on the value chosen for the error threshold $\varepsilon$. For \spacesaving\, this space is proportional to $1/\varepsilon$ and can thus be customized by appropriately choosing $\varepsilon$, e.g., according to the desired accuracy or to the amount of available memory for profiling. Such a choice appears to be crucial for the effectiveness of our approach: smaller values of $\varepsilon$ guarantee more accurate results (i.e., fewer false positives and more precise counters), but imply a larger memory footprint. As we will see experimentally in Section \missing, the high skewness of context frequency distribution guarantees the existence of convenient tradeoffs between accuracy and space.
+
+The MCCT consists of nodes corresponding to contexts monitored in M and of all their ancestors, which may be cold contexts without a corresponding entry in M. Hence, the space required by the MCCT  dominates the space required by M. The number of cold ancestors is difficult to analyze theoretically: it depends on properties of the execution trace and on the structure of the calling context tree. In Section \missing\ we will show that in practice this amount is negligible compared to the size of M.
+
+Updates of the MCCT can be performed very quickly. As we will see in Section \missing, the streaming {\tt update} operation requires constant time. Moreover, we devise an implementation that hinges upon very simple and cache-efficient data structures, with no need for time-consuming hashing. A simple amortized analysis argument also shows that the amortized running time of tree pruning is constant.
+
+Unlike previous approaches such as, e.g., adaptive bursting~\cite{Zhuang06}, the MCCT adapts automatically to the case where the hot calling contexts vary over time, and new calling patterns are not likely to be lost. Contexts that are growing more popular are added to the tree as they become more frequent, while contexts that lose their popularity are gradually replaced by hotter contexts and are finally discarded. This guarantees that heavy hitters queries can be issued at any point in time, and will always be able to return the set of hot contexts up to that time.
+
+Our data streaming-based approach is orthogonal to previous techniques and can be integrated, e.g., with sampled stack-walking~\cite{Arnold00,Whaley00} or with more recent techniques such as static and adaptive bursting~\cite{Zhuang06}. We will show an example of integration with static bursting, which results in faster running times without substantially affecting accuracy.
+
+%In addition to frequency counts, it can be extended to support arbitrary performance metrics (e.g., execution time, cache misses, instruction stalls), exploiting the ability of some streaming algorithms to mine heavy hitters in weighted item sets.
