@@ -1,13 +1,15 @@
 \section{Interprocedural Profiling}
 
-The first contribution we present in this thesis is an {\em interprocedural} technique for identifying the calling context that are most frequently encountered across function invocations at run-time. We show that the traditional approach for constructing a {\em Calling Context Tree} (CCT) might not be sustainable for real-world applications, as their CCTs often consist of tens of millions of nodes, making them difficult to analyze and also hurting execution time because of poor access locality. We thus introduce a novel data structure, the {\em Hot Calling Context Tree} (HCCT), in the spectrum of representations for interprocedural control flow. The HCCT is defined as the subtree of the CCT containing only its most visited nodes, which we call {\em hot}, along with their ancestors, and can be constructed independently of the CCT using fast, space-efficient algorithms for mining frequent items in data stream.
+%The first contribution we present in this thesis is an {\em interprocedural} technique for identifying the calling context that are most frequently encountered across function invocations at run-time. We show that the traditional approach for constructing a {\em Calling Context Tree} (CCT) might not be sustainable for real-world applications, as their CCTs often consist of tens of millions of nodes, making them difficult to analyze and also hurting execution time because of poor access locality. We thus introduce a novel data structure, the {\em Hot Calling Context Tree} (HCCT), in the spectrum of representations for interprocedural control flow. The HCCT is defined as the subtree of the CCT containing only its most visited nodes, which we call {\em hot}, along with their ancestors, and can be constructed independently of the CCT using fast, space-efficient algorithms for mining frequent items in data stream.
+
+The first contribution we present in this thesis is an interprocedural technique for mining at run-time the most frequently encountered calling contexts for function invocations. We show that the traditional approach for constructing a {\em Calling Context Tree} (CCT) might not be sustainable for real-world applications, as their CCTs often consist of tens of millions of nodes, making them difficult to analyze and also hurting execution time because of poor access locality. We thus introduce a novel data structure, the {\em Hot Calling Context Tree} (HCCT), in the spectrum of representations for interprocedural control flow. The HCCT is defined as the subtree of the CCT containing only its most frequently visited nodes, which we call {\em hot}, and their ancestors. We show how to construct it independently of the CCT using fast, space-efficient algorithms for mining frequent items in data stream.
 
 \subsection{Motivation and Contributions}
 The dynamic {\em calling context} of a routine invocation is defined as the sequence of functions that are concurrently active on the run-time stack. A calling context leads to an exact program location, as it corresponds to the sequence of un-returned calls from a program’s root function to the routine invocation it is associated with.
 
-Context-sensitive profiling information provides valuable information for program understanding, performance analysis, and runtime optimizations. Previous works demonstrated its effectiveness for tasks such as residual testing~\cite{PavlopoulouY99,Vaswani07}, function inlining~\cite{Chang92}, statistical bug isolation~\cite{Feng03,Liblit03}, performance bug detection~\cite{Nistor13}, object allocation analysis~\cite{Nethercote07}, event logging~\cite{Zhang06}, or anomaly-based intrusion detection~\cite{Bond07}.
+Context-sensitive profiling information provides valuable information for program understanding, performance analysis, and runtime optimizations. Previous works demonstrated its effectiveness for tasks such as residual testing~\cite{PavlopoulouY99,Vaswani07}, function inlining~\cite{Chang92}, statistical bug isolation~\cite{Feng03,Liblit03}, performance bug detection~\cite{Nistor13}, object allocation analysis~\cite{Nethercote07}, event logging~\cite{Zhang06}, and anomaly-based intrusion detection~\cite{Bond07}.
 % this is a sync with PCCE paper
-Calling-context information can also be employed in unit test generation~\cite{Villazon09}, testing of sensor network applications~\cite{Lai08}, and reverse engineering of protocol formats~\cite{Lin08}.
+Calling-context information has also been employed in reverse engineering of protocol formats~\cite{Lin08}, unit test generation~\cite{Villazon09}, and testing of sensor network applications~\cite{Lai08}.
 
 \begin{table}[ht]
 \begin{small}
@@ -15,6 +17,7 @@ Calling-context information can also be employed in unit test generation~\cite{V
 \begin{tabular}{|l|r r r r|}
 \hline
 Application & $|$Call graph$|$ & Call sites & $|$CCT$|$ & $|$Call tree$|$\\
+\hline
 \hline
 amarok & 13\,754 & 113\,362 & 13\,794\,470 & 991\,112\,563 \\
 ark & 9\,933 & 76\,547 & 8\,171\,612 & 216\,881\,324 \\
@@ -34,7 +37,8 @@ pidgin & 7\,195 & 80\,028 & 10\,743\,073 & 404\,787\,763 \\
 quanta & 13\,263 & 113\,850 & 27\,426\,654 & 602\,409\,403 \\
 sudoku & 5\,340 & 49\,885 & 2\,794\,177 & 325\,944\,813 \\
 vlc & 5\,692 & 47\,481 & 3\,295\,907 & 125\,436\,877 \\
-%\hline
+\hline
+\hline
 botan & 3\,388 & 27\,114 & 308\,550 & 26\,272\,804\,980 \\
 cairo-perf-trace & 1\,408 & 3\,696 & 137\,920 & 15\,976\,619\,734 \\
 crafty & 107 & 516 & 36\,434\,095 & 10\,403\,074\,070 \\
@@ -48,12 +52,14 @@ sjeng & 57 & 221 & OOM & 28\,370\,207\,811 \\
 \hline
 \end{tabular}
 \vspace{4mm}
-\caption{\label{tab:hcct-CCTsize} Number of nodes of call graph, call tree, calling context tree, and number of distinct call sites for different applications. OOM stands for {\em Out Of Memory} (i.e., the CCT is too large to be constructed in main memory on a 32-bit architecture). Game PlanetPenguin Racer has been run on courses {\tt mount-herring} and {\tt ice-labyrinth}; similarly, game SuperTuxKart has been run on tracks {\tt overworld} and {\tt scotland}. }
+\caption{\label{tab:hcct-CCTsize} Number of nodes of call graph, call tree, calling context tree, and number of distinct call sites for different applications. OOM stands for {\em Out Of Memory} (i.e., the CCT is too large to be constructed in main memory on a 32-bit architecture). We defer the description of the applications and their workloads to Section \missing.
+%Game PlanetPenguin Racer has been run on courses {\tt mount-herring} and {\tt ice-labyrinth}; similarly, game SuperTuxKart has been run on tracks {\tt overworld} and {\tt scotland}.
+}
 \end{small}
 \end{table}
 \ifauthorea{\newline}{\vspace{-6mm}}
 
-\mynote{Add reference to related work section for the CCT}
+\mynote{Add reference to related work section for the CCT?}
 Calling context trees (CCTs) offer a compact representation for context-sensitive information. In fact, a CCT yields a more accurate profile than a {\em call graph} (which can sometimes drive to misleading conclusions~\cite{Ponder88, Spivey04}) in a space that is typically several orders of magnitude smaller than the one required to maintain a {\em call tree}. Many techniques have also been proposed over the years to reduce the overhead for its construction.
 %, by trading accuracy for performance.
 

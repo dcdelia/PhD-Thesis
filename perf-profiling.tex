@@ -1,7 +1,7 @@
 \chapter{Performance Profiling Techniques}
 \label{ch:profiling}
 
-In this chapter, we present two run-time analyses for collecting fine-grained profiling information that are based on efficient and elegant algorithmic techniques. The first analysis is {\em interprocedural} and focuses on identifying the calling contexts of function invocations that are most frequently encountered during the execution of a program. The second analysis works instead at the {\em intraprocedural} level and identifies cyclic paths that are taken in the control-flow graph of a procedure, thus spanning multiple loop iterations. Both techniques can provide valuable information for program understanding and performance analysis, as they can be used to direct optimizations to portions of the code where most resources are consumed.
+In this chapter, we present two run-time analyses for collecting fine-grained profiling information based on efficient and elegant algorithmic techniques. The first analysis is {\em interprocedural} and focuses on identifying the calling contexts of function invocations that are most frequently encountered during the execution of a program. The second analysis works at {\em intraprocedural} level and identifies cyclic paths that are taken in the control-flow graph of a procedure, thus spanning multiple loop iterations. Both techniques can provide valuable information for program understanding and performance analysis, as they can be used to direct optimizations to portions of the code where most resources are consumed.
 
 \ifdefined\noauthorea
 \input{hcct}

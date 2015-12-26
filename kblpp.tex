@@ -182,6 +182,78 @@ Property~2 implies that, for each tree $T_1$ in the $k$-IPF there is a tree $T_2
 
 \subsection{Algorithms}
 
+We observe that building explicitly a \kipf\ concurrently with a program's execution would require updating up to $k$ nodes for each traced BL path: indeed, this may considerably slow down the program even for small values of $k$. Given a stream of BL path IDs, we show that a \kipf\ profile can be constructed by maintaining an intermediate data structure that can be updated quickly, and then converting it into a \kipf\
+%more efficiently
+when the stream is over. As intermediate data structure, we use a variant of the {\em $k$-slab forest} (\ksf) introduced in~\cite{Ausiello12}.
+
+\paragraph*{Main idea.} The variant of the \ksf\ we present in this paper is tailored to keep track of all the $n$-grams from a sequence of symbols, for all $n\le k$. The organization of our data structure stems from the following simple observation: if we partition a sequence into chunks of length $k-1$, then any subsequence of length up to $k$ will be entirely contained within two consecutive chunks of the partition. The main idea is therefore to consider all subsequences that start at the beginning of a chunk and terminate at the end of the next chunk, and join them in a prefix forest. Such a forest will contain information for all subsequences of length up to $k$ starting in an arbitrary position of the stream, and also for subsequences of length up to $2k-2$ starting at the beginning of a chunk. Moreover, this forest will contain a distinct tree for each distinct symbol that appears at the beginning of any chunk.
+
+The partition of the sequence into chunks induces a division of the forest into upper and lower regions ({\em slabs}) of height up to $k-1$. As we will see later on in this section, this organization implies that the \ksf\ can be constructed on-line as stream items are revealed to the profiler by adding or updating up to two nodes of the forest at a time, instead of $k$ nodes as we would do if we incremented explicitly the frequencies of $n$-grams as soon as they are encountered in the stream.
+
+%The following example applies the concepts described above to a stream of BL path IDs.
+
+\ifdefined\noauthorea
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{figures/kblpp-ksf/kblpp-ksf.eps}
+\caption{\protect\input{figures/kblpp-ksf/caption}}
+\vspace{-2mm}
+\end{center}
+\end{figure}
+\fi
+
+\begin{example} 
+\label{ex:kblpp-ksf}
+Let us consider again the example given in \myfigure\ref{fig:kblpp-example}. For $k=4$, we can partition the stream into maximal chunks of up to $k-1=3$ consecutive BL path IDs as follows: $$\Sigma=\langle *, \underbrace{\framebox{6, 2, 0}}_{c_1}, \underbrace{\framebox{0, 2, 2}}_{c_2}, \underbrace{\framebox{0, 0, 2}}_{c_3}, \underbrace{\framebox{2, 0, 0}}_{c_4}, \underbrace{\framebox{2, 3}}_{c_5}\rangle.$$
+The $4$-SF of $\Sigma$, defined in terms of chunks $c_1, \ldots, c_5$, is shown in \myfigure\ref{fig:kblpp-ksf}. Notice for instance that 2-gram $\langle 0,0\rangle$ occurs three times in $\Sigma$ and five times in the $4$-SF. However, only three of them end in the bottom slab and hence are counted in the frequency counters.
+\end{example}
+
+\noindent To obtain a \kipf\ starting from the \ksf, for each BL path ID that appears in the stream we
+%will
+eventually construct the set of nodes in the \ksf\ associated with it and join the subsequences of length up to $k$ starting from those nodes into a prefix forest.
+
+%Before presenting our algorithms, we provide a formal definition of the \ksf:
+
+\begin{definition}[$k$-slab forest]
+\label{def:kblpp-ksf}
+Let $k\ge 2$ and let $c_1, c_2, c_3, \ldots,$ $c_m$ be the chunks of $\Sigma$ obtained by: (1) splitting $\Sigma$ at $*$ markers, (2) removing the markers, and (3) cutting the remaining subsequences every $k-1$ consecutive items. The {\em $k$-slab forest} (\ksf) of $\Sigma$ is defined as $\ksf={\cal F}(L)$, where $L=\{$list of all prefixes of $c_1\cdot c_2$ and all prefixes of length $\ge k$ of $c_i\cdot c_{i+1}$, $\forall i\in [2,m-1]\}$ and $c_i\cdot c_{i+1}$ denotes the concatenation of $c_i$ and $c_{i+1}$.
+\end{definition}
+
+\noindent By \mydefinition\ref{def:kblpp-ksf}, since each chunk $c_i$ has length up to $k-1$, then a \ksf\ has at most $2k-2$ levels and depth $2k-3$. As observed above, the correctness of the \ksf\ representation stems from the fact that, since each occurrence of an $n$-gram with $n\le k$ appears in $c_i\cdot c_{i+1}$ for some $i$, then there is a tree in the \ksf\ representing it.
+
+\begin{example} In accordance with \mydefinition\ref{def:kblpp-ksf}, the forest of \myfigure\ref{fig:kblpp-ksf} for the stream of \myexample\ref{ex:kblpp-ksf} is ${\cal F}(L)$, where $L=\langle$ $
+\langle 6\rangle, 
+\langle 6, 2\rangle, 
+\langle 6, 2, 0\rangle, 
+\langle 6, 2, 0, 0\rangle, 
+\langle 6, 2, 0, 0,$
+$
+2\rangle,
+\langle 6, 2, 0, 0, 2, 2\rangle,
+%\langle 0\rangle, 
+%\langle 0, 2\rangle, 
+%\langle 0, 2, 2\rangle, 
+\langle 0, 2, 2, 0\rangle, 
+\langle 0, 2, 2, 0, 0\rangle, 
+\langle 0, 2, 2, 0, 0, 2\rangle,
+%\langle 0\rangle,
+%\langle 0, 0\rangle,
+%\langle 0, 0, 2\rangle,
+\langle 0, 0, 2, 2\rangle,
+\langle 0, 0,2,$ $2, 0\rangle,
+\langle 0,$
+$
+0, 2, 2, 0, 0\rangle,
+%\langle 2\rangle,
+%\langle 2, 0\rangle,
+%\langle 2, 0, 0\rangle,
+\langle 2, 0, 0, 2\rangle,
+\langle 2, 0, 0, 2, 3\rangle
+%\langle 2\rangle,
+%\langle 2, 3\rangle
+\rangle$.
+\end{example}
+
 \subsection{Discussion}
 
 %\noindent A prefix forest ${\cal F}(L)$ compactly encodes all sequences in $L$, by representing only once common prefixes and repetitions of the same sequences in $L$.

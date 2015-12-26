@@ -8,6 +8,7 @@ figures/hcct-venn/hcct-venn.png
 kblpp.tex
 figures/kblpp-approach/kblpp-approach.png
 figures/kblpp-example/kblpp-example.png
+figures/kblpp-ksf/kblpp-ksf.png
 continuous-opt.tex
 experiments.tex
 case-studies.tex
