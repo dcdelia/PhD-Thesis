@@ -176,7 +176,9 @@ A \kipf\ has some relevant properties:
 
 \noindent By Property~1, since path counters are non-negative, they are monotonically non-increasing as we walk down the tree. The inequality $\ge$ in Property~1 may be strict ($>$) if the execution trace of a routine invocation does not end at the exit basic block; this may be the case when a subroutine call is performed at an internal node of the CFG. 
 
-Property~2 implies that, for each tree $T_1$ in the $k$-IPF there is a tree $T_2$ in the $(k+1)$-IPF such that $T_2$ is equal to $T_1$ after removing leaves at level $k+1$, i.e., $T_1$ is a subtree of $T_2$ starting at the root of $T_2$. Notice that a 1-IPF includes only acyclic paths and yields exactly the same counters as a Ball-Larus profiler~\cite{Ball96}.
+Property~2 implies that, for each tree $T_1$ in the $k$-IPF there is a tree $T_2$ in the $(k+1)$-IPF such that $T_2$ is equal to $T_1$ after removing leaves at level $k+1$.
+%, i.e., $T_1$ is a subtree of $T_2$ starting at the root of $T_2$.
+Notice that a 1-IPF includes only acyclic paths and yields exactly the same counters as a Ball-Larus profiler~\cite{Ball96}.
 
 %~\cite{}
 
@@ -306,9 +308,10 @@ $n\gets n+1$\;
 \vspace{-2mm}
 \Indm\Indmm
 \nonl\hrulefill\vspace{1mm}\\
-\DecMargin{2em}
+\DecMargin{1.5em}
 \caption{\label{alg:kblpp-ksf-algorithm} Stream processing algorithm for \ksf\ construction.}
 %\IncMargin{0em}
+\DecMargin{0.5em}
 \end{algorithm}
 \end{figure}
 
@@ -318,7 +321,7 @@ $n\gets n+1$\;
 \begin{small}
 \begin{minipage}{0.9\textwidth}
 \hrulefill\\
-Sorry, I still have to typeset it for Authorea :-) Check GitHub instead.
+\algmissing\
 
 \vspace{-1mm}
 \hrulefill
@@ -342,7 +345,123 @@ Both $\tau$ and $\beta$ are updated to point to the child labeled with $r$ (line
 
 As an informal proof that each subsequence of length up to $k$ is counted exactly once in the \ksf, we first observe that, if the subsequence extends across two consecutive chunks, then it appears exactly once in the forest (connecting a node in the upper slab to a node in the lower slab). In contrast, if the subsequence is entirely contained in a chunk, then it appears twice: once in the upper slab of the tree rooted at the beginning of the chunk, and once in the lower slab rooted in at the beginning of the preceding chunk. However, only the counter in the lower part of the forest is updated (line 27): for this reason, the sum of all counters in the \ksf\ is equal to the length of the stream.
 
+\paragraph*{k-SF to k-IPF conversion.} Once the stream $\Sigma$ is over, i.e., the profiling phase has terminated, we convert the \ksf\ into a \kipf\ using the procedure {\tt make\_k\_ipf} shown in \myalgorithm\ref{alg:kblpp-ksf-to-kipf}.
+The key intuition behind the correctness of the conversion algorithm is that for each sequence in the stream of length up to $k$, there is a tree in the \ksf\ containing it.
+
+\ifdefined\noauthorea
+%\ifx\noauthorea\undefined
+\begin{figure}[hb!]
+\IncMargin{2em}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\LinesNumbered
+\SetAlgoNoLine
+\SetNlSkip{1em} 
+\Indm\Indmm
+\hrulefill\\
+$\mathbf{procedure} \> \> \texttt{make\_k\_ipf}$():\;
+\vspace{1mm}
+\everypar={\nl}
+\Indp\Indpp
+$I\gets\emptyset$\;
+\ForEach{\textsf{\rm node} $\rho\in k\textsf{\rm -SF}$}{
+  \If{$\ell(\rho)\not\in I$}{
+    add $\ell(\rho)$ to $I$ and let $s(\ell(\rho))\gets\emptyset$\;
+  }
+  add $\rho$ to $s(\ell(\rho))$\;
+}
+let the \kipf\ be formed by a dummy root $\phi$\;
+\ForEach{$r\in I$}{
+  \ForEach{$\rho\in s(r)$}{
+    {\tt join\_subtree}$(\rho,\phi,k)$\;
+  }
+}
+remove dummy root $\phi$ from the \kipf\;
+\vspace{-2mm}
+\Indm\Indmm
+\nonl\hrulefill\vspace{1mm}\\
+\DecMargin{3.5em}
+\caption{\label{alg:kblpp-ksf-to-kipf} Algorithm for converting a \ksf\ into a \kipf.}
+\IncMargin{1.5em}
+\end{algorithm}
+\end{figure}
+
+\else
+\begin{figure}[ht]
+\caption{\label{alg:kblpp-ksf-to-kipf} Algorithm for converting a \ksf\ into a \kipf.}
+\begin{small}
+\begin{minipage}{0.9\textwidth}
+\hrulefill\\
+\algmissing\
+
+\vspace{-1mm}
+\hrulefill
+\vspace{-2mm}
+\end{minipage}
+\end{small}
+\end{figure}
+\fi
+
+\noindent The algorithm creates a set $I$ of all distinct path IDs that occur in the \ksf\ and for each $r$ in $I$ builds a set $s(r)$ containing all nodes $\rho$ of the \ksf\ labeled with $r$ (lines 2--7). To build the \kipf, the algorithm lists each distinct path ID $r$ and joins to the \kipf\ all subtrees of depth up to $k-1$ rooted at a node in $s(r)$ in the \ksf, as children of a dummy root, which is added for the sake of convenience and then removed. The join operation is specified by procedure {\tt join\_subtree} (\myalgorithm\ref{alg:kblpp-join-subtrees}), which performs a traversal of a subtree of the \ksf\ of depth less than $k$ and adds nodes to \kipf\ so that all labeled paths in the subtree appear in the \kipf\ as well, but only once. Path counters in the \ksf\ are accumulated in the corresponding nodes of the \kipf\ to keep track of the number of times each distinct path consisting of the concatenation of up to $k$ BL paths was taken by the profiled program.
+
+\ifdefined\noauthorea
+%\ifx\noauthorea\undefined
+\begin{figure}[ht!]
+\IncMargin{2em}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\LinesNumbered
+\SetAlgoNoLine
+\SetNlSkip{1em} 
+\Indm\Indmm
+\hrulefill\\
+$\mathbf{procedure} \> \> \texttt{join\_subtree}$($\rho,\gamma,d$):\;
+\vspace{1mm}
+\everypar={\nl}
+\Indp\Indpp
+$\delta\gets$ child of $\gamma$ in the \kipf\ s.t. $\ell(\delta)=\ell(\rho)$\;
+\eIf{$\delta={\tt null}$}{
+  add new node $\delta$ as a child of $\gamma$ in the \kipf\;
+  $\ell(\delta)\gets\ell(\rho)$ and $c(\delta)\gets c(\rho)$\;
+}{
+  $c(\delta)\gets c(\delta)+c(\rho)$\;
+}
+\If{$d>1$}{
+  \ForEach{\textsf{\rm child} $\sigma$ \textsf{\rm of} $\rho$ \textsf{\rm in the} $k\textsf{\rm -SF}$}{
+    {\tt join\_subtree}$(\sigma, \delta, d-1)$\;
+  }
+}
+\vspace{-2mm}
+\Indm\Indmm
+\nonl\hrulefill\vspace{1mm}\\
+\DecMargin{1.0em}
+\caption{\label{alg:kblpp-join-subtrees} Subroutine for joining trees during \ksf\ conversion.}
+%\IncMargin{1.5em}
+\DecMargin{1.0em}
+\end{algorithm}
+\end{figure}
+
+\else
+\begin{figure}[ht]
+\caption{\label{alg:kblpp-join-subtrees} Subroutine for joining trees during \ksf\ conversion.}
+\begin{small}
+\begin{minipage}{0.9\textwidth}
+\hrulefill\\
+\algmissing\
+
+\vspace{-1mm}
+\hrulefill
+\vspace{-2mm}
+\end{minipage}
+\end{small}
+\end{figure}
+\fi
+
+\mynote{Cost of conversion? Also, give some intuition on why the various steps are needed!}
+
 \subsection{Discussion}
+
+\missing
 
 %\noindent A prefix forest ${\cal F}(L)$ compactly encodes all sequences in $L$, by representing only once common prefixes and repetitions of the same sequences in $L$.
 
