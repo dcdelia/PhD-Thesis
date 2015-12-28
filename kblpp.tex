@@ -254,6 +254,94 @@ $
 \rangle$.
 \end{example}
 
+\paragraph*{k-SF construction algorithm.} Given a stream $\Sigma$ formed by BL path IDs and $*$ markers, which we remind the reader denote routine entry events, the \ksf\ of $\Sigma$ can be constructed by calling the procedure {\tt process\_bl\_path\_id}$(r)$ shown in \myalgorithm\ref{alg:kblpp-ksf-algorithm} on each item $r$ of $\Sigma$. The streaming algorithm, which is a variant of the \ksf\ construction algoritm given in~\cite{Ausiello12} for the different setting of bounded-length calling contexts, keeps the following information:
+
+\ifdefined\noauthorea
+%\ifx\noauthorea\undefined
+\begin{figure}[ht!]
+\IncMargin{2em}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\LinesNumbered
+\SetAlgoNoLine
+\SetNlSkip{1em} 
+\Indm\Indmm
+\hrulefill\\
+$\mathbf{procedure} \> \> \texttt{process\_bl\_path\_id}$($r$):\;
+\vspace{1mm}
+\everypar={\nl}
+\Indp\Indpp
+\If{$r=*$}{
+  $n\gets 0$\;
+  $\tau\gets{\tt null}$\;
+  \Return{}
+}
+%\eIf{$n$ $\bf{\textsf{\tt mod}}$ $(k-1)=0$}{
+\eIf{$n$ $\textsf{\rm mod}$ $(k-1)=0$}{
+  $\beta\leftarrow \tau$\;
+  $\tau\,\leftarrow\,${\tt find$(R,r)$}\;
+  \If{$\tau = \textsf{\tt null}$}{
+    add root $\tau$ with $\ell(\tau)=r$ and $c(\tau)=0$ to \ksf\ and $R$\;
+  }
+}{
+  find child $\omega$ of node $\tau$ with label $\ell(\omega)=r$\;
+  \If{$\omega$ = \textsf{\tt null}}{
+    add node $\omega$ with $\ell(\omega)=r$ and $c(\omega)=0$ to \ksf\;
+    add arc $(\tau,\omega)$ to \ksf\;
+  }
+  $\tau\leftarrow \omega$\;
+}
+\eIf{$\beta\neq{\textsf{\tt null}}$}{
+  find child $\upsilon$ of node $\beta$ with label $\ell(\upsilon)=r$\;
+  \If{$\upsilon = \textsf{\tt null}$}{
+    add node $\upsilon$ with $\ell(\upsilon)=r$ and $c(\upsilon)=0$ to \ksf\;
+    add arc $(\beta,\upsilon)$ to \ksf\;
+  }
+  $\beta\leftarrow \upsilon$\;
+  $c(\beta)\gets c(\beta)+1$\;
+}{
+  $c(\tau)\gets c(\tau)+1$\;
+}
+$n\gets n+1$\;
+\vspace{-2mm}
+\Indm\Indmm
+\nonl\hrulefill\vspace{1mm}\\
+\DecMargin{2em}
+\caption{\label{alg:kblpp-ksf-algorithm} Stream processing algorithm for \ksf\ construction.}
+%\IncMargin{0em}
+\end{algorithm}
+\end{figure}
+
+\else
+\begin{figure}[ht]
+\caption{\label{alg:kblpp-ksf-algorithm} Stream processing algorithm for \ksf\ construction.}
+\begin{small}
+\begin{minipage}{0.9\textwidth}
+\hrulefill\\
+Sorry, I still have to typeset it for Authorea :-) Check GitHub instead.
+
+\vspace{-1mm}
+\hrulefill
+\vspace{-2mm}
+\end{minipage}
+\end{small}
+\end{figure}
+\fi
+
+\begin{itemize}[parsep=0pt]
+\item a hash table $R$, initially empty, containing pointers to the roots of trees in the \ksf, hashed by node labels; since no two roots have the same label, the lookup operation {\tt find}$(R, r)$ returns the pointer to the root containing label $r$, or {\tt null} if no such root exists;
+\item a variable $n$ that counts the number of BL path IDs processed since the last $*$ marker;
+\item a variable $\tau$ (top) that points either to {\tt null} or to the current \ksf\ node in the upper part of the forest (levels 0 through $k-2$);
+\item a variable $\beta$ (bottom) that points either to {\tt null} or to the current \ksf\ node in the lower part of the forest (levels $k-1$ through $2k-3$).
+\end{itemize}
+
+\noindent
+The main idea of the algorithm is to progressively add new paths to an initially empty \ksf. The path formed by the first $k-1$ items since the last $*$ marker is added to one tree of the upper part of the forest. Each later item $r$ is added at up to two different locations of the \ksf: one in the upper part of the forest (lines 13--17) as a child of node $\tau$ (if no child of $\tau$ labeled with $r$ already exists), and the other one in the lower part of the forest (lines 21--25) as a child of node $\beta$ (if no child of $\beta$ labeled with $r$ already exists). Counters of processed nodes already containing $r$ are incremented by one (either line 27 or line 29).
+
+Both $\tau$ and $\beta$ are updated to point to the child labeled with $r$ (lines 18 and 26, respectively). The running time of the algorithm is dominated by lines 8 and 10 (hash table accesses), and by lines 13 and 21 (node children scan). Assuming that operations on $R$ require constant time, the per-item processing time is $O(\delta)$, where $\delta$ is the maximum degree of a node in the \ksf. {\bf Our experiments revealed that $\delta$ is on average a typically small constant value}.
+
+As an informal proof that each subsequence of length up to $k$ is counted exactly once in the \ksf, we first observe that, if the subsequence extends across two consecutive chunks, then it appears exactly once in the forest (connecting a node in the upper slab to a node in the lower slab). In contrast, if the subsequence is entirely contained in a chunk, then it appears twice: once in the upper slab of the tree rooted at the beginning of the chunk, and once in the lower slab rooted in at the beginning of the preceding chunk. However, only the counter in the lower part of the forest is updated (line 27): for this reason, the sum of all counters in the \ksf\ is equal to the length of the stream.
+
 \subsection{Discussion}
 
 %\noindent A prefix forest ${\cal F}(L)$ compactly encodes all sequences in $L$, by representing only once common prefixes and repetitions of the same sequences in $L$.
