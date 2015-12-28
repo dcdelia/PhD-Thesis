@@ -466,3 +466,9 @@ $\delta\gets$ child of $\gamma$ in the \kipf\ s.t. $\ell(\delta)=\ell(\rho)$\;
 %\noindent A prefix forest ${\cal F}(L)$ compactly encodes all sequences in $L$, by representing only once common prefixes and repetitions of the same sequences in $L$.
 
 \subsection{Comparison with Related Work}
+
+The seminal work of Ball and Larus~\cite{Ball96} has spawned much research interest in the development of new path profiling techniques in the last 15 years. In particular, several works focus on profiling acyclic paths with a lower overhead by using sampling techniques~\cite{Bond05,Bond05b} or choosing a subset of {\em interesting} paths~\cite{Apiwattanapong02,Joshi04,Vaswani07}.
+%or using one-time instrumentation that is later removed~\cite{Structural Path Profiling}; 
+On the other hand, only a few works have dealt with cyclic-path profiling.
+
+Tallam \etal~\cite{Tallam04} extend the Ball-Larus path numbering algorithm to record slightly longer paths across loop back edges and procedure boundaries. The extended Ball-Larus paths overlap and, in particular, are shorter than two iterations for paths that cross loop boundaries. These overlapping paths enable very precise estimation of frequencies of potentially much longer paths, with an average imprecision in estimated total flow of those paths ranging from $-4\%$ to $+8\%$. However, experimental results also show that the average cost of collecting frequencies of overlapping paths is about 4.2 times that of canonical \blpp.
