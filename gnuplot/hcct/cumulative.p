@@ -12,6 +12,8 @@ set xrange [-1:100]
 set xtics 10
 #set yrange [0:100]
 set yrange [50:100]
+set mytics 2
+set mxtics 2
 set size ratio -1
 set grid
 
