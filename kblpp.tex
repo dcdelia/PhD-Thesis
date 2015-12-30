@@ -1,6 +1,6 @@
 \section{Intraprocedural Profiling}
 
-{\em Path profiling} is a powerful {\em intraprocedural} methodology for identifying performance bottlenecks in a program, and has received considerable attention in the last 15 years for its practical relevance. The well-known Ball-Larus numbering algorithm~\cite{Ball96} can efficiently encode {\em acyclic} paths that are taken across the control flow graph of a function. Previous attempts to extend it to {\em cyclic} paths - thus spanning multiple loop iterations - to capture more optimization opportunities, are based on rather complex algorithms that incur severe performance overheads even for short cyclic paths. In this thesis we present a new, data-structure based approach to {\em multi-iteration} path profiling built on top of the original Ball-Larus numbering technique. Starting from the observation that a cyclic path can be described as a concatenation of Ball-Larus acyclic paths, we show how to accurately profile all executed paths obtained as a concatenation of up to $k$ Ball-Larus paths, where $k$ is a user-defined parameter.
+{\em Path profiling} is a powerful {\em intraprocedural} methodology for identifying performance bottlenecks in a program, and has received considerable attention in the last 15 years for its practical relevance. The well-known Ball-Larus numbering algorithm~\cite{Ball96} can efficiently encode {\em acyclic} paths that are taken across the control flow graph of a function. Previous attempts to extend it to {\em cyclic} paths -- thus spanning multiple loop iterations -- to capture more optimization opportunities, are based on rather complex algorithms that incur severe performance overheads even for short cyclic paths. In this thesis we present a new, data-structure based approach to {\em multi-iteration} path profiling built on top of the original Ball-Larus numbering technique. Starting from the observation that a cyclic path can be described as a concatenation of Ball-Larus acyclic paths, we show how to accurately profile all executed paths obtained as a concatenation of up to $k$ Ball-Larus paths, where $k$ is a user-defined parameter.
 
 %{\em Path profiling} is a powerful {\em intraprocedural} methodology for identifying performance bottlenecks in a program, and has received considerable attention in the last 15 years for its practical relevance. The well-known Ball and Larus algorithm~\cite{Ball96} for {\em intraprocedural} path profiling can efficiently encode {\em acyclic} paths that are taken across the control-flow graph of a function. Previous attempts to extend it to encode {\em cyclic} paths, and thus to span multiple loop iterations in order to capture more optimization opportunities, are based on rather complex algorithms that incur severe performance overheads even for short cyclic paths. In this thesis we present a new, data-structure based approach to {\em multi-iteration} path profiling built on top of the original Ball-Larus numbering technique. Starting from the observation that any cyclic path can be described as a concatenation of Ball-Larus acyclic paths, we show how to accurately profile all executed paths obtained as a concatenation of up to $k$ Ball-Larus paths, where $k$ is a user-defined parameter.
 
@@ -124,10 +124,11 @@ $\mathbf{procedure} \> \> \texttt{bl\_path\_numbering}$():\;
 
 \ifdefined\noauthorea
 \begin{figure}[ht]
-\begin{center}
+%\begin{center}
+\centering
 \includegraphics[width=\textwidth]{figures/kblpp-example/kblpp-example.eps}
 \caption{\protect\input{figures/kblpp-example/caption}}
-\end{center}
+%\end{center}
 \end{figure}
 \fi
 
@@ -196,11 +197,10 @@ The partition of the sequence into chunks induces a division of the forest into 
 
 \ifdefined\noauthorea
 \begin{figure}[ht]
-\begin{center}
+\centering
 \includegraphics[width=0.8\textwidth]{figures/kblpp-ksf/kblpp-ksf.eps}
 \caption{\protect\input{figures/kblpp-ksf/caption}}
-\vspace{-2mm}
-\end{center}
+%\vspace{-2mm}
 \end{figure}
 \fi
 
@@ -465,7 +465,15 @@ $\delta\gets$ child of $\gamma$ in the \kipf\ s.t. $\ell(\delta)=\ell(\rho)$\;
 
 \subsection{Discussion}
 
-\missing
+Our profiling technique introduces a technical shift based on a smooth blend of the path numbering methods used in intraprocedural path profiling with data structure-based techniques typically adopted in interprocedural profiling, such as calling-context profiling. Our solution combines the original Ball-Larus path numbering technique with a prefix tree data structure to keep track of concatenations of acyclic paths across multiple loop iterations.
+
+As we will see in Section \missing, the key to efficiency of our approach is to replace costly hash table accesses with substantially faster operations on trees. This allows us to profile paths that extend across many loop iterations, while previous techniques do not scale well even for short cyclic paths. Profiling longer paths can reveal interesting optimization opportunities~\cite{Delia13}: in \mysection\ref{se:convolution} we present an optimization case study on masked convolution filters for image processing for which profiles collected for small values of $k$ would be ineffective.
+
+Maintaining a prefix forest during a program's execution would be too costly: we thus devise an intermediate data structure that supports updates in constant time. As a \ksf\ captures information on all distinct paths of bounded length taken at run time, its space requirements mainly depend on intrinsic structural properties of analyzed programs. To capture even longer paths, our technique might be extended with heuristics aiming at reducing space usage, for instance by periodically pruning branches of the \ksf\ with small frequency counters. Also, it can be integrated with sophisticated sampling techniques used for reducing time overhead in intraprocedural (e.g.,~\cite{Bond05}) and interprocedural (e.g,~\cite{Zhuang06} and Section \missing) profilers.
+
+
+
+%The space required to maintain the \ksf depends on intrin
 
 %\noindent A prefix forest ${\cal F}(L)$ compactly encodes all sequences in $L$, by representing only once common prefixes and repetitions of the same sequences in $L$.
 

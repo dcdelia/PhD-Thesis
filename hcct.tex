@@ -132,7 +132,7 @@ The practical requirements for the design of effective dynamic analysis tools, w
 
 \noindent In the approximate solution, {\em false negatives} are not allowed, i.e., all frequent items must be returned. Instead, some false positives can exist, but their actual frequency is guaranteed to be at most $\varepsilon N$-far from the threshold $\lfloor\phi N\rfloor$. For the HCCT construction, we focus on a variant of the problem where, besides returning the heavy hitters, it is necessary to estimate their true frequencies accurately, the stream length $N$ is not known in advance, and all the items in the stream have equal weight.
 
-Counter-based streaming algorithms solve this problem by tracking a subset of items from the input and monitoring counts associated with them. For each new arrival, the algorithms decide whether to store the item or not, and, if so, what counts to associate with it. Update times are typically dominated by a small (constant) number of dictionary or heap operations. These algorithms, according to extensive experimental studies~\cite{Cormode08,Manerikar2009}, have superior performance with respect to space, running time, and accuracy compared to other classes of algorithms for $(\phi,\varepsilon)$-heavy hitters
+Counter-based streaming algorithms solve this problem by tracking a subset of items from the input and monitoring counts associated with them. For each new arrival, the algorithms decide whether to store the item or not, and, if so, what counts to associate with it. Update times are typically dominated by a small (constant) number of dictionary or heap operations. These algorithms, according to extensive experimental studies~\cite{Cormode08,Manerikar09}, have superior performance with respect to space, running time, and accuracy compared to other classes of algorithms for $(\phi,\varepsilon)$-heavy hitters
 %that have been
 proposed in the literature in the last 15 years.
 
@@ -147,10 +147,11 @@ Given a set A of $(\phi,\varepsilon)$-heavy hitters, the {\em $(\phi,\varepsilon
 
 \ifdefined\noauthorea
 \begin{figure}[ht]
-\begin{center}
+%\begin{center}
+\centering
 \includegraphics[width=0.95\textwidth]{figures/hcct-venn/hcct-venn.eps}
 \caption{\protect\input{figures/hcct-venn/caption}}
-\end{center}
+%\end{center}
 \end{figure}
 \fi
 
@@ -215,6 +216,7 @@ $V$ $\gets$ {\tt update}(x, M);\\
 \fi
 the MCCT only if they are leaves. Moreover, removing a victim might expose a path of unmonitored ancestors that no longer have descendants in M: these nodes are pruned as well. The node for the current context $x$ is never removed from the MCCT, even if the context is not necessarily monitored in M. This guarantees that no node in the path from the tree root to $x$ will be removed: these nodes have at least $x$ as a descendant and the leaf test (line 3 in \myalgorithm\ref{alg:hcct-update}) will always fail. %Also, it simplifies the MCCT construction when [...]
 
+\noindent
 A similar pruning strategy can be used to compute the $(\phi,\varepsilon)$-HCCT from the MCCT. The streaming {\tt query} operation is first invoked on M, returning the support A of the $(\phi,\varepsilon)$-HCCT. All MCCT nodes that have no descendant in A are then removed, following bottom-up path traversals as in the prune operation.
 
 \ifx\noauthorea\undefined
@@ -246,8 +248,8 @@ A similar pruning strategy can be used to compute the $(\phi,\varepsilon)$-HCCT 
 
 \ifauthorea{\newline}{}
 \subsubsection*{Choosing a Streaming Algorithm}
-{\em \spacesaving}~\cite{Metwally06} is a deterministic, counter-based algorithm for finding the heavy hitters and the top-$k$ elements~\cite{Charikar02} in data streams. The algorithm is memory-efficient, as its space requirements are within a constant factor of the lower bound for counter-based algorithms solving the $(\phi,\varepsilon)$-heavy hitters problem. Additionally, \spacesaving\ provides tight error guarantees on maintained frequency estimates. In an earlier work~\cite{Delia2011}, we presented a thorough
-experimental evaluation of the {\em Lossy Counting}~\cite{Manku02} algorithm, resulting in similar accuracy but higher running time and memory usage compared to \spacesaving. Experimental studies~\cite{Cormode08,Manerikar2009} also show that \spacesaving\ outperforms other counter-based algorithms across a wide range of data sets and parameters. For these reasons, in the remainder of this thesis we will focus on the \spacesaving\ algorithm only.
+{\em \spacesaving}~\cite{Metwally06} is a deterministic, counter-based algorithm for finding the heavy hitters and the top-$k$ elements~\cite{Charikar02} in data streams. The algorithm is memory-efficient, as its space requirements are within a constant factor of the lower bound for counter-based algorithms solving the $(\phi,\varepsilon)$-heavy hitters problem. Additionally, \spacesaving\ provides tight error guarantees on maintained frequency estimates. In an earlier work~\cite{Delia11}, we presented a thorough
+experimental evaluation of the {\em Lossy Counting}~\cite{Manku02} algorithm, resulting in similar accuracy but higher running time and memory usage compared to \spacesaving. Experimental studies~\cite{Cormode08,Manerikar09} also show that \spacesaving\ outperforms other counter-based algorithms across a wide range of data sets and parameters. For these reasons, in the remainder of this thesis we will focus on the \spacesaving\ algorithm only.
 
 %Sticky Sampling~\cite{Manku02} is probabilistic: it fails to produce the correct answer with a minuscole probability, say $\delta$, and uses at most $\frac{2}{\varepsilon} \log(\phi^{-1}\delta^{-1})$ entries in its data structure. Lossy Counting~\cite{Manku02} is deterministic and maintains up to $\frac{1}{\varepsilon}\log(\varepsilon N)$ entries.
 
