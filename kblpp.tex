@@ -47,17 +47,17 @@ We let the Ball-Larus profiling algorithm issue a stream of BL path IDs, where e
 %\vspace{1em}
 
 %\noindent
-The first phase is almost identical to the original approach described in~\cite{Ball96}. The target program is statically analyzed and a control flow graph (CFG) is constructed for each routine of interest. The CFG is used to instrument the original program by inserting probes, which allow paths to be traced at run time. When the program is executed, taken acyclic paths are identified using the inserted probes. The main difference with the Ball-Larus approach is that, instead of directly updating a frequency counters table here, we emit a stream of path IDs, which is passed along to the next stage of the process. This allows us to decouple the task of tracing taken paths from the task of profiling them. 
+The first phase is almost identical to the original approach described in~\cite{Ball96}. The target program is statically analyzed and a control flow graph (CFG) is constructed for each routine of interest. The CFG is used to instrument the original program by inserting probes, which allow paths to be traced at run time. When the program is executed, taken acyclic paths are identified using the inserted probes. The main difference with the Ball-Larus approach is that, instead of directly updating a table of frequency counters here, we emit a stream of path IDs, which is passed along to the next stage of the process. This allows us to decouple the task of tracing taken paths from the task of profiling them. 
 
 The profiling phase can be either the original hash table-based method of~\cite{Ball96} used to maintain BL path frequencies
 %for larger programs
-(bottom-left of \myfigure\ref{fig:kblpp-approach}), or other approaches such as the one we propose, i.e., profiling concatenations of BL paths in a forest-based data structure (bottom-right of \myfigure\ref{fig:kblpp-approach}). Different profiling methods can be therefore cast into a common framework, increasing flexibility and helping us make more accurate comparisons.
+(bottom-left of \myfigure\ref{fig:kblpp-approach}), or other approaches such as the one we propose, i.e., profiling concatenations of BL paths in a forest-based data structure (bottom-right of \myfigure\ref{fig:kblpp-approach}). Different profiling methods can be therefore cast into a common framework, increasing flexibility and helping us make more accurate comparisons. %% among different techniques (but we meant BLPP right?)
 
 We start the description of our approach with a brief overview of the Ball-Larus path tracing technique, which we use as the first stage of our profiling technique.
 
 \subsubsection*{Ball-Larus Path Tracing Algorithm}
 
-The Ball-Larus path profiling (BLPP) technique~\cite{Ball96} identifies each acyclic path that is executed in a routine. Paths start on the method entry and terminate on the method exit. Since loops make the CFG cyclic, loop back edges are substituted by a pair of dummy edges: the first one from the method entry to the target of the loop back edge, and the second one from the source of the loop back edge to the method exit. After this transformation, which preserves the number of acyclic paths and is reversible, the CFG of a method becomes a directed acyclic graph (DAG), so that acyclic paths can be easily enumerated.
+The Ball-Larus path profiling (BLPP) technique~\cite{Ball96} identifies each acyclic path that is executed in a routine. Paths start on the method entry and terminate on the method exit. Since loops make the CFG cyclic, loop back edges are substituted by a pair of dummy edges: the first one goes from the method entry to the target of the loop back edge, and the second one from the source of the loop back edge to the method exit. After this transformation, which preserves the number of acyclic paths and is reversible, the CFG of a method becomes a directed acyclic graph (DAG), and acyclic paths can be easily enumerated.
 
 \ifdefined\noauthorea
 \begin{figure}[h!]
@@ -151,7 +151,7 @@ Let $L=\langle x_1, x_2, \ldots, x_q\rangle$ be any list of finite-length sequen
 \end{enumerate}
 \end{definition}
 
-\noindent By \mydefinition\ref{de:kblpp-prefix-forest}, each sequence in $L$ is represented as a path in the forest, and node labels in the path are exactly the symbols of the sequence, in the same order. The notion of minimality implies that, by removing even one single node, there would be at least one sequence of $L$ not counted in the forest. Observe that there is a distinct root in the forest for each distinct symbol that occurs as first symbol of a sequence.
+\noindent By \mydefinition\ref{de:kblpp-prefix-forest}, each sequence in $L$ is represented as a path in the forest, and node labels in the path are exactly the symbols of the sequence, in the same order. The notion of minimality implies that, by removing even one single node, there would be at least one sequence of $L$ not counted in the forest. Note that there is a distinct root in the forest for each distinct symbol that occurs as first symbol of a sequence.
 
 %\paragraph*{k-iteration path forest.}
 The output of the second stage of our profiling technique is a prefix forest, which we call {\em k-Iteration Path Forest} (\kipf), that compactly represents all observed contiguous sequences of up to $k$ BL path IDs:
@@ -179,13 +179,13 @@ A \kipf\ has some relevant properties:
 
 Property~2 implies that, for each tree $T_1$ in the $k$-IPF there is a tree $T_2$ in the $(k+1)$-IPF such that $T_2$ is equal to $T_1$ after removing the leaves at level $k+1$.
 %, i.e., $T_1$ is a subtree of $T_2$ starting at the root of $T_2$.
-Notice also that a 1-IPF includes acyclic paths only, and yields exactly the same counters as a canonical Ball-Larus path profiler~\cite{Ball96}.
+Notice also that a 1-IPF includes acyclic paths only, and yields exactly the same counters as a canonical Ball-Larus path profiler. %~\cite{Ball96}.
 
 %~\cite{}
 
 \subsection{Algorithms}
 
-We observe that building explicitly a \kipf\ concurrently with a program's execution would require updating up to $k$ nodes for each traced BL path: indeed, this may considerably slow down the program even for small values of $k$. Given a stream of BL path IDs, we show in this section that a \kipf\ profile can be constructed by maintaining an intermediate data structure that can be updated quickly, and then converting it into a \kipf\
+We observe that building explicitly a \kipf\ concurrently with a program's execution would require updating up to $k$ nodes for each traced BL path: indeed, this may considerably slow down the program even for small values of $k$. In this section we show that, given a stream of BL path IDs, a \kipf\ profile can be constructed by maintaining an intermediate data structure that can be updated quickly, and then converting it into a \kipf\
 %more efficiently
 when the stream is over. As intermediate data structure, we use a variant of the {\em $k$-slab forest} (\ksf) introduced in~\cite{Ausiello12}.
 
@@ -350,7 +350,7 @@ As an informal proof that each subsequence of length up to $k$ is counted exactl
 we convert the \ksf\ into a \kipf\ using the procedure
 %{\tt make\_k\_ipf}
 shown in \myalgorithm\ref{alg:kblpp-ksf-to-kipf}.
-The key intuition behind the correctness of the conversion algorithm is that for each sequence in the stream of length up to $k$, there is a tree in the \ksf\ containing it (with exact count).
+The key intuition behind the correctness of the conversion algorithm is that for each sequence in the stream of length up to $k$, there is a tree in the \ksf\ containing it.
 
 \ifdefined\noauthorea
 %\ifx\noauthorea\undefined
@@ -465,12 +465,11 @@ $\delta\gets$ child of $\gamma$ in the \kipf\ s.t. $\ell(\delta)=\ell(\rho)$\;
 
 \subsection{Discussion}
 
-Our profiling technique introduces a technical shift based on a smooth blend of the path numbering methods used in intraprocedural path profiling with data structure-based techniques typically adopted in interprocedural profiling, such as calling-context profiling. Our solution combines the original Ball-Larus path numbering technique with a prefix tree data structure to keep track of concatenations of acyclic paths across multiple loop iterations.
+Our multi-iteration path profiling technique introduces a technical shift based on a smooth blend of the path numbering methods used in intraprocedural path profiling with data structure-based techniques typically adopted in interprocedural profiling, such as calling-context profiling. Our solution combines the original Ball-Larus path numbering technique with a prefix tree data structure to keep track of concatenations of acyclic paths across multiple loop iterations.
 
-As we will see in Section \missing, the key to efficiency of our approach is to replace costly hash table accesses with substantially faster operations on trees. This allows us to profile paths that extend across many loop iterations, while previous techniques do not scale well even for short cyclic paths. Profiling longer paths can reveal interesting optimization opportunities~\cite{Delia13}: in \mysection\ref{se:convolution} we present an optimization case study on masked convolution filters for image processing for which profiles collected for small values of $k$ would be ineffective.
+Maintaining a prefix forest during a program's execution would be too costly: we thus devise an intermediate data structure that supports updates in nearly constant time (i.e., proportional to the degree of the node, which is typically small in practice). As a \ksf\ captures information on all distinct paths of bounded length taken at run time, its space requirements mainly depend on intrinsic structural properties of analyzed programs. To capture even longer paths, our technique might be extended with heuristics aiming at reducing space usage, for instance by periodically pruning branches of the \ksf\ with small frequency counters. Also, it might be integrated with sophisticated sampling techniques for reducing time overhead used in intraprocedural (e.g.,~\cite{Bond05}) and interprocedural (e.g,~\cite{Zhuang06} and Section \missing) profilers.
 
-Maintaining a prefix forest during a program's execution would be too costly: we thus devise an intermediate data structure that supports updates in constant time. As a \ksf\ captures information on all distinct paths of bounded length taken at run time, its space requirements mainly depend on intrinsic structural properties of analyzed programs. To capture even longer paths, our technique might be extended with heuristics aiming at reducing space usage, for instance by periodically pruning branches of the \ksf\ with small frequency counters. Also, it can be integrated with sophisticated sampling techniques used for reducing time overhead in intraprocedural (e.g.,~\cite{Bond05}) and interprocedural (e.g,~\cite{Zhuang06} and Section \missing) profilers.
-
+\noindent As we will see in Section \missing, the key to efficiency of our approach is to replace costly hash table accesses with substantially faster operations on trees. This allows us to profile paths that extend across many loop iterations, while previous techniques do not scale well even for short cyclic paths. Profiling longer paths can reveal interesting optimization opportunities that ``short'' profiles would miss~\cite{Delia13}. In \mysection\ref{se:convolution} we present an optimization case study on masked convolution filters for image processing: using a \kipf\ profile collected for $k=10$, we devise a selective loop unrolling optimization resulting in non-negligible speedups on all of our tests.
 
 
 %The space required to maintain the \ksf depends on intrin
@@ -490,7 +489,7 @@ Roy and Srikant~\cite{Roy09} generalize the Ball-Larus algorithm for profiling $
 Li {\em et al.}~\cite{Li12} propose a new path encoding that does not rely on an inference phase to explicitly assign identifiers to all possible paths before the execution, yet ensuring that any finite-length acyclic or cyclic path has a unique ID. Their path numbering algorithm needs multiple variables to record probe values, which are computed by using addition and multiplication operations. Overflowing is handled by using {\em breakpoints} to store probe values: as a consequence, instead of a unique ID for each path, a unique series of breakpoints is assiged to each path. At the end of program's execution, a {\em backwalk} algorithm reconstructs the executed paths starting from breakpoints. This technique has been integrated with \blpp\ to reduce the execution overhead, resulting in a slowdown of about 2 times on average with respect to \blpp, but also showing significant performance loss (up to a 5.6 times growth) on tight loops\footnote{A loop is {\em tight} when it contains a small number of instructions and iterates many times.}. However, the experiments reported in~\cite{Li12} were performed on single methods of small Java programs, leaving further experiments on larger industry-strength benchmarks to future work.
 
 %\mynote{Compare our approach to the three above.}
-The common trait of all these works it to extend the Ball-Larus encoding algorithm to capture longer paths. These techniques typically maintain more than one probe value, and incur higher average costs compared to BLPP. Our approach builds instead on top of the original Ball-Larus algorithm: a single probe value is used to track acyclic paths taken at run time, and each BL path ID in the output stream can be processed in constant time. Experimental results presented in Section \missing\ will reveal that our approach incurs an overhead competitive with BLPP.
+The common trait of all these works it to extend the Ball-Larus encoding algorithm to capture longer paths. These techniques typically maintain more than one probe value, and incur higher average costs compared to BLPP. Our approach builds instead on top of the original Ball-Larus algorithm: a single probe value is used to track acyclic paths taken at run time, and each BL path ID in the output stream can be processed in nearly constant time. Experimental results presented in Section \missing\ will reveal that our approach incurs an overhead competitive with BLPP.
 
 %The main goal of all these works is to reduce profiling overhead without incurring significant loss of accuracy. Our approach is orthogonal to this line of research and regards space efficiency as an additional resource optimization criterion besides profile accuracy and time efficiency. When the purpose of profiling is to identify hot contexts, exhaustive instrumentation, sampling, and bursting might all be combined with our approach and benefit of our space reduction technique. In Section \missing\ we present an integration of our technique with static bursting~\cite{Zhuang06}, which results in faster running times without substantially affecting accuracy.
 
