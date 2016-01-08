@@ -10,6 +10,7 @@ figures/kblpp-approach/kblpp-approach.png
 figures/kblpp-example/kblpp-example.png
 figures/kblpp-ksf/kblpp-ksf.png
 continuous-opt.tex
+osr-llvm.tex
 experiments.tex
 case-studies.tex
 conclusions.tex

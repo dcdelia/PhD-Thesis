@@ -1,7 +1,13 @@
 \chapter{Continuous Program Optimization Techniques}
 \label{ch:continuous}
 
-\section{Implementing On-Stack Replacement in LLVM}
+In this chapter, we focus on a fundamental aspect for deploying adaptive optimization techniques in runtime systems: the {\em On-Stack Replacement} (OSR) problem. OSR consists in dynamically transferring execution between different versions of a function at run time. Modern virtual machines implement OSR to {\em continuously} optimize a program as it executes, for instance by interrupting a long-running function and recompiling it at a higher optimization level, or by replacing a function version with another when a speculative assumption made during its compilation no longer holds.
+
+In the first part of the chapter, we present a platform-independent framework for OSR that introduces novel ideas and combines features of existing techniques that no previous solution provided simultaneously. In particular, we introduce a {\em compensation code} abstraction that increases the flexibility of OSR mechanisms, and we present our OSR implementation for the LLVM MCJIT compiler that allows OSR to happen at arbitrary locations of a function.
+
+In the second part, we make a first step towards a provably sound methodological framework for OSR. We formalize the concept of {\em multi-version program}, and we identify sufficient conditions for the correctness of an OSR transition. We also devise an algorithm for automatically generating compensation code possibly required at a program location in the presence of several common compiler optimizations.
+
+\input{osr-llvm}
 
 \section{Proving On-Stack Replacement Sound}
 
