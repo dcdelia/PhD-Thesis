@@ -19,7 +19,18 @@ In this thesis, we propose a general-purpose, target-independent framework for O
 
 \subsection{Approach}
 
-The key to platform independence in our approach is to express the OSR machinery entirely at intermediate code representation (IR) level, without resorting to machine-level code manipulation or special intrinsics of a compiler's intermediate language.
+The key to generality and platform-independence in our approach is to express the OSR machinery entirely at intermediate representation (IR) level, without resorting to native-code manipulation or special intrinsics of a compiler.
+
+\ifdefined\noauthorea
+\begin{figure}[hb]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{figures/osr-dynamics/osr-dynamics.eps}
+\caption{\protect\input{figures/osr-dynamics/caption}}
+\end{center}
+\end{figure}
+\fi
+
+\noindent Consider the generic OSR scenario shown in \myfigure\ref{fig:osr-dynamics}. A base function \fbase\ is executed and it can either terminate normally (dashed lines), or an OSR event may transfer control to a variant \fvariant, which resumes the execution. The decision of whether an OSR should be fired at a given point \osrpoint\ of \fbase\ is based on an {\em OSR condition}. A typical example in JIT-based virtual machines is a profile counter reaching a certain hotness threshold, which indicates that \fbase\ is taking longer than expected and is worth optimizing. Another example is a guard testing whether \fbase\ has become unsafe and execution needs to fall back to a safe version \fvariant. This scenario includes deoptimization of functions generated with aggressive speculative optimizations. 
 
 %In this section we present 
 %On-stack replacement is used in mainstream runtime systems to support a number of powerful techniques such as profile-driven optimization, 

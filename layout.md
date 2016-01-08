@@ -11,6 +11,7 @@ figures/kblpp-example/kblpp-example.png
 figures/kblpp-ksf/kblpp-ksf.png
 continuous-opt.tex
 osr-llvm.tex
+figures/osr-dynamics/osr-dynamics.png
 experiments.tex
 case-studies.tex
 conclusions.tex
