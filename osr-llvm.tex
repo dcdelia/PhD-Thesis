@@ -30,7 +30,25 @@ The key to generality and platform-independence in our approach is to express th
 \end{figure}
 \fi
 
-\noindent Consider the generic OSR scenario shown in \myfigure\ref{fig:osr-dynamics}. A base function \fbase\ is executed and it can either terminate normally (dashed lines), or an OSR event may transfer control to a variant \fvariant, which resumes the execution. The decision of whether an OSR should be fired at a given point \osrpoint\ of \fbase\ is based on an {\em OSR condition}. A typical example in JIT-based virtual machines is a profile counter reaching a certain hotness threshold, which indicates that \fbase\ is taking longer than expected and is worth optimizing. Another example is a guard testing whether \fbase\ has become unsafe and execution needs to fall back to a safe version \fvariant. This scenario includes deoptimization of functions generated with aggressive speculative optimizations. 
+\noindent Consider the generic OSR scenario shown in \myfigure\ref{fig:osr-dynamics}. A base function \fbase\ is executed and it can either terminate normally (dashed lines), or an OSR event may transfer control to a variant \fvariant, which resumes the execution. The decision of whether an OSR should be fired at a given point \osrpoint\ of \fbase\ is based on an {\em OSR condition}. A typical example in JIT-based virtual machines is a profile counter reaching a certain hotness threshold, which indicates that \fbase\ is taking longer than expected and is worth optimizing. Another example is a guard testing whether \fbase\ has become unsafe and execution needs to fall back to a safe version \fvariant. This scenario includes deoptimization of functions generated with aggressive speculative optimizations.
 
-%In this section we present 
-%On-stack replacement is used in mainstream runtime systems to support a number of powerful techniques such as profile-driven optimization, 
+Several OSR implementations adjust the stack so that execution can continue in \fvariant\ with the current frame \cite{Chambers91, Chambers92, Holzle92, Suganuma06}. This requires manipulating the program state at machine-code level and is highly ABI- and compiler-dependent. A simpler approach, which we follow in this thesis, consists in creating a new frame every time an OSR is fired, essentially regarding an OSR transition as a function call~\cite{Lameed13,Pizlo14}. Our solution targets two general scenarios:
+\begin{enumerate}[parsep=0pt]
+ \item {\em resolved OSR}: \fvariant\ is known before executing \fbase\ as in the deoptimization example discussed above;
+ \item {\em open OSR}: \fvariant\ is generated when the OSR is fired, supporting deferred and profile-guided compilation strategies.
+\end{enumerate}
+
+\noindent In both cases, \fbase\ is instrumented before its execution to incorporate the OSR machinery. We call such OSR-instrumented version \fosrfrom.
+
+In the resolved OSR scenario (see \myfigure\ref{fig:osr-resolved}), instrumentation consists of adding a check of the OSR condition and, if it is satisfied, a tail call that fires the OSR. The called function is an instrumented version of \fvariant, which we call \fosrto. We refer to \fosrto\ as the {\em continuation function} for an OSR transition. The assumption is that \fosrto\ produces the same side-effects and return value that one would obtain by \fbase\ if no OSR was performed. Differently from \fvariant, \fosrto\ takes as input all live variables of \fbase\ at \osrpoint, executes an optional {\em compensation code} to fix the computation state ({\tt comp\_code}), and then jumps to a point \textsf{L'} from which execution can continue.
+
+\ifdefined\noauthorea
+\begin{figure}[b]
+\begin{center}
+\includegraphics[width=0.7\columnwidth]{figures/osr-resolved/osr-resolved.eps}
+\caption{\protect\input{figures/osr-resolved/caption}}
+\end{center}
+\end{figure}
+\fi
+
+Compensation code adds flexibility to our framework, as it extends the range of points where OSR transitions can be fired. In fact, the OSR practice often makes the conservative assumption that execution can always continue with the very same program state as the base function. This assumption can however be restrictive, as it may reduce the number of program locations eligible for OSR (i.e., one has to wait to a point where the states would correspond). Our solution provides a front-end with means to encode a compensation code, tailored to the specific optimizations involved between two function versions, that is needed to adjust the program state and perform an OSR at an arbitrary given location.
