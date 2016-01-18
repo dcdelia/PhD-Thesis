@@ -79,9 +79,11 @@ Currently VM builders using MCJIT are required to have a deep knowledge of the i
 
 %avoiding low-lever tampering with stack frames can more easily preserve ABI calling conventions
 
-We prototyped our idea of flexible OSR framework working entirely at IR level as a library for MCJIT called \osrkit. We also implemented a proof-of-concept VM called \tinyvm\ that provides an interactive environment for LLVM IR manipulation, JIT compilation, and benchmarking. Our code is publicly available and has been endorsed by the joint Artifact Evaluation process of CGO-PPoPP 2016.
+We prototyped our idea of flexible OSR infrastructure working entirely at IR level in a library for MCJIT called \osrkit. \osrkit\ provides a number of useful abstractions that include open and resolved OSR instrumentation of IR base functions without breaking the SSA (Static Single Assignment) form, liveness analysis, generation of OSR continuation functions, and mapping of LLVM values between different function versions along with an interface for compensation code generation.
 
-\paragraph*{A Running Example.} We present our OSR embodiment for LLVM through a simple running example that illustrates a profile-driven optimization scenario. We start from a simple base function ({\tt isord}) that checks whether an array of numbers is ordered according to some criterion specified by a comparator (see \myfigure\ref{fig:osr-isord}). Our goal is to instrument {\tt isord} so that, whenever the number of loop iterations exceeds a certain threshold, control is dynamically diverted to a faster version generated on the fly by inlining the comparator.
+We also implemented a proof-of-concept VM called \tinyvm\ that provides an interactive environment for LLVM IR manipulation, JIT compilation, and benchmarking. All of our code is publicly available and has been endorsed by the joint Artifact Evaluation process of CGO-PPoPP 2016.
+
+\paragraph*{A Running Example.} We present our OSR embodiment for LLVM through a simple running example that illustrates a profile-driven optimization scenario. We start from a simple base function ({\tt isord}) that checks whether an array of numbers is ordered according to some criterion specified by a comparator (see \myfigure\ref{fig:osr-isord}). Our goal is to instrument {\tt isord} so that, whenever the number of loop iterations exceeds a certain threshold, control is dynamically diverted to a faster version generated on the fly by inlining the comparator. The IR code shown in this section has been generated with \clang\ and later instrumented with \osrkit\ inside \tinyvm. Virtual register names and basic block labels have been refactored for the sake of readability.
 
 \ifdefined\noauthorea
 \begin{figure}[t]
@@ -91,8 +93,6 @@ We prototyped our idea of flexible OSR framework working entirely at IR level as
 \end{center}
 \end{figure}
 \fi
-
-The IR code shown in this section\footnote{Virtual register names and labels have been refactored for the sake of readability.} has been generated with \clang\ and later instrumented with \osrkit\ inside \tinyvm. \osrkit\ provides a number of useful abstractions that include open and resolved OSR instrumentation of IR base functions without breaking the SSA (Static Single Assignment) form, liveness analysis, generation of OSR continuation functions, and mapping of LLVM values between different versions of a program along with compensation code generation.
 
 \ifdefined\noauthorea
 \begin{figure}[!ht]
@@ -116,13 +116,11 @@ New instructions are placed at the beginning of the loop body to increment a hot
 \begin{enumerate}[parsep=0pt,itemsep=3pt]
  \item a pointer to the {\tt isord} IR code;
  \item a pointer to the basic block in {\tt isord} from which the OSR is fired;
- \item a user-defined object to support code generation in MCJIT;
+ \item a pointer to a user-defined object to support code generation in MCJIT;
  \item the stub's {\tt val} parameter.
 \end{enumerate}
 
-\noindent The first three parameters are provided by the front-end and hard-wired by \osrkit). The stub terminates with a tail call to {\tt isordto}.
-
-To generate the continuation function (shown in \myfigure\ref{fig:osr-isordto}) from the optimized version created by the inliner, \osrkit\ replaces the function entry point, removes dead code, replaces live variables with the function parameters, and fixes $\phi$-nodes accordingly. Additions resulting from the IR instrumentation are in grey, while removals are struck-through.
+\noindent The first three parameters are provided by the front-end and hard-wired by \osrkit. In particular, the third parameter is a handle to the environment for code generation (e.g., in our dynamic inliner the object contains pointers to the MCJIT engine and to a map between addresses of compiled functions and their IR counterparts). The stub terminates with a tail call to {\tt isordto}.
 
 \ifdefined\noauthorea
 \begin{figure}[ht]
@@ -132,6 +130,10 @@ To generate the continuation function (shown in \myfigure\ref{fig:osr-isordto}) 
 \end{center}
 \end{figure}
 \fi
+
+\noindent To generate the continuation function (shown in \myfigure\ref{fig:osr-isordto}) from the optimized version created by the inliner, \osrkit\ replaces the function entry point, removes dead code, replaces live variables with the function parameters, and fixes $\phi$-nodes accordingly. As the OSR transition does not require any modification to the program state, the new entry point does not contain any form of compensation code. Preserving the SSA form while constructing the continuation function is a challenging task, as it might require inserting new $\phi$-nodes in the control-flow graph in addition to simply updating some of the existing ones as in this example. When generating a continuation function, we rely on the {\tt SSAUpdater} component of LLVM to account for the available values -- transferred as parameters or reconstructed in the OSR entrypoint -- of all the variables that are live at the OSR landing pad.
+
+%Additions resulting from the IR instrumentation are in grey, while removals are struck-through.
 
 \ifdefined\noauthorea
 \begin{figure}[ht]
