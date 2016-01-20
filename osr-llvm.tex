@@ -67,7 +67,8 @@ The open OSR scenario is similar, with one main difference (see \myfigure\ref{fi
 \end{figure}
 \fi
 
-\subsection{Implementing OSR in LLVM}
+%\subsection{Implementing OSR in LLVM}
+\subsection{LLVM Implementation}
 
 The LLVM compiler infrastructure~\cite{Lattner04} provides a Just-In-Time compiler called MCJIT that is currently being used for generating optimized code at run-time in virtual machines for dynamic languages. MCJIT is employed in both industrial and research projects, including Webkit's Javascript engine, the open-source Python implementation Pyston, the Rubinius project for Ruby, Julia for high-performance technical computing, McVM for MATLAB, CXXR for the R language, Terra for Lua, and the Pure functional programming language. The MCJIT compiler shares the same optimization pipeline with LLVM front-ends for static languages such as \clang, and it provides dynamic features such as native code loading and linking, as well as a customizable memory manager for code and data sections.
 
@@ -178,8 +179,15 @@ Instrumenting functions for OSR at a higher level than machine code yields sever
 
 \noindent A natural question is whether encoding OSR at a higher level of abstraction can result in poorer performance than binary code approaches. Our solution relies on the backend's compilation pipeline to generate the most efficient native code for \fosrfrom\ and \fosrto. We provide performance numbers in Section\missing by measuring the overhead of \osrkit\ on classic benchmarks.
 
-To the best of our knowledge, our OSR framework is the first that supports OSR point insertion at arbitrary locations in the code. In order to support OSR at any program points, two engineering aspects are involved in the continuation function generation: manipulating the code of the optimized function, which can be daunting when the SSA form must be preserved, and providing a front-end with a clean interface to specify glue code possibly required to perform the transition. There was considerable implementation and experimentation effort to show its feasibility.
+To the best of our knowledge, our framework is the first to support OSR point insertion at arbitrary locations in the code. There was considerable implementation and experimentation effort to show its feasibility. In order to enable OSR at any program point, two engineering aspects are involved: manipulating the code of an optimized function to generate a continuation function -- a task that can be daunting as the SSA form must be preserved -- and providing a front-end with a clean interface to specify glue code that might be required to perform a transition. Encoding compensation code with our API is currently delegated to the front-end. In Section\missing\ we will provide an algorithm to automatically build it for a number of common compiler optimizations.
 
-Choosing where it is profitable to insert OSR points, also exploiting \osrkit's ability to insert them at places that other solutions do not support, is delegated to the front-end as it stricly depends on the optimizations it performs. In principle, supporting OSR at arbitrary locations can be useful to implement a flexible deoptimization mechanism for aggressive speculative optimizations: e.g., execution might leave a heavily optimized loop while in the middle of it, execute a glue code to adjust the state when needed, and continue in a safe version of the function. 
+A possible scenario in which supporting OSR at arbitrary locations can be particularly useful is the implementation a flexible deoptimization mechanism in the presence of aggressive speculative optimizations. In general, it might be necessary to have a deoptimization point in the middle of a heavily optimized code fragment. Our framework provides VM builders with means to perform deoptimization without requiring a fallback to an interpreter. Also, by supporting both open and resolved OSR points we allow them to explore the trade-off between the latency from creating continuation functions on-the-fly and the code bloat from doing it ahead-of-time.
 
-In Section\missing\ we present a case study in the McVM runtime for the MATLAB language, showing \missing.
+\mynote{Deferred compilation, case study}
+
+%In general, control flow might leave a function in the middle of a heavily optimized fragment (e.g., a loop body), execute a glue code to adjust the state when needed, and continue in a different, safe version of the same function. We remark that our framework is optimization-agnostic, and supporting both open and resolved OSR points provides VM builders with different trade-offs between code bloat and latency from JIT compilation.
+%\mynote{VMs do it already, so... we should rephrase this paragraph!}
+
+ %as it stricly depends on the optimizations it performs
+
+%In Section\missing\ we present a case study in the McVM runtime for the MATLAB language, showing \missing.
