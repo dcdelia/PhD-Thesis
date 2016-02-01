@@ -6,7 +6,7 @@ Pioneered in the SELF language runtime in the early 90's, OSR mechanisms have dr
 
 \noindent OSR can be a very powerful tool for implementing dynamic languages, for which most effective optimization decisions can typically be made only at run time, when critical information such as type and shape of objects becomes available. In this scenario, OSR becomes useful also to perform deoptimization, i.e. when the running code has been speculatively optimized and the assumption used for the optimization does not hold anymore, the optimized function is interrupted and the execution continues in a safe version of the code.
 
-In this thesis, we propose a general-purpose, target-independent framework for OSR. Specific goals of our solution include:
+\paragraph*{Contributions.} In this thesis, we propose a general-purpose, target-independent framework for OSR. Specific goals of our solution include:
 \begin{itemize}[parsep=0pt]
 \item The ability for a function reached via OSR to fire an OSR itself: this would allow switching from a base function $f$ to an optimized function $f'$, and later on to a further optimized version $f''$, and so on.
 \item Supporting deoptimization, i.e., transitions from an optimized function to a less optimized function from which it was derived.

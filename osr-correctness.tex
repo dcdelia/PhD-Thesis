@@ -2,4 +2,20 @@
 
 On-stack Replacement is employed in modern adaptive compilation systems to dynamically switch between different versions of a function depending on program's run-time state. Traditionally, code optimizers are responsible for marking the points where such transitions can take place, and generating required meta-data or ad-hoc code to get the program state to a correct resumption point. OSR is usually at the core of large and complex JIT compilers employed by popular production virtual machines. Indeed, the engineering effort to integrate this technique in a language runtime can be daunting, making it rarely accessible to the research community.
 
-In this thesis we investigate how to provide VM builders with a rich ``menu'' of possible program points where OSR can safely occur, relieving code optimizers from the burden of generating all the required machinery to realign the program state during an OSR transition.
+\paragraph*{Contributions.} In this thesis we investigate how to provide VM builders with a rich ``menu'' of possible program points where OSR can safely occur, relieving code optimizers from the burden of generating all the required machinery to realign the program state during an OSR transition.
+
+To capture OSR in its full generality, we define a notion of {\em multi-program}, which is a collection of different versions of a program along with support to dynamically transfer execution between them. Execution in a multi-program starts from a designated base version. At any time, an oracle decides whether execution should continue in the current version, or an OSR should divert it to a different version, modeling any conceivable OSR-firing strategy. One of the goals of our work is to characterize sufficient conditions for a multi-program to be {\em deterministic}, yielding the same result regardless of the oracle's decisions. This captures the intuitive idea that any sequence of OSR transitions is {\em correct} if it does not alter the intended semantics of a program.
+
+We distill the essence of OSR to a simple imperative calculus with an operational semantics. Using program bisimulation, we prove that an OSR can correctly divert execution from one program version to the other if they are {\em live-variable bisimilar}, i.e., the live variables they have in common at any corresponding execution states are equal. As prominent examples of how bisimulation can be used to prove this property, we consider classic optimizations that eliminate or move code around, such as dead code elimination, constant propagation, and code hoisting. We show how to construct OSR machinery by devising an algorithm that automatically generates compensation code to reconstruct the values of variables that are live in the OSR target, but not in the source.
+
+\input{osr-language}
+
+\subsection{On-Stack Replacement Framework}
+
+\subsection{OSR Mapping Generation Algorithm}
+
+\subsection{Multi-Version Programs}
+
+\subsection{LLVM Implementation}
+
+\subsection{Discussion}
