@@ -1,1 +1,171 @@
 \subsection{Language Framework}
+
+In this section we introduce some basic definitions used in our representation of programs and transformations. In particular, we provide a syntax and a big-step semantics for a simple imperative language, and introduce means for reasoning about program properties using computation tree logic operators and for describing program transformations through rewrite rules with side conditions.
+
+\subsubsection*{Program Syntax and Semantics}
+
+Our discussion is based on a minimal imperative programming language with instructions and expressions with the syntax \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}.
+
+\ifdefined\noauthorea
+\begin{figure}[t]
+\fi
+\noindent
+\begin{small}
+$
+\begin{array}{rcl}
+\texttt{$Instr$} & ::= & \hphantom{\texttt{| }}\texttt{$Var$ := $Expr$} \\
+& & \texttt{| if ( $Expr$ ) goto $Num$} \\
+& & \texttt{| goto $Num$} \\
+& & \texttt{| skip} \\
+& & \texttt{| abort} \\
+& & \texttt{| in $Var\cdots Var$} \\ 
+& & \texttt{| out $Var\cdots Var$} \\
+\texttt{ $Expr$ } & ::= & \texttt{$Num$ | $Var$ | $Expr$ + $Expr$ | $\ldots$ } \\
+\texttt{ $Var$ } & ::= & \texttt{X | Y | Z | $\ldots$} \\
+\texttt{ $Num$ } & ::= & \texttt{$\ldots$ | -2 | -1 | 0 | 1 | 2 | $\ldots$} \\
+\end{array}
+$
+\end{small}
+\ifdefined\noauthorea
+\caption{\label{fig:osr-program-syntax}Program Syntax}
+\end{figure}
+\fi
+
+\begin{definition}[Program]
+\label{de:program}
+A program is a sequence of instructions the form:
+\vspace{-3mm}
+\begin{equation*}
+\pi=\langle I_1, I_2, \ldots, I_n \rangle\in Prog = \bigcup_{i=2}^{\infty} Instr^{i}
+\vspace{-4mm}
+\end{equation*}
+where: 
+
+\begin{itemize}[itemsep=3pt,parsep=0pt,topsep=3pt]
+%\item $Instr$ is defined by the syntax of Figure~\ref{fi:program-syntax}
+\item \texttt{$I_i\in Instr$} is the $i$-th instruction of the program, indexed by program point \texttt{$i\in[1,n]$}
+\item \texttt{$I_1$ $=$ in $\cdots$} is the initial instruction
+\item \texttt{$\forall i\in[2,n-1]:$ $I_i$ $\neq$ in $\cdots$ $\wedge$ $I_i$ $\neq$ out $\cdots$}
+\item \texttt{$I_n$ $=$ out $\cdots$} is the final instruction
+\end{itemize}
+\end{definition}
+
+\noindent Instruction \texttt{in}, which must appear at the beginning of a program, specifies the variables that must be defined prior to entering the program. Similarly, \texttt{out} occurs at the end and specifies the variables that are returned as output. 
+
+By \texttt{e[x]} we indicate that \texttt{x} is a variable of expression \texttt{e}\,$\in Expr$. We also denote by $vars($\texttt{e}$)$ the set of variables that occur in expression \texttt{e}. By $|\pi|=n$ we indicate the number of instructions in $\pi=\langle I_1, I_2, \ldots, I_n \rangle$.
+
+\begin{definition}[Memory Store]
+A {\em memory store} is a total function $\sigma:Var\rightarrow \mathbb{Z}\cup\{\bot\}$ that associates integer values to defined variables, and $\bot$ to undefined variables. We denote by $\Sigma$ the set of all possible memory stores. 
+\end{definition}
+
+\noindent By $\sigma[\wx\gets v]$ we denote the same function as $\sigma$, except that $\wx$ takes value $v$. Furthermore, for any $A\subseteq Var$, $\sigma\vert_{A}$ denotes $\sigma$ restricted to the variables in $A$, i.e., $\sigma\vert_{A}(\wx)=\sigma(\texttt{x})$ if $\wx\in A$ and $\sigma\vert_{A}(\wx)=\bot$ if $\wx\not\in A$. 
+
+\begin{definition}[Program State]
+\label{de:prog-state}
+The {\em state} of a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a pair $(\sigma,l)$, where $\sigma$ is a memory store and $l\in [1,n]$ is the program point of the next instruction to be executed. We denote by $State=\Sigma\times \mathbb{N}$ the set of all possible program states.
+\end{definition}
+
+\noindent We provide a big-step semantics using transition relation $\trans_{\pi}\:\subseteq State\times State$, which specifies how a single instruction of a program $\pi$ affects its state. Our description relies on relation $\Downarrow\subseteq(\Sigma\times Expr)\times \mathbb{Z}$ to describe how expressions are evaluated in a given memory store.
+
+
+\begin{definition}[Big-Step Transitions]
+%For any program $\pi$, relation $\Rightarrow_{\pi}\subseteq State\times State$ is defined as follows, with meta-variables $\texttt{x}, \texttt{y}\in Var$, $\texttt{e}\in Expr$, and $\texttt{m}\in Num$:
+For any program $\pi$, we define relation $\Rightarrow_{\pi}\:\subseteq State\times State$ as follows, with meta-variables $\texttt{x}, \texttt{y}\in Var$, $\texttt{e}\in Expr$, and $\texttt{m}\in Num$:
+
+\begin{small}
+
+% asgn
+\begin{equation}
+\label{eq:asgn-sem}
+\frac
+{I_l=\texttt{x:=e} ~~ \wedge ~~ (\sigma, \texttt{e}) \Downarrow v}
+{(\sigma, l)\Rightarrow_{\pi} (\sigma[\wx\gets v], l+1)}
+\end{equation}
+% if (0)
+\vspace{0.5mm}
+\begin{equation}
+\label{eq:ifz-sem}
+\frac
+{I_l=\texttt{if (e) goto m} ~~ \wedge ~~ (\sigma, \texttt{e}) \Downarrow 0}
+{(\sigma, l)\Rightarrow_{\pi} (\sigma, l+1)}
+\end{equation}
+% if (!0)
+\vspace{0.5mm}
+\begin{equation}
+\label{eq:ifnz-sem}
+\frac
+{I_l=\texttt{if (e) goto m} ~~ \wedge ~~ (\sigma, \texttt{e}) \Downarrow v ~~~ \wedge ~~~ v\neq 0}
+{(\sigma, l)\Rightarrow_{\pi} (\sigma, \texttt{m})}
+\end{equation}
+% goto
+\vspace{0.5mm}
+\begin{equation}
+\label{eq:goto-sem}
+\frac
+{I_l=\texttt{goto m}}
+{(\sigma, l)\Rightarrow_{\pi} (\sigma, \texttt{m})}
+\end{equation}
+% skip
+\vspace{0.5mm}
+\begin{equation}
+\label{eq:skip-sem}
+\frac
+{I_l=\texttt{skip}}
+{(\sigma, l)\Rightarrow_{\pi} (\sigma, l+1)}
+\end{equation}
+% in
+\vspace{0.5mm}
+\begin{equation}
+\label{eq:in-sem}
+\frac
+{I_1=\texttt{in x y}~\cdots ~~ \wedge ~~~ \sigma(\texttt{x})\neq\bot ~~~ \wedge ~~~ \sigma(\texttt{y})\neq\bot ~~~ \wedge ~~~ \cdots }
+{(\sigma, 1)\Rightarrow_{\pi} (\sigma, 2)}
+\end{equation}
+% out
+%\vspace{0.5mm}
+\begin{equation}
+\label{eq:out-sem}
+\frac
+{I_n=\texttt{out x y}~\cdots ~~ \wedge ~~~ \sigma(\texttt{x})\neq\bot ~~~ \wedge ~~~ \sigma(\texttt{y})\neq\bot ~~~ \wedge ~~~ \cdots }
+{(\sigma, n)\Rightarrow_{\pi} (\sigma\vert_{\{\texttt{x}, \texttt{y}, \cdots\}}, n+1)}
+\end{equation}
+
+\end{small}
+
+\end{definition}
+
+\noindent For a transition to apply, we implicitly assume that $I_l$ is defined, i.e., $l\in[1,n]$. 
+\ifx\noauthorea\undefined
+Notice that we intentionally do not provide any transition rule for {\tt abort} instructions, providing explicit means to let a program have undefined semantics. This might be useful in supporting unsound speculative optimizations.
+\fi
+
+\begin{definition}[Program Semantic Function]
+\label{de:program-semantics}
+%The semantic function $\mysem{\pi}:\Sigma \rightarrow \Sigma$ of a program $\pi$ is defined as:
+We define the semantic function $\mysem{\pi}:\Sigma \rightarrow \Sigma$ of a program $\pi$ as: 
+\begin{gather*}
+\forall \sigma\in\Sigma: ~~ \mysem{\pi}(\sigma)=\sigma'~~%\vert_{\{\wx\,:\,I_{n}={\tt out}~\cdots~\wx~\cdots\}} ~~ \\ 
+\Longleftrightarrow ~~ (\sigma,1) \Rightarrow^{*}_{\pi} (\sigma',|\pi|+1)
+\end{gather*}
+where $\Rightarrow^{*}_{\pi}$ is the transitive closure of $\Rightarrow_{\pi}$.
+\end{definition}
+
+\noindent Note that a program has undefined semantics if its execution on a given store does not reach the final \texttt{out} instruction. This accounts for infinite loops, abort instructions, exceptions, and ill-defined programs or input stores. 
+
+We define the notion of program semantic equivalence as follows:
+
+\begin{definition}[Program Equivalence]
+\label{de:semantic-equivalence}
+Two programs $\pi_1$ and $\pi_2$ are {\em semantically equivalent} iff $\mysem{\pi_1}=\mysem{\pi_2}$.
+\end{definition}
+
+\noindent A notion that will be useful in proving correctness in our framework is that of {\em trace} of a transition system:
+
+\begin{definition}[Traces]
+\label{de:exec-trace}
+A {\em trace} in a transition system $(S,$ $R\subseteq S^2)$ starting from $s\in S$ is a sequence $\tau=\langle s_0,s_1,\ldots,$ $s_i,\ldots\rangle$ such that $s_0=s$ and $\forall i\ge 0:~s_i\in\tau ~ \wedge ~ s_i~R~s_{i+1}$ $\Longleftrightarrow s_{i+1}\in\tau$. By ${\cal T}_{R,s}$ we denote the system of all traces of $(S,R\subseteq S^2)$ starting from $s$. By $\tau[i]$ we denote the $i$-th state of $\tau$, i.e., $\tau[i]=s_i$. Furthermore, if trace $\tau$ is finite then $|\tau|$ denotes the index of its final state, i.e., $\tau=\langle s_0,s_1,\ldots,s_{|\tau|}\rangle$, otherwise $|\tau|=\infty$. Finally, $dom(\tau)=\{i:s_i\in\tau\}$ denotes the set of indices of states in $\tau$.
+\end{definition}
+
+\noindent Notice that, since $\Rightarrow_{\pi}$ is deterministic in our language, then for any initial store $\sigma$, the system of traces ${\cal T}_{\Rightarrow_{\pi},(\sigma,1)}$ of the execution transition system $(Store,\Rightarrow_{\pi})$ contains a single trace, which we denote by $\tau_{\pi\sigma}$.
+
+\input{osr-language-reasoning}

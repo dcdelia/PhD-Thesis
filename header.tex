@@ -2,6 +2,7 @@
 \usepackage{latexsym}
 \usepackage{listings}
 \usepackage{enumitem}
+\usepackage{amsfonts,amsmath,amssymb}
 
 \let\oldnl\nl% Store \nl in \oldnl
 \newcommand{\nonl}{\renewcommand{\nl}{\let\nl\oldnl}}% Remove line number for one line
@@ -45,7 +46,7 @@
 \newcommand{\mylemma}{Lemma~}
 \newcommand{\mytheorem}{Theorem~}
 \newcommand{\myequation}{Equation~}
-\newcommand{\myalgorithm}{Figure~}
+\newcommand{\myalgorithm}{Fi\usepackage{amsmath}gure~}
 \newcommand{\myexample}{Example~}
 \fi
 
@@ -90,3 +91,33 @@
 \newcommand{\fosrto}{$\textsf{f}\textsf{'}_{\textsf{to}}$}
 \newcommand{\fstub}{$\textsf{f}_{\textsf{stub}}$}
 \newcommand{\osrpoint}{$\textsf{L}$}
+
+% build_comp
+\newcommand{\mytt}[1]{\text{${\tt #1}$}}
+\newcommand{\trans}{\Rightarrow}
+\newcommand{\mysem}[1]{[\![#1]\!]}
+\newcommand{\lve}{\text{LVE}}
+\newcommand{\live}{\mytt{live}}
+\newcommand{\ureachdef}{\mytt{urdef}}
+\newcommand{\dom}{\mytt{dom}}
+\newcommand{\stmt}{\mytt{stmt}}
+\newcommand{\point}{\mytt{point}}
+\newcommand\Tau{\mathcal{T}}
+\newcommand{\wskip}{\mytt{skip}}
+\newcommand{\wif}{\mytt{if}}
+\newcommand{\wthen}{\mytt{then}}
+\newcommand{\wgoto}{\mytt{goto}}
+\newcommand{\welse}{\mytt{else}}
+\newcommand{\wdef}{\mytt{def}}
+\newcommand{\wuse}{\mytt{use}}
+\newcommand{\wtrans}{\mytt{trans}}
+\newcommand{\wfreevar}{\mytt{freevar}}
+\newcommand{\wconlit}{\mytt{conlit}}
+\newcommand{\wstmt}{\mytt{stmt}}
+\newcommand{\wpoint}{\mytt{point}}
+\newcommand{\wx}{\mytt{x}}
+\newcommand{\wy}{\mytt{y}}
+\newcommand{\we}{\mytt{e}}
+\newcommand{\wc}{\mytt{c}}
+\newcommand{\wv}{\mytt{v}}
+\newcommand{\wm}{\mytt{m}}
