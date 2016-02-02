@@ -168,4 +168,13 @@ A {\em trace} in a transition system $(S,$ $R\subseteq S^2)$ starting from $s\in
 
 \noindent Notice that, since $\Rightarrow_{\pi}$ is deterministic in our language, then for any initial store $\sigma$, the system of traces ${\cal T}_{\Rightarrow_{\pi},(\sigma,1)}$ of the execution transition system $(Store,\Rightarrow_{\pi})$ contains a single trace, which we denote by $\tau_{\pi\sigma}$.
 
+Finally, we provide a formal definition of control flow graph, which will be useful in defining computation tree logic operators for reasoning on program properties:
+
+\begin{definition}[Control Flow Graph]
+\label{de:cfg}
+The {\em CFG} for a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a pair $(V, E)$ where $V = \{ I_1, I_2, \ldots, I_n \}$ and 
+$E = \{(I_i, I_{i+1})\:|\: I_i \neq \textsf{abort} \wedge I_i \neq \textsf{goto m}, \!\textsf{ m}\in Num \}\;\cup\;\{(I_i, I_m)\:|\: I_i = \textsf{goto m} \vee I_i = \textsf{if (e) goto m}, \!\textsf{ m}\in Num, \!\textsf{ e}\in Expr \}$.
+\end{definition}
+
+
 \input{osr-language-reasoning}

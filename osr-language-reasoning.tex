@@ -1,1 +1,8 @@
 \subsubsection*{Reasoning about Program Properties}
+
+To analyze properties of a program, we use Boolean formulas with free meta-variables that combine facts that must hold globally or at certain points of a program. Formulas can be checked against concrete programs by a {\em model checker}. For any program $\pi$ and formula $\phi$, the checker verifies if there exists a substitution $\theta$ that binds free meta-variables with program objects so that $\theta(\phi)$ is satisfied in $\pi$. 
+In this paper, by $\cal{A}\models \phi$ we mean that $\phi$ is true in $\cal{A}$, i.e., formula $\phi$ is satisfied by structure $\cal{A}$ (or equivalently, $\cal{A}$ models $\phi$)~\cite{Clarke86}. %We use notation $\cal{A}\models_{\theta} \phi$ as a shortcut for $\cal{A}\models \theta(\phi)$. 
+
+Two global predicates that we will use later on are ${\tt conlit}(\wc)$, which states that an expression $\wc$ is a constant literal, and ${\tt freevar}(\wx,\we)$, which holds if and only if $\wx$ is a free variable of expression $\we$.
+
+To support analyses based on facts that involve finite maximal paths in the control flow graph (CFG), such as liveness and dominance, we use formulas based on {\em computation tree logic} (CTL) operators~\cite{Clarke86,Lacey04,Kalvala09}, defined next. For any point $l$ in a program $\pi$, a formula $\phi$ holds in the CFG of $\pi$:
