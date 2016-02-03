@@ -172,7 +172,18 @@ Finally, we provide a formal definition of control flow graph, which will be use
 
 \begin{definition}[Control Flow Graph]
 \label{de:cfg}
-The {\em control flow graph} (CFG) for a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a pair $(V,E)$ where $V = \{ I_1, I_2, \ldots, I_n \}$ and $E = \{(I_i, I_{i+1})\:|\: I_i \neq \textsf{abort} \wedge I_i \neq \textsf{goto m}, \!\textsf{ m}\in Num \}\;\cup\;\{(I_i, I_m)\:|\: I_i = \textsf{goto m} \vee I_i = \textsf{if (e) goto m}, \!\textsf{ m}\in Num, \!\textsf{ e}\in Expr \}$.
+%The {\em control flow graph} G for a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a pair $(V,E)$ where $V = \{ I_1, I_2, \ldots, I_n \}$ and $E = \{(I_i, I_{i+1})\:|\: I_i \neq \textsf{abort} \wedge I_i \neq \textsf{goto m}, \!\textsf{ m}\in Num \}\;\cup\;\{(I_i, I_m)\:|\: I_i = \textsf{goto m} \vee I_i = \textsf{if (e) goto m}, \!\textsf{ m}\in Num, \!\textsf{ e}\in Expr \}$.
+%The {\em control flow graph} G for a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a tuple $\langle V, I: V\rightarrow Num, E \subseteq V\times V\rangle$ where:
+The {\em control flow graph} $G$ for a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a pair $(V, E \subseteq V\times V)$ where:
+\begin{equation*}
+\begin{align}
+V &= \{ I_1, I_2, \ldots, I_n \} \\
+%I(v) &= \{ i | v = I_i, v\in V\} \\
+E &= \{(I_i, I_{i+1})\:|\: I_i \neq \textsf{abort} \wedge I_i \neq \textsf{goto m}, \!\textsf{ m}\in Num \} \\
+&\cup\;\{(I_i, I_m)\:|\: I_i = \textsf{goto m} \vee I_i = \textsf{if (e) goto m}, \!\textsf{ m}\in Num, \!\textsf{ e}\in Expr \}.
+\end{align}
+\end{equation*}
+%\noindent We also define an auxiliary function $I: V\rightarrow Num$ that returns the $i$-th index in $\pi$ of an instruction $v\in V$.
 \end{definition}
 
 \input{osr-language-reasoning}
