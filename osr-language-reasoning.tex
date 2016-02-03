@@ -5,4 +5,9 @@ In this paper, by $\cal{A}\models \phi$ we mean that $\phi$ is true in $\cal{A}$
 
 Two global predicates that we will use later on are ${\tt conlit}(\wc)$, which states that an expression $\wc$ is a constant literal, and ${\tt freevar}(\wx,\we)$, which holds if and only if $\wx$ is a free variable of expression $\we$.
 
-To support analyses based on facts that involve finite maximal paths in the control flow graph (CFG), such as liveness and dominance, we use formulas based on {\em computation tree logic} (CTL) operators~\cite{Clarke86,Lacey04,Kalvala09}, defined next. For any point $l$ in a program $\pi$, a formula $\phi$ holds in the CFG of $\pi$:
+To support analyses based on facts that involve finite maximal paths in the control flow graph (CFG), such as liveness and dominance, we use formulas based on {\em computation tree logic} (CTL) operators~\cite{Clarke86,Lacey04,Kalvala09}. In order to define these operators, we need to formalize the concept of finite maximal paths first.
+
+\begin{definition}[Set of Complete Paths] Given a control flow graph $G=(V,E)$ and an initial node $n_0\in V$, the {\em set of complete paths} $CPaths(n_0, G)$ starting at $n_0$ consists of all finite sequences $\langle n_0,n_1,\ldots,n_k\rangle$ such that $(n_i,n_{i+1})\in E$ for all $n_i$ with $i<k$, and such that there does not exist a $n_{k+1}$ such that $(n_k,n_{k+1})\in E$.
+\end{definition}
+
+\noindent Complete paths from a specified node (i.e., instruction) are thus maximal finite sequences of connected nodes through a control flow graph from an initial point to a sink node, which in our setting is unique (unless {\tt abort} instructions are present) and corresponds to the final instruction $I_n$.

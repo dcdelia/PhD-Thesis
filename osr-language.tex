@@ -172,9 +172,7 @@ Finally, we provide a formal definition of control flow graph, which will be use
 
 \begin{definition}[Control Flow Graph]
 \label{de:cfg}
-The {\em CFG} for a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a pair $(V, E)$ where $V = \{ I_1, I_2, \ldots, I_n \}$ and 
-$E = \{(I_i, I_{i+1})\:|\: I_i \neq \textsf{abort} \wedge I_i \neq \textsf{goto m}, \!\textsf{ m}\in Num \}\;\cup\;\{(I_i, I_m)\:|\: I_i = \textsf{goto m} \vee I_i = \textsf{if (e) goto m}, \!\textsf{ m}\in Num, \!\textsf{ e}\in Expr \}$.
+The {\em control flow graph} (CFG) for a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a pair $(V,E)$ where $V = \{ I_1, I_2, \ldots, I_n \}$ and $E = \{(I_i, I_{i+1})\:|\: I_i \neq \textsf{abort} \wedge I_i \neq \textsf{goto m}, \!\textsf{ m}\in Num \}\;\cup\;\{(I_i, I_m)\:|\: I_i = \textsf{goto m} \vee I_i = \textsf{if (e) goto m}, \!\textsf{ m}\in Num, \!\textsf{ e}\in Expr \}$.
 \end{definition}
-
 
 \input{osr-language-reasoning}
