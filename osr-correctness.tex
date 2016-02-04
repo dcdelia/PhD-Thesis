@@ -9,6 +9,7 @@ To capture OSR in its full generality, we define a notion of {\em multi-program}
 We distill the essence of OSR to a simple imperative calculus with an operational semantics. Using program bisimulation, we prove that an OSR can correctly divert execution from one program version to the other if they are {\em live-variable bisimilar}, i.e., the live variables they have in common at any corresponding execution states are equal. As prominent examples of how bisimulation can be used to prove this property, we consider classic optimizations that eliminate or move code around, such as dead code elimination, constant propagation, and code hoisting. We show how to construct OSR machinery by devising an algorithm that automatically generates compensation code to reconstruct the values of variables that are live in the OSR target, but not in the source.
 
 \input{osr-language}
+\input{osr-language-reasoning}
 
 \subsection{On-Stack Replacement Framework}
 

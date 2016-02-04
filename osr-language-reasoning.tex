@@ -1,3 +1,7 @@
+\subsection{Program Properties and Transformations}
+
+In this section we present a formalism based on {\em computation tree logic} (CTL) to reason about program properties operators and describe program transformations through rewrite rules with side conditions~\cite{Clarke86,Lacey04,Kalvala09}.
+
 \subsubsection*{Reasoning about Program Properties}
 
 To analyze properties of a program, we use Boolean formulas with free meta-variables that combine facts that must hold globally or at certain points of a program. Formulas can be checked against concrete programs by a {\em model checker}. For any program $\pi$ and formula $\phi$, the checker verifies if there exists a substitution $\theta$ that binds free meta-variables with program objects so that $\theta(\phi)$ is satisfied in $\pi$. 
@@ -5,7 +9,8 @@ In this paper, by $\cal{A}\models \phi$ we mean that $\phi$ is true in $\cal{A}$
 
 Two global predicates that we will use later on are ${\tt conlit}(\wc)$, which states that an expression $\wc$ is a constant literal, and ${\tt freevar}(\wx,\we)$, which holds if and only if $\wx$ is a free variable of expression $\we$.
 
-To support analyses based on facts that involve finite maximal paths in the control flow graph (CFG), such as liveness and dominance, we use formulas based on {\em computation tree logic} (CTL) operators~\cite{Clarke86,Lacey04,Kalvala09}. In order to introduce these operators, we need to formalize the concept of finite maximal paths first.
+%To support analyses based on facts that involve finite maximal paths in the control flow graph (CFG), such as liveness and dominance, we use formulas based on {\em computation tree logic} (CTL) operators~\cite{Clarke86,Lacey04,Kalvala09}. In order to introduce these operators, we need to formalize the concept of finite maximal paths first.
+To support analyses based on facts that involve finite maximal paths in the control flow graph (CFG), such as liveness and dominance, we use formulas based on CTL operators. In order to introduce these operators, we need to formalize the concept of finite maximal paths first.
 
 \begin{definition}[Set of Complete Paths] Given a control flow graph $G=(V,E)$ and an initial node $n_0\in V$, the {\em set of complete paths} $CPaths(n_0,G)$ starting at $n_0$ consists of all finite sequences $\langle n_0,n_1,\ldots,n_k\rangle$ such that $(n_i,n_{i+1})\in E$ for all $n_i$ with $i<k$, and such that there does not exist a $n_{k+1}$ such that $(n_k,n_{k+1})\in E$.
 \end{definition}
@@ -36,14 +41,14 @@ First-order CTL can be used to specify properties of nodes and paths in a CFG. I
 \begin{definition}[Temporal Operators]
 Given a node $n$ in the control flow graph $G=(V,E)$ of a program $\pi$, we define the following CTL {\em temporal operators} as:
 
-\begin{equation*}
-\begin{align}
+%\begin{equation*}
+\begin{align*}
 n \models \overrightarrow{AX}(\phi) &\Longleftrightarrow \forall m: (n,m)\in E: \pi,m\models\phi \\
 n \models \overrightarrow{EX}(\phi) &\Longleftrightarrow \exists m: (n,m)\in E: \pi, m\models\phi \\
 n \models \overrightarrow{A}(\phi~U~\psi) &\Longleftrightarrow \forall p: p\in CPaths(n,G): Until(\pi, p,\phi,\psi) \\
 n \models \overrightarrow{E}(\phi~U~\psi) &\Longleftrightarrow \exists p: p\in CPaths(n,G): Until(\pi, p,\phi,\psi) \\
-\end{align}
-\end{equation*}
+\end{align*}
+%\end{equation*}
 
 \vspace{0.5em}
 \noindent where predicate $Until(\pi,p,\phi,\psi)$ holds for $p = \langle n_0,n_1,\ldots,n_k\rangle \in CPaths(n_0,G)$ if:
@@ -97,3 +102,81 @@ The set of live variables of a program $\pi$ at point $l$ is defined as:
 \live(\pi,l) \triangleq \{ ~ \wx\in Var ~ | ~ \pi, l\models \live(\wx) ~ \}
 \end{equation*}
 \end{definition}
+
+
+\subsubsection*{Program Transformations}
+
+To describe program transformations, we use rewrite rules with side conditions in a similar manner as~\cite{Lacey04,Kundu09}. We consider generalized rules that transform multiple instructions simultaneously, with side conditions drawn from CTL formulas:
+
+\begin{definition}[Rewrite Rule]
+\label{de:rewrite-rule}
+A rule $T$ has the form:
+\vspace{-1mm}
+\begin{equation*}
+\begin{array}{lllll}
+T = & m_1: \hat{I}_1 \Longrightarrow \hat{I'}_1 %& m_2: I_2 \Longrightarrow I'_2
+& \cdots
+& m_r: \hat{I}_r \Longrightarrow \hat{I'}_r
+& {\tt if} ~ \phi
+\end{array}
+\vspace{-1mm}
+\end{equation*}
+\noindent where $\forall k\in[1,r]$, $m_k$ is a meta-variable that denotes a program point, $\hat{I}_k$ and $\hat{I'}_k$ are program instructions that can contain meta-variables, and $\phi$ is a side condition that states whether the rewriting rule can be applied to the input program. We denote by $\Tau$ the set of all possible rewrite rules.
+\end{definition}
+
+\noindent An elementary example of rewrite rule with meta-variables $\wm$, $\wx$, and $\wy$ is: $$m: ~ {\tt y:=2*x} ~~ \Longrightarrow ~~ {\tt y:=x+x} ~~~ {\tt if} ~ true$$ which implements a peephole optimization based on a weak form of operator strength reduction~\cite{Cooper01}.
+
+Rules can be applied to concrete programs by a transformation engine based on model checking: when the checker finds a substitution $\theta$ that binds free meta-variables with program objects so that $\theta(\phi)$ is satisfied in $\pi$ and $\theta(\hat{I}_k)=I_{\theta(m_k)}\in \pi$ for some $k\in[1,t]$, then $I_{\theta(m_k)}$ is replaced with $\theta(\hat{I'}_k)=I'_{\theta(m_k)}\in \pi'$, as formalized next:
+
+\begin{definition}[Rule Semantics]
+\label{de:trans-func}
+Let $T$ be a rewrite rule as in \ref{de:rewrite-rule}. Transformation function $\mysem{T}: Prog\rightarrow Prog$ is defined as follows:
+\vspace{-2mm}
+\begin{multline*}
+\forall \pi, \pi'\in Prog: \pi'=\mysem{T}(\pi) \Longleftrightarrow
+\exists ~ \theta: ~ \pi\models \theta(\phi) ~ \wedge ~ \\
+\forall k\in[1,r]: \theta(\hat{I}_k)=I_{\theta(m_k)}\in \pi ~ \wedge ~ \theta(\hat{I'}_k)=I'_{\theta(m_k)}\in \pi'
+\end{multline*}
+\end{definition}
+
+\noindent In this thesis, we focus on transformations that do not alter the semantics of a program:
+
+\begin{definition}[Semantics-Preserving Rules]
+\label{de:sound-trans}
+A rewrite rule $T$ is {\em semantics-preserving} if for any program $\pi$ it holds $\mysem{\pi}=\mysem{\pi'}$, where $\pi'=\mysem{T}(\pi)$.
+\end{definition}
+
+\noindent Examples of semantics-preserving rules for classic compiler optimizations (as proven in~\cite{Lacey02,Lacey04}) are given in \myfigure\ref{fig:sample-trans}.
+
+\begin{figure}[ht]
+
+\begin{small}
+
+\begin{tabularx}{0.8\textwidth}{|X|}\hline
+{\bf Constant propagation} (CP):\\\hline
+$m: ~ {\tt x:=e[v]} ~~ \Longrightarrow ~~ {\tt x:=e[c]}$ \\
+${\tt if} ~~ \wconlit(\wc) ~ \wedge ~ m \models \overleftarrow{A}(\neg\wdef(\wv) ~ U ~ \wstmt({\tt v:=c}))$ \\\hline
+\end{tabularx}
+
+\vspace{2mm}
+
+\begin{tabularx}{0.8\textwidth}{|X|}\hline
+{\bf Dead store elimination} (DCE):\\\hline
+$m: ~ {\tt x:=e} ~~ \Longrightarrow ~~ {\tt skip}$ \\
+${\tt if} ~~ m \models \overrightarrow{AX} ~ \neg\overrightarrow{E}(true ~ U ~ \wuse(\wx))$ \\\hline
+\end{tabularx}
+
+\vspace{2mm}
+
+\begin{tabularx}{0.8\textwidth}{|X|}\hline
+{\bf Code hoisting} (Hoist):\\\hline
+$p: ~ {\tt skip} ~~ \Longrightarrow ~~ {\tt x:=e}$ \\
+$q: ~ {\tt x:=e} ~~ \Longrightarrow ~~ {\tt skip}$ \\
+${\tt if} ~~ p \models \overrightarrow{A}(\neg\wuse(\wx) ~ U ~ \wpoint(q)) ~~ \wedge$ \\
+$\hphantom{\texttt{if}} ~~ q \models \overleftarrow{A}((\neg\wdef(\wx)\vee\wpoint(q))\wedge \wtrans(e) ~ U ~ \wpoint(p))$ \\\hline
+\end{tabularx}
+
+\end{small}
+\caption{\label{fig:sample-trans} Rewriting rules for CP, DCE, and Hoist.}
+\end{figure}
+

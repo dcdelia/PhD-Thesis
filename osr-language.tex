@@ -1,10 +1,13 @@
-\subsection{Language Framework}
+\subsection{Language Syntax and Semantics}
+Our discussion is based on a minimal imperative programming whose syntax is reported \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}. In this section we introduce some basic definitions used in our representation of programs, and provide a big-step semantics for the language.
 
-In this section we introduce some basic definitions used in our representation of programs and transformations. In particular, we provide a syntax and a big-step semantics for a simple imperative language, and introduce means for reasoning about program properties using computation tree logic operators and for describing program transformations through rewrite rules with side conditions.
+%\subsection{Language Framework}
 
-\subsubsection*{Program Syntax and Semantics}
+%In this section we introduce some basic definitions used in our representation of programs and transformations. In particular, we provide a syntax and a big-step semantics for a simple imperative language, and introduce means for reasoning about program properties using computation tree logic operators and for describing program transformations through rewrite rules with side conditions.
 
-Our discussion is based on a minimal imperative programming language with instructions and expressions with the syntax \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}.
+%\subsubsection*{Program Syntax and Semantics}
+
+%Our discussion is based on a minimal imperative programming language with instructions and expressions with the syntax \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}.
 
 \ifdefined\noauthorea
 \begin{figure}[t]
@@ -175,15 +178,13 @@ Finally, we provide a formal definition of control flow graph, which will be use
 %The {\em control flow graph} G for a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a pair $(V,E)$ where $V = \{ I_1, I_2, \ldots, I_n \}$ and $E = \{(I_i, I_{i+1})\:|\: I_i \neq \textsf{abort} \wedge I_i \neq \textsf{goto m}, \!\textsf{ m}\in Num \}\;\cup\;\{(I_i, I_m)\:|\: I_i = \textsf{goto m} \vee I_i = \textsf{if (e) goto m}, \!\textsf{ m}\in Num, \!\textsf{ e}\in Expr \}$.
 %The {\em control flow graph} G for a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a tuple $\langle V, I: V\rightarrow Num, E \subseteq V\times V\rangle$ where:
 The {\em control flow graph} $G$ for a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a pair $(V, E \subseteq V\times V)$ where:
-\begin{equation*}
-\begin{align}
+%\begin{equation*}
+\begin{align*}
 V &= \{ I_1, I_2, \ldots, I_n \} \\
 %I(v) &= \{ i | v = I_i, v\in V\} \\
 E &= \{(I_i, I_{i+1})\:|\: I_i \neq \textsf{abort} \wedge I_i \neq \textsf{goto m}, \!\textsf{ m}\in Num \} \\
 &\cup\;\{(I_i, I_m)\:|\: I_i = \textsf{goto m} \vee I_i = \textsf{if (e) goto m}, \!\textsf{ m}\in Num, \!\textsf{ e}\in Expr \}.
-\end{align}
-\end{equation*}
+\end{align*}
+%\end{equation*}
 %\noindent We also define an auxiliary function $I: V\rightarrow Num$ that returns the $i$-th index in $\pi$ of an instruction $v\in V$.
 \end{definition}
-
-\input{osr-language-reasoning}
