@@ -112,7 +112,13 @@ The set of live variables of a program $\pi$ at point $l$ is defined as:
 %\end{example}
 
 \begin{example}
-Dominance analysis is widely employed in a number of program analysis and optimization techniques. In the setting of a CFG, we say that a node $n$ dominates another node $m$ if every path from the CFG's entry node to $m$ must go through $n$. Using CTL operators, we can easily write a predicate that captures this property. In particular, given a program $\pi$ as in \mydef
+Dominance analysis is widely employed in a number of program analysis and optimization techniques. In the setting of a CFG, we say that a node $n$ dominates another node $m$ if every path from the CFG's entry node to $m$ must go through $n$. Using CTL operators, we can easily encode this property. Given a program $\pi$ as in \mydefinition\ref{de:program}, we can write:
+
+\begin{equation*}
+ \mytt{dom}(n,m) \Longleftrightarrow \pi,I_1 \models \neg E(\neg\wpoint(n)~U~\wpoint(m))
+\end{equation*}
+
+\noindent which captures the idea that there does not exist a path starting at the entry node (i.e, the first instruction in $\pi$) that reaches $m$ without reaching $n$ first.
 \end{example}
 
 
