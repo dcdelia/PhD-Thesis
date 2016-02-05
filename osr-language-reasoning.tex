@@ -89,7 +89,9 @@ n \models \overrightarrow{E}(\phi~U~\psi) &\Longleftrightarrow \exists p: p\in C
 \caption{\label{fig:osr-loc-pred}Predicates expressing local properties of a point $l\in [1,n]$ in a program $\pi=\langle I_1,\ldots,I_n\rangle$, with meta-variables $\texttt{e},\texttt{e'}\in Expr$, $\texttt{x}, \texttt{y}\in Var$, and $l, \texttt{m}\in Num$.}
 \end{figure}
 
-\myfigure\ref{fig:osr-loc-pred} shows a number of local predicates that will be useful throughout the paper. For instance, $\pi,l\models \ureachdef(\wx, l')$ ({\em unique reaching definition}) holds if and only if variable $\wx$ is defined at $l$ and on all paths in the control flow graph starting from an immediate successor of $l$, $\wx$ is not redefined until point $l'$ is reached, i.e., there is a unique definition of $\wx$ that reaches $l'$, and this definition is at $l$. The following definition will be useful, too:
+\myfigure\ref{fig:osr-loc-pred} shows a number of local predicates that will be useful throughout the paper. For instance, $\pi,l\models \ureachdef(\wx, l')$ ({\em unique reaching definition}) holds if and only if variable $\wx$ is defined at $l$ and on all paths in the control flow graph starting from an immediate successor of $l$, $\wx$ is not redefined until point $l'$ is reached, i.e., there is a unique definition of $\wx$ that reaches $l'$, and this definition is at $l$. \ureachdef's formulation relies on nested CTL operators: $\overrightarrow{AX}$ is used to encode a property for all successors of $l$, while the nested $\overrightarrow{A}$ captures all forward paths starting at such nodes.
+
+The following definition will be useful, too:
 
 \begin{definition}[Live Variables]
 \label{de:live-var}
