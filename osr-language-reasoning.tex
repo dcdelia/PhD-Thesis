@@ -27,10 +27,6 @@ First-order CTL can be used to specify properties of nodes and paths in a CFG. I
 \end{itemize}
 \noindent Corresponding operators $\overleftarrow{AX}$ and $\overleftarrow{EX}$ are defined for immediate predecessors of $l$, while $\overleftarrow{A}$ and $\overleftarrow{E}$ refer to backward paths from $l$.
 
-\begin{example}
- \missing
-\end{example}
-
 %\begin{definition}[Until Predicate]
 %Given a node $n_0$ in the control flow graph $G$ and a path $p = \langle n_0,n_1,\ldots,n_k\rangle \in CPaths(n_0,G)$, we say that the predicate {\em Until}$(p,\phi,\psi)$ holds if:
 %\begin{equation*}
@@ -76,7 +72,8 @@ n \models \overrightarrow{E}(\phi~U~\psi) &\Longleftrightarrow \exists p: p\in C
                             &            & [\wx ~ \textit{is used by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
 \wtrans(\we) & \triangleq & I_l= \texttt{x:=e'} ~ \wedge ~ \neg\wfreevar(\wx,\we) ~ \vee \\
                             &            & I_l\neq\texttt{x:=e'} \\
-                            &            & [\we ~ \textit{is not affected by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
+%                            &            & [\we ~ \textit{is not affected by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
+                            &            & [\textit{no constituent of}~\we~\textit{is modified by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
 \live(\wx) & \triangleq & \overleftarrow{AX}\overleftarrow{A}(\text{true} ~ U ~ \wdef(\wx)) ~ \wedge \\
                             &            & \overrightarrow{E}(\neg\wdef(\wx) ~ U ~ \wuse(\wx)) \\
                             &            & [\wx ~ \textit{is live at program point} ~ l ~ \textit{in} ~ \pi] \\
@@ -102,6 +99,22 @@ The set of live variables of a program $\pi$ at point $l$ is defined as:
 \live(\pi,l) \triangleq \{ ~ \wx\in Var ~ | ~ \pi, l\models \live(\wx) ~ \}
 \end{equation*}
 \end{definition}
+
+%% THIS EXAMPLE IS NOT CORRECT AS WE HAVE DEFINED use() OVER VARIABLES ONLY!!!
+%\begin{example}
+%Available expression analysis is a forward data-flow problem. For each point in a program, an algorithm determines the set of of expressions that do not need to be recomputed. Given a program $\pi$ and an instruction $p$, we can check whether an expression $e$ is available at it using:
+
+%\begin{equation*}
+ %\pi, p \models \overleftarrow{A}(\wtrans(e)~U~\wuse(e))
+%\end{equation*}
+
+%\noindent which captures the idea that for all backward starting at $p$, a calculation of $e$ is reached before any of its constituents is possibly modified.
+%\end{example}
+
+\begin{example}
+Dominance analysis is widely employed in a number of program analysis and optimization techniques. In the setting of a CFG, we say that a node $n$ dominates another node $m$ if every path from the CFG's entry node to $m$ must go through $n$. Using CTL operators, we can easily write a predicate that captures this property. In particular, given a program $\pi$ as in \mydef
+\end{example}
+
 
 
 \subsubsection*{Program Transformations}
@@ -161,7 +174,7 @@ ${\tt if} ~~ \wconlit(\wc) ~ \wedge ~ m \models \overleftarrow{A}(\neg\wdef(\wv)
 \vspace{2mm}
 
 \begin{tabularx}{0.8\textwidth}{|X|}\hline
-{\bf Dead store elimination} (DCE):\\\hline
+{\bf Dead store elimination} (DSE):\\\hline
 $m: ~ {\tt x:=e} ~~ \Longrightarrow ~~ {\tt skip}$ \\
 ${\tt if} ~~ m \models \overrightarrow{AX} ~ \neg\overrightarrow{E}(true ~ U ~ \wuse(\wx))$ \\\hline
 \end{tabularx}
@@ -177,6 +190,11 @@ $\hphantom{\texttt{if}} ~~ q \models \overleftarrow{A}((\neg\wdef(\wx)\vee\wpoin
 \end{tabularx}
 
 \end{small}
-\caption{\label{fig:sample-trans} Rewriting rules for CP, DCE, and Hoist.}
+\caption{\label{fig:sample-trans} Rewriting rules for defining CP, DCE, and Hoist transformations.}
 \end{figure}
 
+The constant propagation (CP) rule replaces uses of a variable $v$ at a node $m$ with a constant $c$. Its side condition is satisfied when in all backward paths starting at $m$, the first definition of $v$ we encounter is always $v:=c$.
+
+The dead store elimination (DSE) rule deletes an intruction at a node $m$ if the result of its computation will never be used later in the program's execution. As we are not interested in uses of the variable itself at $m$, in the side condition we skip past it with $AX$ and specify that there should not exist a forward path that eventually uses (i.e., reads from) the variable. 
+
+Finally, the code hoisting (Hoist) rule moves an assignment of the form $x:=v[e]$ from a node $q$ to a node $p$ provided that two conditions are met. The first requires that in all forward paths starting at the insertion point $p$, $x$ is not used until the original location $q$ is reached. The second requires that in all backward paths starting at $q$, $x$ is not reassigned at any node other than $q$ and the constituents of $e$ are not redefined, until the insertion point $p$ is reached. %Intuitively, \wtrans$(e)$ is used to ensure that $e$ is available at $q$ after the transformation has been applied.
