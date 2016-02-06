@@ -36,8 +36,9 @@ We now discuss an algorithm that, given a program $\pi$ and a rewrite rule $T$, 
  \item an OSR mapping $\mu_{\pi'\pi}$ from $\pi'$ to $\pi$.
 \end{enumerate}
 
-\noindent Mappings $\mu_{\pi\pi'}$ and $\mu_{\pi'\pi}$ produced by the algorithm are based on compensation code that runs in $O(1)$ time and support bidirectional OSR between $\pi$ and $\pi'$, enabling invalidation and deoptimization. The algorithm, which we call \osrtrans, is shown \ifauthorea{below}{in \ref{fig:osr-trans}}. In Section\missing, we prove that the algorithm is correct under the sufficient condition that variables that are live at corresponding points in the original and rewritten program contain the same values.
+\noindent Mappings $\mu_{\pi\pi'}$ and $\mu_{\pi'\pi}$ produced by the algorithm are based on compensation code that runs in $O(1)$ time and support bidirectional OSR between $\pi$ and $\pi'$, enabling invalidation and deoptimization. The algorithm, which we call \osrtrans, is shown \ifauthorea{below}{in \myalgorithm\ref{alg:osr-trans}}. In Section\missing, we prove that the algorithm is correct under the sufficient condition that variables that are live at corresponding points in the original and rewritten program contain the same values.
 
+%% OSR_trans
 \ifdefined\noauthorea
 \begin{figure}[ht!]
 \IncMargin{2em}
@@ -53,7 +54,7 @@ We now discuss an algorithm that, given a program $\pi$ and a rewrite rule $T$, 
 \KwIn{Program $\pi$, transformation $T$.}
 \KwOut{Program $\pi'$, OSR mappings $\mu_{\pi\pi'}$ and $\mu_{\pi'\pi}$.}
 \nonl\vspace{-2mm}\hrulefill\\
-\nonl$\mathbf{algorithm} \> \> \osrtrans$:\;
+\nonl$\mathbf{algorithm} \> \> \osrtrans$($\pi, T$)$\rightarrow$($\pi',\mu_{\pi\pi'},\mu_{\pi'\pi}$):\;
 \everypar={\nl}
 \Indp\Indpp
 \vspace{1mm} $(\pi',\Delta,\Delta')\gets \texttt{apply}(\pi,T)$\;
@@ -69,17 +70,16 @@ We now discuss an algorithm that, given a program $\pi$ and a rewrite rule $T$, 
 	$\mu_{\pi'\pi}(l')\gets(\Delta'(l'),\chi)$
     }
 }
-%\Return{$(\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$}\\
+\Return{$(\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$}\;
 \vspace{-2mm}
 \Indm\Indmm
 \nonl\hrulefill\vspace{1mm}\\
 \DecMargin{0.5em}
-%\caption{\label{fig:osr-trans} OSR mapping construction algorithm.}
-\caption{\label{fig:osr-trans} \osrtrans\ algorithm for OSR mapping construction.}
+%\caption{\label{alg:osr-trans} OSR mapping construction algorithm.}
+\caption{\label{alg:osr-trans} \osrtrans\ algorithm for OSR mapping construction. Functions $\Delta$ and $\Delta'$ are used to map OSR program points between $\pi$ and $\pi'$ (and viceversa).}
 \IncMargin{0.5em}
 %\DecMargin{0.5em}
-\end{algorithm}
- 
+\end{algorithm} 
 \end{figure}
 
 \else
@@ -87,16 +87,79 @@ We now discuss an algorithm that, given a program $\pi$ and a rewrite rule $T$, 
 \noindent
 \begin{small}
 \hphantom{xxx} $\textbf{algorithm}~\osrtrans(\pi, T)\rightarrow (\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$ \\
-1. ~~ ~~~~ $(\pi',\Delta,\Delta')\gets \texttt{apply}(\pi,T)$ \\
-2. ~~ ~~~~ $\textbf{for each}~l\in dom(\Delta)~\textbf{do}$ \\
-3. ~~ ~~~~ ~~~~ $\chi\gets\buildcomp(\pi,l,\pi',\Delta(l))$ \\
-4. ~~ ~~~~ ~~~~ $\textbf{if}~\chi\neq~undef~\textbf{then}~\mu_{\pi\pi'}(l)\gets(\Delta(l),\chi)$ \\
-5. ~~ ~~~~ $\textbf{for each}~l'\in dom(\Delta')~\textbf{do}$ \\
-6. ~~ ~~~~ ~~~~ $\chi\gets\buildcomp(\pi',l',\pi,\Delta'(l'))$ \\
-7. ~~ ~~~~ ~~~~ $\textbf{if}~\chi\neq~undef~\textbf{then}~\mu_{\pi'\pi}(l')\gets(\Delta'(l'),\chi)$ \\
-8. ~~ ~~~~ $\textbf{return}~(\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$ \\
+1.\hphantom{0} ~~ ~~~~ $(\pi',\Delta,\Delta')\gets \texttt{apply}(\pi,T)$ \\
+2.\hphantom{0} ~~ ~~~~ $\textbf{for each}~l\in dom(\Delta)~\textbf{do}$ \\
+3.\hphantom{0} ~~ ~~~~ ~~~~ $\chi\gets\buildcomp(\pi,l,\pi',\Delta(l))$ \\
+4.\hphantom{0} ~~ ~~~~ ~~~~ $\textbf{if}~\chi\neq~\mundef~\textbf{then}~\mu_{\pi\pi'}(l)\gets(\Delta(l),\chi)$ \\
+5.\hphantom{0} ~~ ~~~~ $\textbf{done}$\\
+6.\hphantom{0} ~~ ~~~~ $\textbf{for each}~l'\in dom(\Delta')~\textbf{do}$ \\
+7.\hphantom{0} ~~ ~~~~ ~~~~ $\chi\gets\buildcomp(\pi',l',\pi,\Delta'(l'))$ \\
+8.\hphantom{0} ~~ ~~~~ ~~~~ $\textbf{if}~\chi\neq~\mundef~\textbf{then}~\mu_{\pi'\pi}(l')\gets(\Delta'(l'),\chi)$ \\
+9.\hphantom{0} ~~ ~~~~ $\textbf{done}$\\
+10. ~~ ~~~~ $\textbf{return}~(\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$ \\
 \end{small}
-\caption{OSR mapping construction algorithm.}
-\label{fig:osr-trans}
+\caption{\osrtrans\ algorithm for OSR mapping construction. Functions $\Delta$ and $\Delta'$ are used to map OSR program points between $\pi$ and $\pi'$ (and viceversa).}
+\label{alg:osr-trans}
 \end{figure}
 \fi
+
+
+%% build_comp
+\ifdefined\noauthorea
+\begin{figure}[ht!]
+\IncMargin{2em}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\LinesNumbered
+\SetAlgoNoLine
+\SetNlSkip{1em} 
+\Indm\Indmm
+\hrulefill\\
+%$\mathbf{algorithm} \> \> \osrtrans$($\pi, T$)$\rightarrow$($\pi',\mu_{\pi\pi'},\mu_{\pi'\pi}$):\;
+%\vspace{1mm}
+\KwIn{Program $\pi$, point $l$, program $\pi'$, point $l'$.}
+\KwOut{Store compensation code $\chi$.}
+\nonl\vspace{-2mm}\hrulefill\\
+%$\textbf{algorithm}~\buildcomp(\pi, l, \pi', l')\rightarrow \chi$ \\
+\nonl$\mathbf{algorithm} \> \> \buildcomp$:\;
+\everypar={\nl}
+\Indp\Indpp
+\vspace{1mm} $\chi\gets \textbf{in}~x_1~x_2~\cdots~x_k\,:\,\forall i\in[1,k]:\pi,l \models \live(x_i)$\;
+mark all program points of $\pi'$ as unvisited\;
+$\mathbf{try}$\;
+\Indp
+\ForEach{$\wx:~\pi',l'\models\live(\wx)\wedge\pi,l\models\neg\live(\wx)$}{
+    $\chi \gets \chi \cdot \reconstruct(\wx, \pi, l, \pi', l', l')$\;
+}
+\Indm
+$\mathbf{catch}$\;
+\Indp
+$\mathbf{return}~\mundef$\;
+\Indm
+$\chi\gets \chi\cdot\textbf{out}~x_1~x_2~\cdots~x_k:\forall i\in[1,k]:\pi',l'\models \live(x_i)$\;
+\Return{$\chi$}\;
+\vspace{-2mm}
+\Indm\Indmm
+\nonl\hrulefill\vspace{1mm}\\
+\IncMargin{1.5em}
+\caption{\label{alg:osr-build-comp} \buildcomp\ algorithm for compensation code construction.}
+\DecMargin{1.5em}
+\end{algorithm} 
+\end{figure}
+
+\else
+\begin{figure}
+\noindent
+\begin{small}
+\algmissing \\
+\end{small}
+\caption{\buildcomp\ algorithm for compensation code construction.}
+\label{alg:osr-build-comp}
+\end{figure}
+\fi
+
+
+\paragraph*{\texttt{OSR\_trans}:} the algorithm relies on two subroutines: \apply\ and \buildcomp. Procedure \apply\ takes as input a program $\pi$ and a program rewriting function $T$, and returns a transformed program $\pi'$ and two functions $\Delta:[1,|\pi|]\rightarrow [1,|\pi'|]$, $\Delta':[1,|\pi'|]\rightarrow [1,|\pi|]$ that map OSR program points between $\pi$ and $\pi'$. 
+Algorithm \buildcomp\ (shown \ifauthorea{above}{in \myalgorithm\ref{alg:osr-build-comp}}) takes as input $\pi$, $l$, $\pi'$, $l'$ and aims to build a {\em store compensation code} $\chi$ that allows firing an OSR from $\pi$ at $l$ to $\pi'$ at $l'$. \osrtrans\ first calls \apply\ and then uses \buildcomp\ on $\pi$, $\pi'$, $\Delta$, $\Delta'$ to build OSR mappings $\mu_{\pi\pi'},\mu_{\pi'\pi}$. Lines 2--5 build the forward mapping $\mu_{\pi\pi'}$ from $l$ in $\pi$ to $\Delta(l)$ in $\pi'$, while lines 6--9 build the backward mapping $\mu_{\pi'\pi}$ from $l'$ in $\pi'$ to $\Delta'(l')$ in $\pi$. If any of the live variables at the OSR destination cannot be guaranteed to be correctly assigned, no entry is created in $\mu_{\pi\pi'}$ or $\mu_{\pi'\pi}$ for the OSR origin point (lines 4 and 8). Hence, those points will not be eligible for OSR transitions. In Section \missing\ we will analyze experimentally the fraction of points for which a compensation code can be created by algorithm \buildcomp\ in a variety of prominent benchmarks.
+
+\paragraph*{\texttt{build\_comp}:} the algorithm (\ifauthorea{shown below}{shown in \myalgorithm\ref{alg:osr-build-comp}}) generates a program $\chi$ that starts with an {\tt in} statement with the live variables at origin $l$ in $\pi$ (line 1), and ends with an {\tt out} statement with the live variables at destination $l'$ in $\pi'$ (line 9). The goal of $\chi$ is to make sure that all {\tt out} variables are correctly assigned, either because they already hold the correct value upon entry, or because they can be computed in terms of the input variables. The algorithm iterates on all variables $x_i$ that are live at destination, but not at origin (line 4). For each of them, it calls a subroutine \reconstruct\ that builds a code fragment that assigns $x_i$ with its correct value using live variables at origin (line 5). If this value cannot be determined, \reconstruct\ throws an exception and \buildcomp\ returns an undefined compensation code (line 8), which implies that OSR cannot be performed at $l$. To avoid code duplication in $\chi$ and unnecessary work, the algorithm assumes all points in $\pi'$ are initially unvisited (line 2) and lets \reconstruct\ mark them visited along the way. Algorithm \buildcomp\ can be implemented with a running time linearly bounded by the size of $\pi'$.
