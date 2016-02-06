@@ -1,0 +1,102 @@
+\subsubsection{OSR Mappings}
+\label{ss:osr-mapping}
+
+The machinery required for performing OSR transitions between two programs can be modeled as an {\em OSR mapping}:
+
+\begin{definition}[OSR Mapping]
+\label{de:osr-mapping}
+For any $\pi,\pi'\in Prog$, an {\em OSR mapping} from $\pi$ to $\pi'$ is a (possibly partial) function
+$\mu_{\pi\pi'}:[1,|\pi|]\rightarrow [1,|\pi'|]\times Prog$ such that:
+\begin{gather*}
+\forall \sigma\in\Sigma, \forall s_i=(\sigma_i,l_i)\in\tau_{\pi\sigma}~\text{s.t.}~l_i\in dom(\mu_{\pi\pi'}),~\\
+\exists \sigma'\in\Sigma, \exists s_j=(\sigma_j,l_j)\in\tau_{\pi'\sigma'}~\text{s.t.}~\\
+\mu_{\pi,\pi'}(l_i)=(l_j,\chi)~\wedge~\mysem{\chi}(\sigma_i\vert_{\live(\pi,l_i)})=\sigma_j\vert_{\live(\pi',l_j)}
+\end{gather*}
+We say that the mapping is {\em strict} if $\sigma'=\sigma$. We denote by $OSRMap$ the set of all possible OSR mappings between any pair of programs.
+\end{definition}
+
+\noindent Intuitively, an OSR mapping provides the information required to transfer execution from any realizable state of $\pi$, i.e., an execution state that is reachable from some initial store by $\pi$, to a realizable state of $\pi'$. Notice that this definition is rather general, as a non-strict mapping allows execution to be transferred to a program $\pi'$ that is {\em not} semantically equivalent to $\pi$. For instance, $\pi'$ may contain speculatively optimized code, or just some optimized fragments of $\pi$~\cite{Guo11, Bala00, Gal09}. In those scenarios, one typically assumes that execution in $\pi'$ can be invalidated by performing an OSR transition back to $\pi$ or to some other recovery program. We also observe that \mydefinition\ref{de:osr-mapping} uses a weak notion of store equality restricted to live variables. To simplify the discussion, we assume that the memory store is only defined on scalar variables (we address extensions to memory \mytt{load} and \mytt{store} instructions in Section\missing). Hence, the behavior of a program only depends on the content of its live variables, as stated in the following lemma:
+
+\begin{lemma}
+\label{le:only-live-count}
+For any program $\pi\in Prog$, any $\sigma,\sigma'\in\Sigma$, and any $l,l'\in \mathbb{N}$, it holds: 
+$$
+(\sigma,l)\Rightarrow_{\pi}(\sigma',l') ~~ \Longleftrightarrow ~~ (\sigma\vert_{\live(\pi,l)},l)\Rightarrow_{\pi}(\sigma'\vert_{\live(\pi,l')},l')
+$$
+\end{lemma}
+
+\noindent Notice that $dom(\mu_{\pi\pi'})\subseteq [1,|\pi|]$ is the set of all possible points in $\pi$ where OSR transitions to $\pi'$ can be fired. If $\mu_{\pi\pi'}$ is partial, then there are points in $\pi$ where OSR cannot be fired. In Section\missing, we discuss an algorithm whose goal is to minimize the number of these points.
+
+
+\subsubsection{OSR Mapping Generation Algorithm}
+We now discuss an algorithm that, given a program $\pi$ and a rewrite rule $T$, generates:
+\begin{enumerate}[itemsep=0pt,parsep=3pt]
+ \item a program $\pi'=\mysem{T}(\pi)$;
+ \item an OSR mapping $\mu_{\pi\pi'}$ from $\pi$ to $\pi'$;
+ \item an OSR mapping $\mu_{\pi'\pi}$ from $\pi'$ to $\pi$.
+\end{enumerate}
+
+\noindent Mappings $\mu_{\pi\pi'}$ and $\mu_{\pi'\pi}$ produced by the algorithm are based on compensation code that runs in $O(1)$ time and support bidirectional OSR between $\pi$ and $\pi'$, enabling invalidation and deoptimization. The algorithm, which we call \osrtrans, is shown \ifauthorea{below}{in \ref{fig:osr-trans}}. In Section\missing, we prove that the algorithm is correct under the sufficient condition that variables that are live at corresponding points in the original and rewritten program contain the same values.
+
+\ifdefined\noauthorea
+\begin{figure}[ht!]
+\IncMargin{2em}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\LinesNumbered
+\SetAlgoNoLine
+\SetNlSkip{1em} 
+\Indm\Indmm
+\hrulefill\\
+%$\mathbf{algorithm} \> \> \osrtrans$($\pi, T$)$\rightarrow$($\pi',\mu_{\pi\pi'},\mu_{\pi'\pi}$):\;
+%\vspace{1mm}
+\KwIn{Program $\pi$, transformation $T$.}
+\KwOut{Program $\pi'$, OSR mappings $\mu_{\pi\pi'}$ and $\mu_{\pi'\pi}$.}
+\nonl\vspace{-2mm}\hrulefill\\
+\nonl$\mathbf{algorithm} \> \> \osrtrans$:\;
+\everypar={\nl}
+\Indp\Indpp
+\vspace{1mm} $(\pi',\Delta,\Delta')\gets \texttt{apply}(\pi,T)$\;
+\ForEach{$l\in dom(\Delta)$}{
+    $\chi\gets\buildcomp(\pi,l,\pi',\Delta(l))$\;
+    \lIf{$\chi\neq~\mundef$}{
+	$\mu_{\pi\pi'}(l)\gets(\Delta(l),\chi)$
+    }
+}
+\ForEach{$l'\in dom(\Delta')$}{
+    $\chi\gets\buildcomp(\pi',l',\pi,\Delta'(l'))$\;
+    \lIf{$\chi\neq~\mundef$}{
+	$\mu_{\pi'\pi}(l')\gets(\Delta'(l'),\chi)$
+    }
+}
+%\Return{$(\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$}\\
+\vspace{-2mm}
+\Indm\Indmm
+\nonl\hrulefill\vspace{1mm}\\
+\DecMargin{0.5em}
+%\caption{\label{fig:osr-trans} OSR mapping construction algorithm.}
+\caption{\label{fig:osr-trans} \osrtrans\ algorithm for OSR mapping construction.}
+\IncMargin{0.5em}
+%\DecMargin{0.5em}
+\end{algorithm}
+ 
+\end{figure}
+
+\else
+\begin{figure}
+\noindent
+\begin{small}
+\hphantom{xxx} $\textbf{algorithm}~\osrtrans(\pi, T)\rightarrow (\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$ \\
+1. ~~ ~~~~ $(\pi',\Delta,\Delta')\gets \texttt{apply}(\pi,T)$ \\
+2. ~~ ~~~~ $\textbf{for each}~l\in dom(\Delta)~\textbf{do}$ \\
+3. ~~ ~~~~ ~~~~ $\chi\gets\buildcomp(\pi,l,\pi',\Delta(l))$ \\
+4. ~~ ~~~~ ~~~~ $\textbf{if}~\chi\neq~undef~\textbf{then}~\mu_{\pi\pi'}(l)\gets(\Delta(l),\chi)$ \\
+5. ~~ ~~~~ $\textbf{for each}~l'\in dom(\Delta')~\textbf{do}$ \\
+6. ~~ ~~~~ ~~~~ $\chi\gets\buildcomp(\pi',l',\pi,\Delta'(l'))$ \\
+7. ~~ ~~~~ ~~~~ $\textbf{if}~\chi\neq~undef~\textbf{then}~\mu_{\pi'\pi}(l')\gets(\Delta'(l'),\chi)$ \\
+8. ~~ ~~~~ $\textbf{return}~(\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$ \\
+\end{small}
+\caption{OSR mapping construction algorithm.}
+\label{fig:osr-trans}
+\end{figure}
+\fi
