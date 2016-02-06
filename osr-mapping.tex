@@ -49,12 +49,10 @@ We now discuss an algorithm that, given a program $\pi$ and a rewrite rule $T$, 
 \SetNlSkip{1em} 
 \Indm\Indmm
 \hrulefill\\
-%$\mathbf{algorithm} \> \> \osrtrans$($\pi, T$)$\rightarrow$($\pi',\mu_{\pi\pi'},\mu_{\pi'\pi}$):\;
-%\vspace{1mm}
 \KwIn{Program $\pi$, transformation $T$.}
 \KwOut{Program $\pi'$, OSR mappings $\mu_{\pi\pi'}$ and $\mu_{\pi'\pi}$.}
 \nonl\vspace{-2mm}\hrulefill\\
-\nonl$\mathbf{algorithm} \> \> \osrtrans$($\pi, T$)$\rightarrow$($\pi',\mu_{\pi\pi'},\mu_{\pi'\pi}$):\;
+\nonl$\mathbf{algorithm} \> \> \osrtrans$($\pi, T$)$\rightarrow$($\pi'$,$\mu_{\pi\pi'}$,$\mu_{\pi'\pi}$):\;
 \everypar={\nl}
 \Indp\Indpp
 \vspace{1mm} $(\pi',\Delta,\Delta')\gets \texttt{apply}(\pi,T)$\;
@@ -115,13 +113,11 @@ We now discuss an algorithm that, given a program $\pi$ and a rewrite rule $T$, 
 \SetNlSkip{1em} 
 \Indm\Indmm
 \hrulefill\\
-%$\mathbf{algorithm} \> \> \osrtrans$($\pi, T$)$\rightarrow$($\pi',\mu_{\pi\pi'},\mu_{\pi'\pi}$):\;
-%\vspace{1mm}
 \KwIn{Program $\pi$, point $l$, program $\pi'$, point $l'$.}
 \KwOut{Store compensation code $\chi$.}
 \nonl\vspace{-2mm}\hrulefill\\
 %$\textbf{algorithm}~\buildcomp(\pi, l, \pi', l')\rightarrow \chi$ \\
-\nonl$\mathbf{algorithm} \> \> \buildcomp$:\;
+\nonl$\mathbf{algorithm} \> \> \buildcomp$($\pi$, $l$, $\pi'$, $l'$)$\rightarrow\chi$:\;
 \everypar={\nl}
 \Indp\Indpp
 \vspace{1mm} $\chi\gets \textbf{in}~x_1~x_2~\cdots~x_k\,:\,\forall i\in[1,k]:\pi,l \models \live(x_i)$\;
@@ -136,7 +132,7 @@ $\mathbf{catch}$\;
 \Indp
 $\mathbf{return}~\mundef$\;
 \Indm
-$\chi\gets \chi\cdot\textbf{out}~x_1~x_2~\cdots~x_k:\forall i\in[1,k]:\pi',l'\models \live(x_i)$\;
+$\chi\gets \chi\cdot\textbf{out}~x_1~x_2~\cdots~x_{k'}:\forall i\in[1,k']:\pi',l'\models \live(x_i)$\;
 \Return{$\chi$}\;
 \vspace{-2mm}
 \Indm\Indmm
@@ -159,7 +155,63 @@ $\chi\gets \chi\cdot\textbf{out}~x_1~x_2~\cdots~x_k:\forall i\in[1,k]:\pi',l'\mo
 \fi
 
 
-\paragraph*{\texttt{OSR\_trans}:} the algorithm relies on two subroutines: \apply\ and \buildcomp. Procedure \apply\ takes as input a program $\pi$ and a program rewriting function $T$, and returns a transformed program $\pi'$ and two functions $\Delta:[1,|\pi|]\rightarrow [1,|\pi'|]$, $\Delta':[1,|\pi'|]\rightarrow [1,|\pi|]$ that map OSR program points between $\pi$ and $\pi'$. 
+\paragraph*{\texttt{OSR\_trans}.} The algorithm relies on two subroutines: \apply\ and \buildcomp. Procedure \apply\ takes as input a program $\pi$ and a program rewriting function $T$, and returns a transformed program $\pi'$ and two functions $\Delta:[1,|\pi|]\rightarrow [1,|\pi'|]$, $\Delta':[1,|\pi'|]\rightarrow [1,|\pi|]$ that map OSR program points between $\pi$ and $\pi'$. 
 Algorithm \buildcomp\ (shown \ifauthorea{above}{in \myalgorithm\ref{alg:osr-build-comp}}) takes as input $\pi$, $l$, $\pi'$, $l'$ and aims to build a {\em store compensation code} $\chi$ that allows firing an OSR from $\pi$ at $l$ to $\pi'$ at $l'$. \osrtrans\ first calls \apply\ and then uses \buildcomp\ on $\pi$, $\pi'$, $\Delta$, $\Delta'$ to build OSR mappings $\mu_{\pi\pi'},\mu_{\pi'\pi}$. Lines 2--5 build the forward mapping $\mu_{\pi\pi'}$ from $l$ in $\pi$ to $\Delta(l)$ in $\pi'$, while lines 6--9 build the backward mapping $\mu_{\pi'\pi}$ from $l'$ in $\pi'$ to $\Delta'(l')$ in $\pi$. If any of the live variables at the OSR destination cannot be guaranteed to be correctly assigned, no entry is created in $\mu_{\pi\pi'}$ or $\mu_{\pi'\pi}$ for the OSR origin point (lines 4 and 8). Hence, those points will not be eligible for OSR transitions. In Section \missing\ we will analyze experimentally the fraction of points for which a compensation code can be created by algorithm \buildcomp\ in a variety of prominent benchmarks.
 
-\paragraph*{\texttt{build\_comp}:} the algorithm (\ifauthorea{shown below}{shown in \myalgorithm\ref{alg:osr-build-comp}}) generates a program $\chi$ that starts with an {\tt in} statement with the live variables at origin $l$ in $\pi$ (line 1), and ends with an {\tt out} statement with the live variables at destination $l'$ in $\pi'$ (line 9). The goal of $\chi$ is to make sure that all {\tt out} variables are correctly assigned, either because they already hold the correct value upon entry, or because they can be computed in terms of the input variables. The algorithm iterates on all variables $x_i$ that are live at destination, but not at origin (line 4). For each of them, it calls a subroutine \reconstruct\ that builds a code fragment that assigns $x_i$ with its correct value using live variables at origin (line 5). If this value cannot be determined, \reconstruct\ throws an exception and \buildcomp\ returns an undefined compensation code (line 8), which implies that OSR cannot be performed at $l$. To avoid code duplication in $\chi$ and unnecessary work, the algorithm assumes all points in $\pi'$ are initially unvisited (line 2) and lets \reconstruct\ mark them visited along the way. Algorithm \buildcomp\ can be implemented with a running time linearly bounded by the size of $\pi'$.
+\paragraph*{\texttt{build\_comp}.} \ifauthorea{The algorithm (shown above)}{Code shown in \myalgorithm\ref{alg:osr-build-comp}} generates a program $\chi$ that starts with an {\tt in} statement with the live variables at origin $l$ in $\pi$ (line 1), and ends with an {\tt out} statement with the live variables at destination $l'$ in $\pi'$ (line 9). The goal of $\chi$ is to make sure that all {\tt out} variables are correctly assigned, either because they already hold the correct value upon entry, or because they can be computed in terms of the input variables. The algorithm iterates on all variables $x_i$ that are live at destination, but not at origin (line 4). For each of them, it calls a subroutine \reconstruct\ that builds a code fragment that assigns $x_i$ with its correct value using live variables at origin (line 5). If this value cannot be determined, \reconstruct\ throws an exception and \buildcomp\ returns an undefined compensation code (line 8), which implies that OSR cannot be performed at $l$. To avoid code duplication in $\chi$ and unnecessary work, the algorithm assumes all points in $\pi'$ are initially unvisited (line 2) and lets \reconstruct\ mark them visited along the way. Algorithm \buildcomp\ can be implemented with a running time linearly bounded by the size of $\pi'$.
+
+%% reconstruct
+\ifdefined\noauthorea
+\begin{figure}[ht!]
+\IncMargin{2em}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\LinesNumbered
+\SetAlgoNoLine
+\SetNlSkip{1em} 
+\Indm\Indmm
+\hrulefill\\
+$\mathbf{procedure} \> \> \reconstruct$($\wx$, $\pi$, $l$, $\pi'$, $l'$, $l''$):\;%$\rightarrow\chi$:\;
+\vspace{1mm}
+\everypar={\nl}
+\Indp\Indpp
+\uIf{$\exists\hat{l}:\pi',\hat{l}\models\ureachdef(\wx,l'')\wedge\stmt(\texttt{\rm x:=e})$}{
+    \lIf{$\hat{l}~\textsf{\rm is visited}$}{
+	\hspace{-0.3em}\Return{$\langle\rangle$} % \hspace{-0.3em}
+    }
+    mark $\hat{l}$ as visited\;
+    \lIf{$\pi',\hat{l}\models\ureachdef(\wx,l')~\wedge~\pi',l'\models\live(x)~\wedge~\pi,l\models\live(x)$}{
+    	\hspace{-0.3em}\Return{$\langle\rangle$} % \hspace{-0.3em}
+    }
+    $\chi\gets \langle\rangle$\;
+    \ForEach{$\wy:~\wy\in\wfreevar(\we)$}{
+	$\chi \gets \chi \cdot \reconstruct(\wy, \pi, l, \pi', l', \hat{l})$
+    }
+    $\chi\gets \chi \cdot \texttt{\rm x:=e}$\;
+}
+\lElse{
+    \hspace{-0.2em}$\mathbf{throw}~\mundef$
+}
+\Return{$\chi$}\;
+\vspace{-2mm}
+\Indm\Indmm
+\nonl\hrulefill\vspace{1mm}\\
+\DecMargin{0.5em}
+\caption{\label{alg:osr-reconstruct} Value reconstruction procedure used by \buildcomp.}
+\IncMargin{0.5em}
+\end{algorithm} 
+\end{figure}
+
+\else
+\begin{figure}
+\noindent
+\begin{small}
+\algmissing \\
+\end{small}
+\caption{Value reconstruction procedure used by \buildcomp.}
+\label{alg:osr-reconstruct}
+\end{figure}
+\fi
+
+\paragraph*{\texttt{reconstruct}.} The procedure \ifauthorea{shown above}{(shown in \myalgorithm\ref{alg:osr-reconstruct})} takes a variable \wx, the OSR origin and destination points $l$ and $l'$ in $\pi$ and $\pi'$, respectively, and an additional point $l''$ in $\pi'$. It builds a straight-line code fragment that assigns \wx\ with the value it would have had at $l''$ just before reaching $l'$ if execution had been carried on in $\pi'$ instead of $\pi$. The algorithm first checks if there is a unique definition of \wx\ of the form \mytt{x:=e} at some point $\hat{l}$ that reaches point $l''$ in $\pi''$ (\ureachdef\ at line 1). If such reaching definition is not unique, then the live information available in $\pi$ at $l$ is deemed insufficient to determine what value \wx\ would have assumed in $\pi'$, and the algorithm gives up (line 10). % by throwing an $undef$ exception.
+The algorithm assumes liveness and reaching definition analyses are available to compute predicates \live\ and \ureachdef\ (see Section \missing). If \wx\ is live both at the origin $l$ and at the destination $l'$, and the definition of \wx\ at $\hat{l}$ that reaches $l''$ is also a unique definition reaching $l'$ (line 4), then \wx\ would have assumed at $l''$ the same value available at $l'$. In Section \missing\ we will see that, if we can guarantee that live variables at origin have the same values they would have had at destination if execution had been performed in $\pi'$, then the algorithm correctly assumes that \wx\ is available at origin and no compensation code is needed to reconstruct it (\mytt{return} at line 4). If \wx\ is not available at $l$, then the algorithm iterates over all free variables $y$ of the expression $e$ computed at $\hat{l}$ and recursively builds code that computes the values that they would have assumed at $\hat{l}$ just before reaching $l'$ if execution had been carried on in $\pi'$. After the recursively generated code for assigning the constituents of \we\ has been added to $\chi$ (lines 6--8), the assignment \mytt{x:=e} is appended to $\chi$ (line 9).
