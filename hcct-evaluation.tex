@@ -121,6 +121,32 @@ We first evaluate how much space can be saved by our approach, reporting the siz
 
 As a second experiment, we study the actual memory footprint of our profilers considering both SS and the combination of SS with static bursting. \myfigure\ref{fig:hcct-space} plots the peak memory usage of our profilers as a percentage of the full CCT. We recall that during the computation we store the minimal subtree MCCT of the CCT spanning all monitored contexts. This subtree is eventually pruned to obtain the $(\phi,\varepsilon)$-HCCT (\mysection\ref{ss:hcct-approach,ss:hcct-algorithms}). The peak memory usage is proportional to the number of MCCT nodes, which is typically much larger than the actual number of hot contexts obtained after pruning.
 
+Quite surprisingly, static bursting also improves space usage. This depends on the fact that sampling reduces the variance of calling context frequencies: MCCT cold nodes that have a hot descendant are more likely to become hot when sampling is active, and monitoring these nodes reduces the total MCCT size. The histogram also shows that static bursting alone (i.e., without streaming) is not sufficient to substantially reduce space: in addition to hot contexts, a large fraction of cold contexts is also sampled and included in the CCT. We also observed that the larger the applications, the larger the space reduction of our approach over bursting alone.
+
+Since the average node degree is a small constant, cold HCCT nodes are typically a fraction of the total number of nodes, as shown in \myfigure\ref{fig:hcct-false-positives} for $\phi=10^{-4}$\ifauthorea{}{ (page \pageref{fig:hcct-false-positives})}. In our experiments we observed that this fraction strongly depends on the  hotness threshold $\phi$, and in particular decreases with $\phi$: cold nodes that have a hot descendant are indeed more likely to become hot when $\phi$ is smaller.
+
 \subsection{Time Overhead}
+
+We now discuss the time overhead of our approach, both alone and in combination with static bursting. We compare to native execution, to the widely-used call-graph profiler \gprof~\cite{Graham82}, and to the canonical CCT construction. To assess the instrumentation overhead, we also compare to {\em empty} instrumentation (i.e., when no analysis is performed).
+
+\ifdefined\noauthorea
+\begin{figure}[!ht]
+\begin{center}
+\begin{tabular}{cc}
+\hspace{-6mm}
+\includegraphics[width=0.49\textwidth]{figures/hcct-slowdown/hcct-slowdown-native.eps} &
+\includegraphics[width=0.49\textwidth]{figures/hcct-slowdown/hcct-slowdown-gprof.eps}\\
+(a) & (b)
+\end{tabular}
+\caption{\protect\input{figures/hcct-slowdown/caption}}
+\end{center}
+\end{figure}
+\fi
+
+\myfigure\ref{fig:hcct-slowdown}(a) shows the overheads of the different profilers normalized against the performance of a native execution. The average slowdown for the CCT construction is $2.45\times$, with a peak of $3.56\times$ for {\tt mount-herring}. Note that data for benchmarks {\tt fhourstones}, {\tt gobmk} and {\tt sjeng} are not reported for the CCT profiler as it ran out of memory. We observe that the construction of the $(\phi,\varepsilon)$-HCCT incurs an average slowdown of $2.9\times$ ($3.09\times$ considering also OOM benchmarks) and is $16.28\%$ slower than the CCT profiler, with a peak of $26.08\%$ for {\tt mount-herring}. Given the previously discussed memory usage reduction, this represents an interesting space-time trade-off.
+
+The integration with static bursting reduces the average overhead of our approach to $1.58\times$ for the whole set of benchmarks, which is not far from the $1.21\times$ slowdown introduced by the {\tt gcc} instrumentation itself. We observe a peak of $2.62\times$ on the benchmark {\tt fhourstones}: we believe this is due to the particular structure of its source code, which contains very frequently invoked tiny functions that could be replaced with macros.
+
+In \myfigure\ref{fig:hcct-slowdown}(b) we have normalized the runtime overheads against an execution under \gprof. The combination of our approach with static bursting is very effective, as it is on average $18\%$ ($5.16\%$ if we exclude {\tt fhourstones}) slower than \gprof. On 5 out of 10 benchmarks, the two tools achieve nearly-identical slowdowns. We observe $2.34\times$, $1.44\times$ and $1.74\times$ slowdowns on {\tt fhourstones}, {\tt overworld}, and {\tt scotland}, respectively. Notice that for all these benchmarks the cost of the instrumentation inserted by \gcc\ is already greater than the slowdown introduced by \gprof. On the other hand, we observe appreciable speedups on {\tt ice-labyrinth} and {\tt mount-herring}, for which SS combined with static bursting is $1.51\times$ and $1.55\times$ faster than \gprof, respectively.
 
 \subsection{Accuracy}
