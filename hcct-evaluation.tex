@@ -18,7 +18,108 @@ Our plugin provides native support for techniques aimed at reducing runtime over
 
 In this section we present the details of our experimental methodology, focusing on benchmarks and accuracy metrics, and we describe how the parameters of the streaming algorithms can be tuned.
 
+\subsubsection*{Benchmarks}
+Tests were performed on a variety of large-scale Linux applications and on a set benchmarks drawn from the {\tt Phoronix PTS} and the {\tt SPEC CPU2006} test suites. To ensure deterministic replay of the execution of the interactive applications, we used the PIN dynamic instrumentation framework~\cite{Luk05} to record timestamped execution traces for typical usage sessions of appoximately fifteen minutes.
+
+Interactive applications include graphics programs ({\tt inkscape} and {\tt gimp}), a hexadecimal file viewer ({\tt ghex2}), audio players/editors ({\tt amarok} and {\tt audacity}), an archiver ({\tt ark}), an Internet browser ({\tt firefox}), an HTML editor ({\tt quanta}), a chat program ({\tt pidgin}), the OpenOffice suite for word processing ({\tt oowriter}), spreadsheets ({\tt oocalc}), and drawing ({\tt ooimpress}).
+
+Non-interactive benchmarks include a cryptographic library ({\tt botan}), a 2D graphics library ({\tt cairo-perf-trace}), advanced chess engines ({\tt crafty} and {\tt sjeng}), the Connect Four ({\tt fhourstones}) and Go ({\tt gobmk}) games, and two 3D games run in demo mode (PlanetPenguin Racer in the {\tt ice-labyrinth} and {\tt mount-herring} scenarios, and SuperTuxKart on the {\tt overworld} and {\tt scotland} tracks).
+
+Statistical information about test sets are reported in \mytable\ref{tab:hcct-CCTsize}\ifauthorea{}{ (page~\pageref{tab:hcct-CCTsize})}: even short sessions result in CCTs consisting of tens of millions of calling contexts, whereas the call graph has only a few thousand nodes. We also observe that the number of distinct call sites is roughly one order of magnitude larger than the call graph.
+
+\subsubsection*{Metrics}
+Besides memory usage and time consumption of our profiler, we test the accuracy of the $(\phi,\varepsilon)$-HCCT according to a variety of metrics.
+
+\begin{enumerate}
+\item Degree of overlap~\cite{Arnold01,Arnold00,Zhuang06} measures the completeness of the $(\phi,\varepsilon)$-HCCT with respect to the full CCT:
+\begin{small}
+$$overlap((\phi,\varepsilon){\mbox{-HCCT,\,CCT}})=\frac{1}{N}\sum_{\mbox{\footnotesize{arcs}}~e\in (\phi,\varepsilon)\mbox{\tiny -HCCT}}w(e)$$\\
+\end{small}
+where $N$ is the total number of routine activations (corresponding to the CCT total weight) and $w(e)$ is the true frequency of the target node of arc $e$ in the CCT.
+
+\item Hot edge coverage~\cite{Zhuang06} measures the percentage of CCT hot edges covered by the $(\phi,\varepsilon)$-HCCT, using an edge-weight threshold $\tau\in [0,1]$ to determine hotness. Since $(\phi,\varepsilon)$-HCCT$\subseteq$CCT, hot edge coverage can be defined as follows:
+\begin{small}
+$$\hspace{-0mm}cover((\phi,\varepsilon){\mbox{-HCCT,\,CCT}},\tau)=\frac{|\{e\in(\phi,\varepsilon){\mbox{-HCCT:}}\,w(e)\ge\tau \cdot w_{max}\}|}{|\{e\in\mbox{CCT:}\,w(e)\ge\tau \cdot w_{max}\}|}$$\\
+\end{small}
+where $w_{max}$ is the weight of the hottest CCT arc.
+
+\item Maximum hotness of uncovered calling contexts, where a context is uncovered if is not included in the $(\phi,\varepsilon)$-HCCT:
+\begin{small}
+$$maxUncov((\phi,\varepsilon){\mbox{-HCCT,\,CCT}})=\max_{e\in\mbox{\tiny CCT}\setminus(\phi,\varepsilon){\mbox{\tiny -HCCT}}}\frac{w(e)}{w_{max}}\times 100$$\\
+\end{small}
+Average hotness of uncovered contexts is defined similarly.
+
+\item Number of false positives, i.e., $|A\setminus H|$: the smaller this number, the better the $(\phi,\varepsilon){\mbox{-HCCT}}$ approximates the exact HCCT obtained from CCT pruning.
+
+\item Maximum counter error, i.e., maximum error in the frequency counters of $(\phi,\varepsilon)$-HCCT nodes with respect to their true value in the full CCT:
+\begin{small}
+$$maxError((\phi,\varepsilon){\mbox{-HCCT}})=\max_{e\in(\phi,\varepsilon){\mbox{\tiny -HCCT}}}\frac{|w(e)-\widetilde{w}(e)|}{w(e)}\times 100$$\\
+\end{small}
+where $w(e)$ and $\widetilde{w}(e)$ are the true and the estimated frequency of context $e$, respectively. Average counter error is defined similarly.
+\end{enumerate}
+
+\noindent We remark that an accurate solution should maximize (1) and (2), and minimize the remaining metrics.
+
+\subsubsection*{Parameter Tuning}
+
+Before describing our experimental findings, we discuss how to choose parameters $\phi$ and $\varepsilon$ to be provided as input to the streaming algorithms. According to the theoretical analysis, an accurate choice of $\phi$ and $\varepsilon$  might greatly affect the space used by the algorithms and the accuracy of the solution. In our study we considered many different choices of $\phi$ and $\varepsilon$ across rather heterogeneous sets of benchmarks and execution traces, always obtaining similar results that we summarize below. 
+
+A rule of thumb about $\phi$ and $\varepsilon$ validated by previous experimental studies~\cite{Cormode08} suggests that it is sufficient to choose $\varepsilon=\phi/10$ in order to obtain high counter accuracy and a small number of false positives.
+
+We found this choice overly pessimistic in our scenario: the extremely skewed cumulative distribution of calling context frequencies shown in \myfigure\ref{fig:hcct-skewness} \ifauthorea{}{(page \pageref{fig:hcct-skewness})} makes it possible to use much larger values of $\varepsilon$ without sacrificing accuracy. This yields substantial benefits on the space usage, which is roughly proportional to $1/\varepsilon$. Unless otherwise stated, in all our experiments we used $\varepsilon=\phi/5$.
+
+Let us now consider the choice of $\phi$: $\phi$ is the hotness threshold with respect to the stream length $N$, i.e., to the number of routine enter events. However, $N$ is unknown {\em a priori} during profiling, and thus choosing $\phi$ appropriately may appear to be difficult: too-large values might result in returning very few hot calling contexts (even no context at all in some extreme cases), while too-small values might result in using too much space and returning too many contexts without being able to discriminate accurately which of them are actually hot. Our experiments suggest that an appropriate choice of $\phi$ is mostly independent of the specific benchmark and of the stream length: as shown in \mytable\ref{tab:hcct-phi}, different benchmarks have HCCT sizes of the same order of magnitude when using the same $\phi$ threshold (results for omitted benchmarks are similar). This is a consequence of the skewness of context frequency distribution, and greatly simplifies the choice of $\phi$ in practice. Unless otherwise stated, in our experiments we used $\phi=10^{-4}$, which corresponds to mining roughly the hottest 1,000 calling contexts independently of the benchmark.
+
+\begin{table}[ht]
+\vspace{2mm}
+\begin{center}
+\begin{tabular}{c c c c c}
+\hline
+  & HCCT nodes  & HCCT nodes & HCCT nodes & CCT nodes \\ 
+Benchmark & $\phi=10^{-3}$  & $\phi=10^{-5}$ & $\phi=10^{-7}$ \\ 
+\hline
+audacity & 112 & 9\,181 & 233\,362 & 13\,131\,115 \\
+dolphin & 97 & 14\,563 & 978\,544 & 11\,667\,974 \\
+gimp & 96 & 15\,330 & 963\,708 & 26\,107\,261 \\
+ice-labyrinth & 93 & 9\,413 & 529\,945 & 2\,160\,052 \\
+inkscape & 80 & 16\,713 & 830\,191 & 13\,896\,175 \\
+oocalc & 136 & 13\,414 & 1\,339\,752 & 48\,310\,585 \\
+quanta & 94 & 13\,881 & 812\,098 & 27\,426\,654 \\
+\hline
+\end{tabular}
+\vspace{3mm}
+\caption{\label{tab:hcct-phi} Typical thresholds for calling context frequencies.}
+\end{center}
+\end{table}
+\ifauthorea{\newline}{}
+
+\subsubsection*{Platform}
+
+Experiments were performed on a 2.53GHz Intel Core2 Duo T9400 with 128KB of L1 data cache, 6MB of L2 cache, and 4 GB of main memory DDR3 1066, running Ubuntu 12.04, Linux Kernel 3.5.0, gcc 4.7.2, 32 bit. Performance measurements were collected with negligible background activity, running multiple trials for each benchmark/tool combination and reporting confidence intervals stated at 95\% confidence level.
+
 \subsection{Memory Usage}
+
+We first evaluate how much space can be saved by our approach, reporting the size of the MCCT constructed by the SS algorithm compared to the size of the full CCT as a function of the hotness threshold $\phi$. \myfigure\ref{fig:hcct-space-by-phi} shows the results for a subset of our benchmarks. Notice that the size of the MCCT, hence the space used by the algorithm, decreases with $\phi$. For values of $\phi\ge 10^{-4}$, i.e., contexts that appear at least $0.01\%$ of the times, space usage remains less than $1\%$ than the CCT size for most benchmarks, with a worst case of about $4.1\%$ over all our experiments.
+
+\ifdefined\noauthorea
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[width=0.75\textwidth]{figures/hcct-space-by-phi/hcct-space-by-phi.eps}
+\caption{\protect\input{figures/hcct-space-by-phi/caption}}
+\end{center}
+\end{figure}
+\fi
+
+\ifdefined\noauthorea
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[width=\textwidth]{figures/hcct-space/hcct-space.eps}
+\caption{\protect\input{figures/hcct-space/caption}}
+\end{center}
+\end{figure}
+\fi
+
+As a second experiment, we study the actual memory footprint of our profilers considering both SS and the combination of SS with static bursting. \myfigure\ref{fig:hcct-space} plots the peak memory usage of our profilers as a percentage of the full CCT. We recall that during the computation we store the minimal subtree MCCT of the CCT spanning all monitored contexts. This subtree is eventually pruned to obtain the $(\phi,\varepsilon)$-HCCT (\mysection\ref{ss:hcct-approach,ss:hcct-algorithms}). The peak memory usage is proportional to the number of MCCT nodes, which is typically much larger than the actual number of hot contexts obtained after pruning.
 
 \subsection{Time Overhead}
 
