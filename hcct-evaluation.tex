@@ -15,6 +15,7 @@ Our plugin provides native support for techniques aimed at reducing runtime over
 \paragraph*{Other Software.} As part of our infrastructure, we have developed two additional pieces of software that might be of independent interest: a library for resolving addresses to symbols, and a set of tools for the analysis and comparison of CCTs from distinct executions. In general, even for deterministic benchmarks it might not be trivial to line up nodes from two executions, as due to technical aspects such as address space randomization and dynamic loading of libraries program addresses can change. In some cases it is not always possible to resolve addresses offline up to a source-file line-number granularity, but the available information is only partial (e.g., we know only the source file where the method is defined). If this happens for two or more sibling nodes that have identical frequency counters, lining them up with tree nodes from another execution requires a similarity analysis of their spanned subtrees. We observed similar scenarios frequently in our experiments, both for hot and cold calling contexts. Since spanned subtrees for CCT nodes can be large, rapid and accurate heuristics are required to summarize the subtrees and compute their similarity; accuracy of heuristics is even more crucial when comparing a CCT with a HCCT, as spanned subtrees in the latter might have been partially or entirely pruned. Using combinatorial techniques and ad-hoc heuristics based on topological properties of the trees, we were able to quickly (i.e., in a few minutes) reconstruct for all our experiments a full and accurate mapping between pairs of different trees.
 
 \subsection{Experimental Setup}
+\label{ss:hcct-experimental-setup}
 
 In this section we present the details of our experimental methodology, focusing on benchmarks and accuracy metrics, and we describe how the parameters of the streaming algorithms can be tuned.
 
@@ -123,7 +124,7 @@ As a second experiment, we study the actual memory footprint of our profilers co
 
 Quite surprisingly, static bursting also improves space usage. This depends on the fact that sampling reduces the variance of calling context frequencies: MCCT cold nodes that have a hot descendant are more likely to become hot when sampling is active, and monitoring these nodes reduces the total MCCT size. The histogram also shows that static bursting alone (i.e., without streaming) is not sufficient to substantially reduce space: in addition to hot contexts, a large fraction of cold contexts is also sampled and included in the CCT. We also observed that the larger the applications, the larger the space reduction of our approach over bursting alone.
 
-Since the average node degree is a small constant, cold HCCT nodes are typically a fraction of the total number of nodes, as shown in \myfigure\ref{fig:hcct-false-positives} for $\phi=10^{-4}$\ifauthorea{}{ (page \pageref{fig:hcct-false-positives})}. In our experiments we observed that this fraction strongly depends on the  hotness threshold $\phi$, and in particular decreases with $\phi$: cold nodes that have a hot descendant are indeed more likely to become hot when $\phi$ is smaller.
+Since the average node degree is a small constant, cold HCCT nodes are typically a fraction of the total number of nodes, as shown in \myfigure\ref{fig:hcct-breakdown} for $\phi=10^{-4}$\ifauthorea{}{ (page \pageref{fig:hcct-breakdown})}. In our experiments we observed that this fraction strongly depends on the  hotness threshold $\phi$, and in particular decreases with $\phi$: cold nodes that have a hot descendant are indeed more likely to become hot when $\phi$ is smaller.
 
 \subsection{Time Overhead}
 
@@ -150,3 +151,55 @@ The integration with static bursting reduces the average overhead of our approac
 In \myfigure\ref{fig:hcct-slowdown}(b) we have normalized the runtime overheads against an execution under \gprof. The combination of our approach with static bursting is very effective, as it is on average $18\%$ ($5.16\%$ if we exclude {\tt fhourstones}) slower than \gprof. On 5 out of 10 benchmarks, the two tools achieve nearly-identical slowdowns. We observe $2.34\times$, $1.44\times$ and $1.74\times$ slowdowns on {\tt fhourstones}, {\tt overworld}, and {\tt scotland}, respectively. Notice that for all these benchmarks the cost of the instrumentation inserted by \gcc\ is already greater than the slowdown introduced by \gprof. On the other hand, we observe appreciable speedups on {\tt ice-labyrinth} and {\tt mount-herring}, for which SS combined with static bursting is $1.51\times$ and $1.55\times$ faster than \gprof, respectively.
 
 \subsection{Accuracy}
+
+\paragraph*{Exact HCCT.} We first discuss the accuracy of the exact HCCT with respect to the full CCT. Since the HCCT is a subtree of the $(\phi,\varepsilon)$-HCCT computed by our algorithms, the results described in this section apply to the $(\phi,\varepsilon)$-HCCT as well: the values of degree of overlap and hot edge coverage on the HCCT are a lower bound to the corresponding values in the  $(\phi,\varepsilon)$-HCCT, while the frequency of uncovered contexts is an upper bound.
+
+It is not difficult to see that the cumulative distribution  of calling context frequencies shown in \myfigure\ref{fig:hcct-skewness} \ifauthorea{}{(page \pageref{fig:hcct-skewness})} corresponds exactly to the degree of overlap with the full CCT. This distribution roughly satisfies the $10\%\,$-$\,90\%$ rule: hence, with only $10\%$ of hot contexts, we have a degree of overlap around $90\%$ on all benchmarks.
+
+\ifdefined\noauthorea
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[width=0.65\textwidth]{figures/hcct-overlap/hcct-overlap.eps}
+\caption{\protect\input{figures/hcct-overlap/caption}}
+\end{center}
+\end{figure}
+\fi
+
+\myfigure\ref{fig:hcct-overlap} illustrates the relation between degree of overlap and hotness threshold, plotting the value $\widetilde\phi$ of the largest hotness threshold for which a given degree of overlap $d$ can be achieved: using any $\phi\leq\widetilde\phi$, the achieved degree of overlap will be larger than or equal to $d$. The value of $\widetilde\phi$ decreases as $d$ increases: if we want to achieve a larger degree of overlap, we must include in the HCCT a larger number of nodes, which corresponds to choosing a smaller hotness threshold. However, when computing the $(\phi,\varepsilon)$-HCCT, the value of $\phi$ indirectly affects the space used by the algorithm and in practice cannot be too small (see \mysection\ref{ss:hcct-experimental-setup}). By analyzing hot edge coverage and uncovered frequency, we show that even when the degree of overlap is not particularly large, the HCCT and the $(\phi,\varepsilon)$-HCCT are nevertheless good approximations of the full CCT.
+
+As shown in \myfigure\ref{fig:hcct-space-by-phi,fig:hcct-coverage}, for values of $\phi$ as small as $10^{-4}$ the space usage is less than $1\%$ of the full CCT, while guaranteeing 100\% coverage for all edges with hotness at least 10\% on most benchmarks. Smaller values of $\phi$ increase space and improve the degree of overlap, but are unlikely to be interesting in applications that require mining hot calling contexts.
+
+Notice that $\phi=10^{-4}$ yields a degree of overlap as small as $10\%$ on two of the less skewed benchmarks ({\tt oocalc} and {\tt firefox}), which seems to be a bad scenario. However, \myfigure\ref{fig:hcct-uncovered} analyzes how the remaining $90\%$ of the total CCT weight is distributed among uncovered contexts: the average frequency of uncovered contexts is about $0.01\%$ of the frequency of the hottest context, and the maximum frequency is typically less than $10\%$. This suggests that uncovered contexts are likely to be uninteresting with respect to the hottest contexts, and that the distribution of calling context frequencies obeys a ``long-tail, heavy-tail'' phenomenon: the CCT contains a huge number of calling contexts that rarely get executed, but overall these low-frequency contexts account for a significant fraction of the total CCT weight.
+
+\ifdefined\noauthorea
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[width=0.65\textwidth]{figures/hcct-coverage/hcct-coverage.eps}\\
+\caption{\protect\input{figures/hcct-coverage/caption}}
+\end{center}
+\end{figure}
+\fi
+
+\ifdefined\noauthorea
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[width=0.95\textwidth]{figures/hcct-uncovered/hcct-uncovered.eps}\\
+\caption{\protect\input{figures/hcct-uncovered/caption}}
+\end{center}
+\end{figure}
+\fi
+
+\myfigure\ref{fig:hcct-coverage} confirms this intuition, showing that the HCCT represents the hot portions of the full CCT remarkably well even for values of $\phi$ for which the degree of overlap may be small. The figure plots, as a function of $\phi$, the smallest value $\widetilde\tau$ of the hotness threshold $\tau$ for which hot edge coverage of the HCCT is $100\%$. Results are shown only on some of the less skewed, and thus more difficult, benchmarks. Note that $\widetilde\tau$ is directly proportional to and roughly one order of magnitude larger than $\phi$. This is because the HCCT contains all contexts with frequency $\ge\lfloor\phi N\rfloor$, and always contains the hottest context, which has weight $w_{max}$ as in the definition of hot edge coverage in \mysection\ref{ss:hcct-experimental-setup}. Hence, the hot edge coverage is $100\%$ as long as $\lfloor\phi N\rfloor\ge\tau \cdot w_{max}$, which yields $\widetilde\tau=\lfloor\phi N\rfloor/w_{max}$. The experiment shows that $100\%$ hot edge coverage is always obtained for $\tau\ge 0.01$. As a frame of comparison, notice that the $\tau$ thresholds used in~\cite{Zhuang06} to analyze hot edge coverage are always larger than $0.05$, and for those values we always guarantee total coverage.
+
+%%% (phi,eps)-HCCT accuracy
+
+\ifdefined\noauthorea
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[width=0.95\textwidth]{figures/hcct-breakdown/hcct-breakdown.eps}\\
+\caption{\protect\input{figures/hcct-breakdown/caption}}
+\end{center}
+\end{figure}
+\fi
+
+\paragraph*{$\boldsymbol{(}\boldsymbol{\phi}\boldsymbol{,}\boldsymbol{\varepsilon}\boldsymbol{)}$-HCCT.} We now discuss the accuracy of the $(\phi,\varepsilon)$-HCCT compared to the exact HCCT. \myfigure\ref{fig:hcct-breakdown} shows the percentages of cold nodes, true hots, and false positives in the $(\phi,\varepsilon)$-HCCT using $\phi=10^{-4}$ and $\varepsilon=\phi/5$. We observe that SS includes in the tree only very few false positives: less than $10\%$ of the total number of tree nodes in the worst case, and between $0\%$ and $5\%$ for the large majority of the benchmarks. The percentage of cold nodes strictly depends on the characteristics of the single benchmark, and is not remarkably influenced by the number of false positives, which is small.
