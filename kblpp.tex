@@ -185,6 +185,7 @@ Notice also that a 1-IPF includes acyclic paths only, and yields exactly the sam
 %~\cite{}
 
 \subsection{Algorithms}
+\label{ss:kblp-algorithms}
 
 We observe that building explicitly a \kipf\ concurrently with a program's execution would require updating up to $k$ nodes for each traced BL path: indeed, this may considerably slow down the program even for small values of $k$. In this section we show that, given a stream of BL path IDs, a \kipf\ profile can be constructed by maintaining an intermediate data structure that can be updated quickly, and then converting it into a \kipf\
 %more efficiently
