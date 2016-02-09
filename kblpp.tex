@@ -19,6 +19,7 @@ While the original Ball-Larus approach was restricted to acyclic paths obtained 
 \paragraph*{Contributions.} In this thesis, we present a novel, data structure-based approach to multi-iteration path profiling. Our method stems from the observation that any cyclic path in the control flow graph of a routine can be described as a concatenation of Ball-Larus acyclic paths (BL paths). In particular, we show how to accurately profile {\em all executed paths} obtained as a concatenation of up to $k$ BL paths, where $k$ is a user-defined parameter. We reduce multi-iteration path profiling to the problem of counting $n$-grams, i.e., contiguous sequences of $n$ items from a given sequence. To compactly represent collected profiles, we organize them in a forest of prefix trees (or tries)~\cite{Fredkin60} of depth up to $k$, where each node is labeled with a BL path, and paths in a tree represent concatenations of BL paths that were actually executed by the program, along with their frequencies. We also present an efficient construction algorithm based on a variant of the \ksf\ data structure presented in~\cite{Ausiello12}. 
 
 \subsection{Approach}
+\label{ss:kblpp-approach}
 
 Differently from previous techniques~\cite{Tallam04,Roy09,Li12}, which rely on modifying the Ball-Larus path numbering to cope with cycles, our method does not	require any modification of the original numbering technique described in~\cite{Ball96}.
 

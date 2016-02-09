@@ -9,8 +9,9 @@ In the second part, we discuss an implementation in the Jikes RVM of our intra-p
 
 Finally, we present an extensive experimental evaluation of our OSR techniques for continuous program optimization. We analyze the performance of \osrkit\ in the \tinyvm\ proof-of-concept virtual machine that we developed in LLVM. Our goal is to address a number of typical concerns of VM builders, measuring, e.g., the impact of having an OSR point in a hot code portion, and the actual cost of performing an OSR transition. We also measure the time required by \osrkit\ to insert an OSR point and to create a stub or a continuation function. We then \missing
 
+\ifdefined \noauthorea
 \input{hcct-evaluation}
-
-\section{{\em k-}iteration Path Profiling}
+\input{kblpp-evaluation}
+\fi
 
 \section{On-Stack Replacement}
