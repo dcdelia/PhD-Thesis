@@ -151,6 +151,7 @@ The integration with static bursting reduces the average overhead of our approac
 In \myfigure\ref{fig:hcct-slowdown}(b) we have normalized the runtime overheads against an execution under \gprof. The combination of our approach with static bursting is very effective, as it is on average $18\%$ ($5.16\%$ if we exclude {\tt fhourstones}) slower than \gprof. On 5 out of 10 benchmarks, the two tools achieve nearly-identical slowdowns. We observe $2.34\times$, $1.44\times$ and $1.74\times$ slowdowns on {\tt fhourstones}, {\tt overworld}, and {\tt scotland}, respectively. Notice that for all these benchmarks the cost of the instrumentation inserted by \gcc\ is already greater than the slowdown introduced by \gprof. On the other hand, we observe appreciable speedups on {\tt ice-labyrinth} and {\tt mount-herring}, for which SS combined with static bursting is $1.51\times$ and $1.55\times$ faster than \gprof, respectively.
 
 \subsection{Accuracy}
+\label{ss:hcct-accuracy}
 
 \paragraph*{Exact HCCT.} We first discuss the accuracy of the exact HCCT with respect to the full CCT. Since the HCCT is a subtree of the $(\phi,\varepsilon)$-HCCT computed by our algorithms, the results described in this section apply to the $(\phi,\varepsilon)$-HCCT as well: the values of degree of overlap and hot edge coverage on the HCCT are a lower bound to the corresponding values in the  $(\phi,\varepsilon)$-HCCT, while the frequency of uncovered contexts is an upper bound.
 
@@ -203,3 +204,34 @@ Notice that $\phi=10^{-4}$ yields a degree of overlap as small as $10\%$ on two 
 \fi
 
 \paragraph*{$\boldsymbol{(}\boldsymbol{\phi}\boldsymbol{,}\boldsymbol{\varepsilon}\boldsymbol{)}$-HCCT.} We now discuss the accuracy of the $(\phi,\varepsilon)$-HCCT compared to the exact HCCT. \myfigure\ref{fig:hcct-breakdown} shows the percentages of cold nodes, true hots, and false positives in the $(\phi,\varepsilon)$-HCCT using $\phi=10^{-4}$ and $\varepsilon=\phi/5$. We observe that SS includes in the tree only very few false positives: less than $10\%$ of the total number of tree nodes in the worst case, and between $0\%$ and $5\%$ for the large majority of the benchmarks. The percentage of cold nodes strictly depends on the characteristics of the single benchmark, and is not remarkably influenced by the number of false positives, which is small.
+
+An interesting feature of our approach is that counter estimates are very close to the true frequencies, as shown in \myfigure\ref{fig:hcct-counters}. A comparison between average and maximum errors suggests that just a few nodes are appreciably overestimated. The average counter error computed for hot contexts is actually greater than $4\%$ only for {\tt crafty}, and smaller than $2\%$ for the majority of the benchmarks.
+
+\ifdefined\noauthorea
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[width=0.95\textwidth]{figures/hcct-counters/hcct-counters.eps}\\
+\caption{\protect\input{figures/hcct-counters/caption}}
+\end{center}
+\end{figure}
+\fi
+
+It is worth noticing that, when integrating SS with sampling-based approaches, the theoretical guarantees of the algorithm apply only to the stream of sampled events, and not to the full stream of routine calls and returns from the execution. For this reason, we analyze the impact of static bursting on the quality of the solution.
+
+\myfigure\ref{fig:hcct-bursting}(a) shows the average counter error among hot calling contexts. In order to compare them with the exact frequencies from the corresponding CCTs, we adjusted the counters by dividing them by the fraction of sampled events in the stream of function calls and returns. Note that, if the stream is uniformly distributed in time, this fraction is equal to the ratio between burst length and sampling interval. While processing roughly only one tenth of the whole stream, we observe that the average counter error ranges from $6.89\%$ to $17.31\%$. An analysis of the results from the integration of static bursting with the canonical CCT construction shows very similar numbers, thus suggesting that SS does not degrade the quality of the solution.
+
+The adoption of sampling-based techniques may cause the algorithm to miss some of the contexts with frequency very close to $\lfloor\phi N\rfloor$,  leading to some false negatives. However, our analysis of hot edge coverage reported in \myfigure\ref{fig:hcct-bursting}(b) shows that static bursting does not appreciably degrade the quality of the solution. Given the smallest $\widetilde\tau$ value for which SS guarantees $100\%$ coverage, in all of our experiments we achieve $100\%$ coverge for any $\tau\ge2\widetilde\tau$ (i.e., when $\widetilde\tau/\tau\le0.5$), and only in one case ({\tt mount-herring} benchmark) hot edge coverage drops below $90\%$.
+
+\ifdefined\noauthorea
+\begin{figure}[!ht]
+\begin{center}
+\begin{tabular}{cc}
+\hspace{-6mm}
+\includegraphics[width=0.49\textwidth]{figures/hcct-bursting/hcct-bursting-accuracy.eps} &
+\includegraphics[width=0.49\textwidth]{figures/hcct-bursting/hcct-bursting-coverage.eps}\\
+(a) & (b)
+\end{tabular}
+\caption{\protect\input{figures/hcct-bursting/caption}}
+\end{center}
+\end{figure}
+\fi
