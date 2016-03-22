@@ -1,0 +1,97 @@
+\subsubsection{Composing Multiple Transformation Passes}
+\label{ss:trans-compose}
+
+In this section, we show that OSR mappings can be composed, allowing several optimization passes to be applied to a program using algorithm ${\tt OSR\_trans}$. The first ingredient is {\em program composition}, defined as follows:
+
+\begin{definition}[Program composition]
+We say that two programs $\pi,\pi'\in Prog$ with $\pi=\langle I_1,\ldots,I_n\rangle$ and $\pi'=\langle I'_1,\ldots,I'_{n'}\rangle$ are {\em composable} if $I_n=\texttt{out}~v_1,\ldots,v_k$ and $I'_1=\texttt{in}~v'_1,\ldots,v'_{k'}$ with $\{v'_1,\ldots,v'_{k'}\}\subseteq\{v_1,\ldots,v_k\}$. For any pair of composable programs $\pi,\pi'$, we define $\pi\circ\pi'=\langle I_1,\ldots,I_{n-1},\hat{I'}_2,\ldots,\hat{I'}_{n'}\rangle$, where $\forall i\in[1,n']$, $\hat{I'}_i$ is obtained from $I'_i$ by relocating each {\tt goto} target $m$ with $m+n-2$.
+\iffalse
+where $\chi\circ\chi'=\chi\setminus\{{\tt out \ldots}\}\cdot\chi'\left[
+\begin{tiny}
+\begin{array}{l}
+\texttt{goto}~m\mapsto \\
+\texttt{goto}~m+|\chi|-2
+\end{array}
+\end{tiny}
+\right]\setminus\{{\tt in \ldots}\}$. 
+\fi
+\end{definition}
+
+\begin{lemma}[Semantics of program composition]
+\label{le:prog-comp-sem}
+Let $\pi,\pi'\in Prog$ be any pair of composable programs, then $\forall\sigma\in\Sigma,$ $\mysem{\pi\circ\pi'}(\sigma)=\mysem{\pi'}\left(\mysem{\pi}(\sigma)\right)$.
+\end{lemma}
+
+\noindent We show how to define a composition of OSR mappings and we prove that it yields a valid OSR mapping.
+
+\begin{lemma}[Mapping Composition]
+\label{le:osr-mapping-comp}
+Let $\pi,\pi',\pi''\in Prog$, let $\mu_{\pi\pi'}$ and $\mu_{\pi'\pi''}$ be OSR mappings as in \mydefinition\ref{de:osr-mapping}, and let $\mu_{\pi\pi'}\circ\mu_{\pi'\pi''}$ be a {\em composition of mappings} defined as follows:
+\begin{gather*}
+\forall l\in dom(\mu_{\pi\pi'})~s.t.~\mu_{\pi\pi'}(l)=(l',\chi)\wedge l'\in dom(\mu_{\pi'\pi''}):\\
+\mu_{\pi'\pi''}(l')=(l'',\chi')\implies(\mu_{\pi\pi'}\circ\mu_{\pi'\pi''})(l)=(l'',\chi\circ\chi')
+\end{gather*}
+Then $\mu_{\pi\pi'}\circ\mu_{\pi'\pi''}$ is an OSR mapping from $\pi$ to $\pi''$.
+\end{lemma}
+
+\begin{myproof} 
+Let $\mu_{\pi\pi''}=\mu_{\pi\pi'}\circ\mu_{\pi'\pi''}$. By \mydefinition\ref{de:osr-mapping}, it holds:
+\begin{small}
+\begin{gather*}
+\forall \sigma\in\Sigma, \forall s_i=(\sigma_i,l_i)\in\tau_{\pi\sigma}~\text{s.t.}~l_i\in dom(\mu_{\pi\pi''}),\\
+\exists \sigma',\sigma''\in\Sigma,~\exists s_j=(\sigma_j,l_j)\in\tau_{\pi'\sigma'}, \\ \exists s_k=(\sigma_k,l_k)\in\tau_{\pi''\sigma''}~\text{s.t.}~
+\mu_{\pi\pi''}(l_i)=(l_k,\chi\circ\chi')~\wedge~\\ \mysem{\chi\circ\chi'}(\sigma_i\vert_{\live(\pi,l_i)})=\text{[by \ref{le:prog-comp-sem}]}\\
+\mysem{\chi'}(\mysem{\chi}(\sigma_i\vert_{\live(\pi,l_i)}))=
+\mysem{\chi'}(\sigma_j\vert_{\live(\pi',l_j)})=\sigma_k\vert_{\live(\pi'',l_k)}
+\end{gather*}
+\end{small}
+Hence, $\mu_{\pi\pi'}\circ\mu_{\pi'\pi''}$ is an OSR mapping from $\pi$ to $\pi''$.
+\end{myproof}
+
+\ifdefined\noauthorea
+\begin{figure}[ht!]
+\IncMargin{2em}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\LinesNumbered
+\SetAlgoNoLine
+\SetNlSkip{1em} 
+\Indm\Indmm
+\hrulefill\\
+\KwIn{Program $\pi$, list of program transformations $L$.}
+\KwOut{Program $\hat{\pi}$, mappings $\mu_{\pi\hat{\pi}}$ and $\mu_{\hat{\pi}\pi}$.}
+\nonl\vspace{-2mm}\hrulefill\\
+\nonl$\mathbf{algorithm} \> \> \dopasses$($\pi$, $T::L$)$\rightarrow$($\pi''$, $\mu_{\pi\pi''}$, $\mu_{\pi''\pi}$):\;
+\everypar={\nl}
+\Indp\Indpp
+\vspace{1mm} $(\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})\gets \osrtrans(\pi,T)$\;
+\lIf{$L=Nil$}{
+    \Return{$(\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$}
+}
+$(\pi'',\mu_{\pi'\pi''},\mu_{\pi''\pi'})\gets \dopasses(\pi',L)$\;
+\Return{$(\pi'',\mu_{\pi\pi'}\circ\mu_{\pi'\pi''},\mu_{\pi''\pi'}\circ\mu_{\pi'\pi})$}\;
+\vspace{-2mm}
+\Indm\Indmm
+\nonl\hrulefill\vspace{1mm}\\
+\DecMargin{2.5em}
+\caption{\label{alg:osr-trans-compose} OSR-aware multi-pass program transformations.}
+\IncMargin{2.5em}
+\end{algorithm} 
+\end{figure}
+
+\else
+\begin{figure}
+\noindent
+\begin{small}
+\hphantom{xxx} $\textbf{algorithm}~{\tt do\_passes}(\pi, T::L)\rightarrow (\pi'',\mu_{\pi\pi''},\mu_{\pi''\pi})$ \\
+1. ~~ ~~~~ $(\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})\gets {\tt OSR\_trans}(\pi,T)$ \\
+2. ~~ ~~~~ $\textbf{if}~L=Nil~\textbf{return}~ (\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$ \\
+3. ~~ ~~~~ $(\pi'',\mu_{\pi'\pi''},\mu_{\pi''\pi'})\gets {\tt do\_passes}(\pi',L)$ \\
+4. ~~ ~~~~ $\textbf{return}~(\pi'',\mu_{\pi\pi'}\circ\mu_{\pi'\pi''},\mu_{\pi''\pi'}\circ\mu_{\pi'\pi})$ \\
+\end{small}
+\caption{OSR-aware multi-pass program transformations.}
+\label{alg:osr-trans-compose}
+\end{figure}
+\fi
+
+\noindent Based on \ref{le:osr-mapping-comp}, we can easily prove by induction the correctness of the multi-pass transformation algorithm of \myalgorithm\ref{alg:osr-trans-compose}, which takes a program $\pi$ and a list of program transformations, and applies them to $\pi$, producing a bidirectional OSR mapping $\mu_{\pi\pi''},\mu_{\pi''\pi}$ between $\pi$ and the resulting program $\pi''$.

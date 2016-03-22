@@ -1,0 +1,15 @@
+\subsubsection{Examples of LVE Transformations}
+
+\label{ss:lve-trans}
+
+In this section, we show that classic compiler optimizations such as constant propagation, dead code elimination, and code hoisting as defined in \myfigure\ref{fig:sample-trans} are all examples of live-variable equivalent transformations. Hence, they are provably correct building blocks of an OSR-aware compilation toolchain based on algorithm $\osrtrans$. These optimizations are representatives of a broad class of transformations that insert, delete, and modify instructions. Further optimizations, which we do not formally discuss in this paper, are evaluated in \missing.
+
+\begin{theorem}
+\label{th:lve-trans-examples}
+Transformations CP, DCE, and Hoist of \myfigure\ref{fig:sample-trans} are live-variable equivalent.
+\end{theorem}
+
+\begin{myproof}
+\missing
+In \cite{Lacey04}, CP, DCE, and Hoist are proven correct, each using a different bisimulation relation $R$. We propose a unifying approach based on live-variable bisimilarity. Let $\theta$ be a substitution that bounds free meta-variables with concrete program objects so that a rule's side-condition is satisfied. For CP, $R$ is the identity relation, hence $A(l)=Val\supseteq \live(\pi,l)\cap \live(\pi',l)$ in \mydefinition\ref{de:state-equiv-relation}. In DCE, $R$ is the identity relation before the eliminated assignment \mytt{x:=e}, and $A(l)=Val\setminus\{\theta(\wx)\}=\live(\pi,l)\cap \live(\pi',l)$ after it. For Hoist, $R$ is the identity relation before $\theta(p)$ and after $\theta(q)$ (see \myfigure\ref{fig:sample-trans}), and $A(l)=Val\setminus\{\theta(\wx)\}=\live(\pi,l)\cap \live(\pi',l)$ between them.
+\end{myproof}
