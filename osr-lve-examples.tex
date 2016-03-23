@@ -10,6 +10,31 @@ Transformations CP, DCE, and Hoist of \myfigure\ref{fig:sample-trans} are live-v
 \end{theorem}
 
 \begin{myproof}
-\missing
-In \cite{Lacey04}, CP, DCE, and Hoist are proven correct, each using a different bisimulation relation $R$. We propose a unifying approach based on live-variable bisimilarity. Let $\theta$ be a substitution that bounds free meta-variables with concrete program objects so that a rule's side-condition is satisfied. For CP, $R$ is the identity relation, hence $A(l)=Val\supseteq \live(\pi,l)\cap \live(\pi',l)$ in \mydefinition\ref{de:state-equiv-relation}. In DCE, $R$ is the identity relation before the eliminated assignment \mytt{x:=e}, and $A(l)=Val\setminus\{\theta(\wx)\}=\live(\pi,l)\cap \live(\pi',l)$ after it. For Hoist, $R$ is the identity relation before $\theta(p)$ and after $\theta(q)$ (see \myfigure\ref{fig:sample-trans}), and $A(l)=Val\setminus\{\theta(\wx)\}=\live(\pi,l)\cap \live(\pi',l)$ between them.
+In \cite{Lacey04}, CP, DCE, and Hoist are proven correct, each using a different bisimulation relation $R$. 
+%We propose a unifying approach based on live-variable bisimilarity.
+For CP, $R$ is simply the identity relation, hence $A(l)=Val\supseteq \live(\pi,l)\cap \live(\pi',l)$ in \mydefinition\ref{de:state-equiv-relation}.
+
+For the other two transformations, $R$ is piecewise-defined on the indices of the traces. For any initial store $\sigma\in \Sigma$, let $\tau_{\pi\sigma}[i]=(\sigma_i,l_i)$, $\tau_{\pi'\sigma}[i]=(\sigma'_i,l'_i)$, and $t$ be the index of the final state in both traces (note that $|\tau_{\pi\sigma}|=|\tau_{\pi'\sigma}|$ from \ref{le:bisim-prop}). Let also $\theta$ be a substitution that bounds free meta-variables with concrete program objects so that a rule's side-condition is satisfied.
+
+For DCE, $R$ is the identity relation before the eliminated assignment \mytt{x:=e}, and $A(l)=Val\setminus\{\theta(\wx)\}=\live(\pi,l)\cap \live(\pi',l)$ after it. $R$ is a bisimulation such that $\forall i\in[1,t]$ $l_i=l'_i$ and both the following conditions hold:
+\begin{enumerate}
+ \item $[\forall j, j<i \Rightarrow l_j\neq \theta(p)] \Rightarrow \sigma_i=\sigma'_i~$ and
+ \item $[\exists j, j\leq i \wedge l_j = \theta(p)] \Rightarrow \sigma_i\setminus\texttt{x}=\sigma'_i\setminus\texttt{x}$
+\end{enumerate}
+\noindent where $p$ is the meta-variable for the eliminated assignment in $\pi'$, and $\sigma\setminus\texttt{x}$ is a syntactic sugar for $\sigma\vert_{D(\sigma)}$, where $D(\sigma)=\{v\in Var ~|~ v\neq \texttt{x} ~\wedge~ \sigma(v)\neq\bot\}$ is the set of all the variable identifiers other than \mytt{x} currently defined in $\sigma$.
+
+For Hoist, $R$ is the identity relation before $\theta(p)$ and after $\theta(q)$ (see \myfigure\ref{fig:sample-trans}), and $A(l)=Val\setminus\{\theta(\wx)\}=\live(\pi,l)\cap \live(\pi',l)$ between them. Formally, we have that $\forall i\in[1,t]$ $l_i=l'_i$ and one of the following cases holds:
+\begin{enumerate}
+ \item $\sigma_t=\sigma'_t ~\wedge~ \forall i~[0\leq i<t ~\Rightarrow~ l_i \notin \{\theta(p),~\theta(q)\}]$
+ \item $\begin{aligned}[t]
+\sigma_t=\sigma'_t ~\wedge~ \exists i~[&0\leq i<t ~\wedge~ l_i=\theta(q) ~\wedge~ \sigma_i=\sigma'_i ~\wedge\\
+&\forall j~(i<j<t ~\Rightarrow~ l_j \notin \{\theta(p),~\theta(q)\})]
+       \end{aligned}$
+ \item $\begin{aligned}[t] 
+\exists i~[0\leq i<t ~\wedge~ &l_i=\theta(p) ~\wedge~ (\sigma_t\setminus\texttt{x}=\sigma_t'\setminus\texttt{x}) ~\wedge~ (\sigma_i\setminus\texttt{x}=\sigma_i'\setminus\texttt{x}) ~\wedge\\
+&\forall j~(i<j<t ~\Rightarrow~ l_j \notin \{\theta(p),~\theta(q)\}]
+       \end{aligned}$
+\end{enumerate}
+
+\noindent Case 1 applies before $\theta(p)$ is reached in the trace. Case 3 applies after $\theta(p)$ has been reached, but $\theta(q)$ has not. Finally, case 2 applies after $\theta(q)$ has been reached.
 \end{myproof}
