@@ -1,0 +1,123 @@
+\subsection{Multi-Version Programs}
+
+In this section, we propose a general OSR model where computations are described by a {\em multi-version program}, which consists of different versions of a program along with OSR mappings that allow execution to be transferred between them.
+
+\begin{definition}[Multi-Version Program]
+\label{de:mv-program}
+A multi-version program is modeled by an edge-labeled graph $\Pi=({\cal V}, {\cal E}, {\cal M})$ where ${\cal V}=\{ \pi_1, \pi_2, \ldots,\pi_r\}$ is a set of program versions, ${\cal E}\subseteq \Pi^2$ is a set of edges such that $(\pi_p,\pi_q)$ indicates that an OSR transition can be fired from some point of $\pi_p$ to $\pi_q$,
+%any point in $dom({\cal M}(\pi_i,\pi_j))$, 
+and ${\cal M}:{\cal E}\rightarrow OSRMap$ labels each edge $(\pi,\pi')\in {\cal E}$ with an OSR mapping from $\pi$ to $\pi'$.
+\end{definition}
+
+\subsubsection{Semantics}
+
+The state of a multi-version program is similar to the state of a program (\ref{de:prog-state}), but it also includes the index of the currently executed program version:
+
+\begin{definition}[Multi-Version Program State]
+The {\em state} of a multi-version program $\Pi=({\cal V}, {\cal E}, {\cal M})$ is described by a triple $(p,\sigma,l)$, where $p\in[1,|{\cal V}|]$ is the index of a program version, $\sigma$ is a memory store, and $l\in [1,|\pi_p|]$ is the point of the next instruction to be executed in $\pi_p$. The {\em initial state} from a store $\sigma$ is $(1,\sigma,1)$, i.e., computations start at $\pi_1$. We denote by $MState=\mathbb{N}\times\Sigma\times \mathbb{N}$ the set of all possible multi-version program states.
+\end{definition}
+
+\noindent The execution semantics of a multi-version program is described by the following transition relation:
+
+\begin{definition}[Multi-Version Big-Step Transitions]
+\label{de:osr-semantics}
+For any multi-version program $\Pi$, relation $\Rightarrow_{\Pi}\subseteq MState\times MState$ is defined as follows:%, with meta-variables $\texttt{x}, \texttt{y}\in Var$, $\texttt{e}\in Expr$, and $\texttt{m}\in Num$:
+
+\begin{footnotesize}
+\begin{equation}
+\label{eq:mv-big-step}
+\begin{array}{rc}
+(Norm)
+&
+\dfrac
+{(\sigma, l)\Rightarrow_{\pi_p} (\sigma',l')}
+{(p,\sigma, l)\Rightarrow_{\Pi} (p,\sigma',l')}
+\\
+\\
+(OSR)
+&
+\dfrac
+{(\pi_p,\pi_q)\in {\cal E} ~ \wedge ~ (l',\chi)={\cal M}(\pi_p,\pi_q)(l) ~ \wedge ~ \sigma'=\mysem{\chi}(\sigma)}
+{(p,\sigma, l)\Rightarrow_{\Pi} (q,\sigma',l')}\\
+\end{array}
+\end{equation}
+\end{footnotesize}
+\end{definition}
+
+\noindent The meaning is that at any time, execution can either continue in the current program version (Norm rule), or an OSR transition -- if possible at the current point -- can direct the control to another program version (OSR rule). The choice is non-deterministic, i.e., an oracle can tell the execution engine which rule to apply. In practice, the choice may be based for instance on profile data gathered by the runtime system: a common strategy is to dynamically ``OSR'' to the available version with the best expected performance on the actual workload. Notice that, since $\Rightarrow_{\Pi}$ may be non-deterministic, in general there may be different final stores for the same initial store. However, we are only interested in multi-version programs that deterministically yield a unique result, which guarantees semantic transparency of OSR transitions. 
+
+\noindent To characterize the execution behavior of a multi-version program, we consider the system of traces of an execution transition system that start from a given initial state.
+
+\begin{definition}[Trace System of Multi-Version Program]
+\label{de:mvp-exec-system}
+The system of traces ${\cal T}_{\Pi,\sigma}$ contains all traces $\tau$ of transition system $(MState,\Rightarrow_{\Pi})$ such that $\tau[0]=(1,\sigma,1)$.
+\end{definition}
+
+\begin{definition}[Deterministic Multi-Version Program]
+\label{de:deterministic-mvp}
+A multi-version program $\Pi$ is deterministic iff $\forall \sigma\in\Sigma$, either all traces in ${\cal T}_{\Pi,\sigma}$ are infinite, or they all lead to the same store, i.e.:
+\begin{gather*}
+\forall \tau, \tau'\in{\cal T}_{\Pi,\sigma}: ~~ \big(|\tau|=\infty ~ \Longleftrightarrow ~ |\tau'|=\infty\big) ~ \wedge \\
+\big(|\tau|<\infty ~ \Longrightarrow ~ \exists~p,p',l,l'\in\mathbb{N}, \sigma,\sigma'\in\Sigma: ~ \\
+\tau[|\tau|]=(p,\sigma,l) ~ \wedge ~ \tau'[|\tau'|]=(p',\sigma',l') ~ \wedge ~ \sigma=\sigma' \big).
+\end{gather*}
+\end{definition}
+
+\noindent The meaning of a deterministic multi-version program can be defined as follows:
+
+\begin{definition}[Multi-Version Semantic Function]
+\label{de:mv-program-semantics}
+The semantic function $\mysem{\Pi}:\Sigma \rightarrow \Sigma$ of a deterministic multi-version program $\Pi$ is defined as: 
+$$
+%\forall \sigma\in\Sigma: ~~ \mysem{\Pi}(\sigma)=\sigma' ~~ \Longleftrightarrow ~~ (1,\sigma,1) \Rightarrow^{*}_{\Pi} (p,\sigma',|\pi_p|+1) ~ \}
+\forall \sigma\in\Sigma: ~~ \mysem{\Pi}(\sigma)=\sigma' ~~ \Longleftrightarrow ~~ (1,\sigma,1) \Rightarrow^{*}_{\Pi} (p,\sigma',|\pi_p|+1)
+$$
+where $\Rightarrow^{*}_{\Pi}$ is the transitive closure of $\Rightarrow_{\Pi}$.
+\end{definition}
+
+\subsubsection{Generation Algorithm and Correctness}
+
+A natural way to generate a multi-version program consists in starting from a base program $\pi_1$ and constructing a tree of different versions, where each version is derived from its parent by applying one or more transformations. Using this approach and procedure \dopasses\ described in \mysection\ref{ss:trans-compose}, it is straightforward to construct a multi-version program $\Pi=({\cal V}, {\cal E}, {\cal M})$ such that:
+\vspace{-1mm}
+\begin{align*}
+(\pi_p,\pi_q)\in {\cal E} ~~ \Longleftrightarrow ~~ \exists L: ~ &{\tt do\_passes}(\pi_p,L)=(\pi_q,\mu,\mu') ~ \wedge ~ {\cal M}(\pi_p,\pi_q)=\mu ~~ \vee \\
+&{\tt do\_passes}(\pi_q,L)=(\pi_p,\mu,\mu') ~ \wedge ~ {\cal M}(\pi_p,\pi_q)=\mu'
+\end{align*}
+
+\noindent To prove the correctness of this approach, we introduce a preliminary lemma and then use it to prove that a multi-version program built in this way is deterministic.
+
+\begin{lemma}
+\label{le:comp-lemma}
+Let $\tau\in{\cal T}_{\Pi,\sigma}$ be an execution trace in the system of the traces for the multi-version program $\Pi$ $=({\cal V}, {\cal E}, {\cal M})$ constructed using \dopasses\ and LVE transformations, and let $\omega_1,\ldots,\omega_k$ be the indices of $\tau$ where an OSR transition has just occurred. Then $\forall i\in[1,k]$ there exists a state $(\hat{\sigma}_i,\hat{l}_i)$ in the trace of $\hat{\pi}_i=\pi_{p_{\omega_{i}}}$ starting from the initial store $\sigma$ such that $\hat{l}_i=l_{\omega_i}$ and $\hat{\sigma}_i\vert_{\live(\hat{\pi}_i,\hat{l}_i)}=\sigma_{\omega_i}\vert_{\live(\hat{\pi}_i,\hat{l}_i)}$.
+\end{lemma}
+\begin{myproof}
+\missing
+\end{myproof}
+
+\begin{theorem}[Multi-Version Program Determinism]
+\label{th:mv-prog-determ}
+Let $\Pi$ $=({\cal V}, {\cal E}, {\cal M})$ be a multi-version program constructed using \dopasses\ and live-variable equivalent transformations. Then $\Pi$ is deterministic.
+\end{theorem}
+
+\begin{myproof}
+To prove that $\Pi$ is deterministic, we need to show that, given any initial store $\sigma$ on which $\pi_1\in\Pi$ terminates on some final state $\sigma'=\mysem{\pi_1}(\sigma)$, any execution trace $\tau\in{\cal T}_{\Pi,\sigma}$ terminates with $\sigma'$.
+
+Let $\omega_1,\ldots,\omega_k$ be the indices of $\tau$ where an OSR transition has just occurred, i.e., for any $i\in[1,k]$, state $\tau[\omega_i]$ is obtained from $\tau[\omega_i-1]$ by applying compensation code $\chi_{\omega_i-1}$ on store $\sigma_{\omega_i-1}$, which yields a store $\sigma_{\omega_i}$. The transition leads from a point $l_{\omega_i-1}$ in version $\pi_{p_{\omega_i-1}}$ to a point $l_{\omega_i}=l_{\omega_i-1}$ in version $\pi_{p_{\omega_{i}}}$ in $\Pi$. 
+
+By \mylemma\ref{le:comp-lemma}, $\forall i\in[1,k]$ there exists a state $(\hat{\sigma}_i,\hat{l}_i)$ in the trace of $\hat{\pi}_i=\pi_{p_{\omega_{i}}}$ starting from the initial store $\sigma$ such that $\hat{l}_i=l_{\omega_i}$ and $\hat{\sigma}_i\vert_{\live(\hat{\pi}_i,\hat{l}_i)}=\sigma_{\omega_i}\vert_{\live(\hat{\pi}_i,\hat{l}_i)}$. Hence, since no OSR is fired after $\omega_k$, by \myequation\ref{eq:mv-big-step} it holds: 
+\begin{equation*}
+(\hat{\pi}_k,\sigma_{\omega_{k}},l_{\omega_{k}})\trans^*_{\Pi}(\hat{\pi}_k,\sigma',|\hat{\pi}_k|+1) \Longleftrightarrow (\sigma_{\omega_{k}},l_{\omega_{k}})\trans^*_{\hat{\pi}_k}(\sigma',|\hat{\pi}_k|+1)
+\end{equation*}
+
+\noindent We can then apply \Cref{le:only-live-count,le:comp-lemma} to write:
+\begin{gather*}
+(\sigma_{\omega_{k}},l_{\omega_{k}})\trans^*_{\hat{\pi}_k}(\sigma',|\hat{\pi}_k|+1) \Longleftrightarrow \\ 
+(\sigma_{\omega_{k}}\vert_{\live(\hat{\pi}_k,l_{\omega_{k}})},l_{\omega_{k}})\trans^*_{\hat{\pi}_k}(\sigma',|\hat{\pi}_k|+1) \Longleftrightarrow \\
+(\hat{\sigma}_k\vert_{\live(\hat{\pi}_k,\hat{l}_k)},\hat{l}_k)\trans^*_{\hat{\pi}_k}(\sigma',|\hat{\pi}_k|+1)
+\end{gather*}
+
+\noindent As $(\hat{\sigma}_k,\hat{l}_k)\in\tau_{\hat{\pi}_k\sigma}$, by \ref{le:only-live-count} necessarily $\sigma'=\mysem{\hat{\pi}_k}(\sigma)$. 
+Given that all programs in $\Pi$ are semantically equivalent, we can conclude that $\mysem{\Pi}(\sigma)=\sigma'=\mysem{\hat{\pi}_k}(\sigma)=\mysem{\pi_1}(\sigma)$.
+\end{myproof}
+
+
