@@ -83,7 +83,7 @@ where $(\sigma_i,l_i)=\tau_{\pi\sigma}[i]$, $(\sigma'_i,l_i)=\tau_{\pi'\sigma}[i
 \begin{myproof}
 The correctness of ${\tt build\_comp}$ relies on the ability of \reconstruct\ to produce compensation code for each variable that is live at OSR destination, but not at origin. Algorithm $\reconstruct(\wx, \pi, l, \pi', l', l'')$ aims to create a sequence of instructions that assigns \wx\ with the value that it would have assumed at $l''$ in $\pi'$, using as input the values of live variable at $l$ in $\pi$.
 
-We proceed by induction on the recursive calls of \reconstruct. For the algorithm to succeed, there must be a unique definition {\tt x:=e} at some point $\hat{l}$ that dominates $l''$, otherwise $undef$ is thrown. %If it is not unique, say there are two possible definitions {\tt x:=e} and {\tt x:=e'} that reach $l''$, then 
+We proceed by induction on the recursive calls of \reconstruct. For the algorithm to succeed, there must be a unique definition {\tt x:=e} at some point $\hat{l}$ that dominates $l''$, otherwise $undef$ is thrown (see \myfigure\ref{fig:osr-reconstruct}). %If it is not unique, say there are two possible definitions {\tt x:=e} and {\tt x:=e'} that reach $l''$, then 
 The base case happens when either:
 \begin{enumerate}[itemsep=3pt, parsep=0pt]
  \item {\tt e} has no free variables (line 6), hence the compensation code for \wx\ is just {\tt x:=e} (line 9);
@@ -92,9 +92,16 @@ The base case happens when either:
 \end{enumerate}
 
 \noindent Assume by inductive hypothesis that the recursive calls of \reconstruct\ have added to $\chi$ the code to assign each free variable $y$ of $e$ with the value they would have assumed at $\hat{l}$ (line 7). Then the value of \wx\ that we would have had at $\hat{l}$ is determined by \mytt{x:=e}, which is appended to $\chi$ (line 9).
-
-\missing
 \end{myproof}
+
+\ifdefined\noauthorea
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[width=0.49\textwidth]{figures/osr-reconstruct/osr-reconstruct.eps}
+\caption{\protect\input{figures/osr-reconstruct/caption}}
+\end{center}
+\end{figure}
+\fi
 
 \begin{definition}[Live-Variable Equivalent Transformation]
 \label{de:lve-trans}
