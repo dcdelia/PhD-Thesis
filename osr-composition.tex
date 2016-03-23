@@ -4,6 +4,7 @@
 In this section, we show that OSR mappings can be composed, allowing several optimization passes to be applied to a program using algorithm ${\tt OSR\_trans}$. The first ingredient is {\em program composition}, defined as follows:
 
 \begin{definition}[Program composition]
+\label{de:composition}
 We say that two programs $\pi,\pi'\in Prog$ with $\pi=\langle I_1,\ldots,I_n\rangle$ and $\pi'=\langle I'_1,\ldots,I'_{n'}\rangle$ are {\em composable} if $I_n=\texttt{out}~v_1,\ldots,v_k$ and $I'_1=\texttt{in}~v'_1,\ldots,v'_{k'}$ with $\{v'_1,\ldots,v'_{k'}\}\subseteq\{v_1,\ldots,v_k\}$. For any pair of composable programs $\pi,\pi'$, we define $\pi\circ\pi'=\langle I_1,\ldots,I_{n-1},\hat{I'}_2,\ldots,\hat{I'}_{n'}\rangle$, where $\forall i\in[1,n']$, $\hat{I'}_i$ is obtained from $I'_i$ by relocating each {\tt goto} target $m$ with $m+n-2$.
 \iffalse
 where $\chi\circ\chi'=\chi\setminus\{{\tt out \ldots}\}\cdot\chi'\left[
@@ -21,6 +22,9 @@ where $\chi\circ\chi'=\chi\setminus\{{\tt out \ldots}\}\cdot\chi'\left[
 \label{le:prog-comp-sem}
 Let $\pi,\pi'\in Prog$ be any pair of composable programs, then $\forall\sigma\in\Sigma,$ $\mysem{\pi\circ\pi'}(\sigma)=\mysem{\pi'}\left(\mysem{\pi}(\sigma)\right)$.
 \end{lemma}
+\begin{myproof}
+Straightforward by~\Cref{de:program-semantics,de:composition}.
+\end{myproof}
 
 \noindent We show how to define a composition of OSR mappings and we prove that it yields a valid OSR mapping.
 
@@ -46,6 +50,13 @@ Let $\mu_{\pi\pi''}=\mu_{\pi\pi'}\circ\mu_{\pi'\pi''}$. By \mydefinition\ref{de:
 \end{gather*}
 \end{small}
 Hence, $\mu_{\pi\pi'}\circ\mu_{\pi'\pi''}$ is an OSR mapping from $\pi$ to $\pi''$.
+\end{myproof}
+
+\begin{corollary}
+Let $\pi,\pi',\pi''\in Prog$, let $\mu_{\pi\pi'}$ and $\mu_{\pi'\pi''}$ be strict OSR mappings as in \mydefinition\ref{de:osr-mapping}. Then $\mu_{\pi\pi'}\circ\mu_{\pi'\pi''}$ is a strict OSR mapping from $\pi$ to $\pi''$.
+\end{corollary}
+\begin{myproof}
+Straightforward by \mydefinition\ref{de:osr-mapping} and \ref{le:osr-mapping-comp}.
 \end{myproof}
 
 \ifdefined\noauthorea
