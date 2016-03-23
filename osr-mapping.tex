@@ -26,9 +26,14 @@ $$
 \end{lemma}
 
 \begin{myproof}
-\missing
-\end{myproof}
+We reason on the structure of the transition relation $\Rightarrow_{\pi}$ for our big-step semantics shown in \ref{de:transitions}. We rewrite our claim as:
+\begin{align*}
+(\sigma,l)\Rightarrow_{\pi}(\sigma',l') ~~ \Longleftrightarrow ~~ & (\sigma\vert_{\live(\pi,l)},l)\Rightarrow_{\pi}(\hat{\sigma},l') ~~
+\wedge ~~ \hat{\sigma}\vert_{\live(\pi,l')} = \sigma'\vert_{\live(\pi,l')} 
+\end{align*}
 
+\noindent When \ref{eq:asgn-sem} applies, both states advance to location $l+1$, and the evaluation $(\sigma, \texttt{e}) \Downarrow v$ for the assignment yields the same result in both stores, as each operand in $e$ is either a constant literal or a live variable for $\pi$ at $l$. Indeed, having a variable operand for $e$ not in $\live(\pi,l)$ would contradict the definition of liveness. When the instruction at $l$ is a conditional expression, $\Rightarrow_{\pi}$ applies either \ref{eq:ifz-sem} or \ref{eq:ifnz-sem} to both states: as discussed for assignments, the evaluation of expression $e$ yields the same result in $\sigma$ and $\sigma\vert_{\live(\pi,l)}$, and both states advance to the same location without affecting the store. When one of \Crefrange{eq:goto-sem}{eq:out-sem} applies, trivially both states advance to the same location, while values in their stores are not affected. Finally, from \ref{de:live-var} it follows that $\live(\pi,l')\supseteq\live(\pi,l)\cup\{\,\texttt{x} ~ | ~ I_l=\texttt{x:=e}\,\}$ and thus $\hat{\sigma}\vert_{\live(\pi,l')} = \sigma'\vert_{\live(\pi,l')}$.
+\end{myproof}
 
 \noindent Notice that $dom(\mu_{\pi\pi'})\subseteq [1,|\pi|]$ is the set of all possible points in $\pi$ where OSR transitions to $\pi'$ can be fired. If $\mu_{\pi\pi'}$ is partial, then there are points in $\pi$ where OSR cannot be fired. In Section\missing, we discuss an algorithm whose goal is to minimize the number of these points.
 
