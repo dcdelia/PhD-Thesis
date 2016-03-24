@@ -109,7 +109,7 @@ The base case happens when either:
 A program transformation $T$ is {\em live-variable equivalent} (LVE) if for any program $\pi$, $\pi$ and $\mysem{T}(\pi)$ are live-variable bisimilar.
 \end{definition}
 
-\noindent We can finally establish the correctness of ${\tt OSR\_trans}$, which follows directly by \mylemma\ref{le:lvb-same-loc} and \mylemma\ref{le:build-comp-corr}:
+\noindent We can finally establish the correctness of ${\tt OSR\_trans}$, which follows directly by \Cref{le:lvb-same-loc,le:build-comp-corr} and \ref{co:same-size}:
 
 \begin{theorem}
 \label{th:osr-trans-correctness}

@@ -46,7 +46,8 @@ n \models \overrightarrow{E}(\phi~U~\psi) &\Longleftrightarrow \exists p: p\in C
 \end{align*}
 %\end{equation*}
 
-\vspace{0.5em}
+%\vspace{0.5em}
+\vspace{-0.5em}
 \noindent where predicate $Until(\pi,p,\phi,\psi)$ holds for $p = \langle n_0,n_1,\ldots,n_k\rangle \in CPaths(n_0,G)$ if:
 \vspace{-0.5em}
 
@@ -74,11 +75,11 @@ n \models \overrightarrow{E}(\phi~U~\psi) &\Longleftrightarrow \exists p: p\in C
                             &            & I_l\neq\texttt{x:=e'} \\
 %                            &            & [\we ~ \textit{is not affected by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
                             &            & [\textit{no constituent of}~\we~\textit{is modified by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
-\live(\wx) & \triangleq & \overleftarrow{AX}\overleftarrow{A}(\text{true} ~ U ~ \wdef(\wx)) ~ \wedge \\
+\islive(\wx) & \triangleq & \overleftarrow{AX}\overleftarrow{A}(\text{true} ~ U ~ \wdef(\wx)) ~ \wedge \\
                             &            & \overrightarrow{E}(\neg\wdef(\wx) ~ U ~ \wuse(\wx)) \\
                             &            & [\wx ~ \textit{is live at program point} ~ l ~ \textit{in} ~ \pi] \\
-\ureachdef(\wx,l') & \triangleq & \wdef(\wx)\wedge\overrightarrow{AX}\overrightarrow{A}(\neg\wdef(\wx) ~ U ~ \point(l')) \\
-                            &            & [\textit{unique definition of}~\wx~{at}~l~\textit{reaching}~l'~\textit{in} ~ \pi] \\
+\ureachdef(\wx,l') & \triangleq & \overleftarrow{AX}\overleftarrow{A}(\neg\wdef(\wx) ~ U ~ \point(l')\wedge\wdef(\wx)) \\
+                            &            & [\textit{unique definition of}~\wx~{at}~l'~\textit{reaching}~l~\textit{in} ~ \pi] \\
 \stmt(I) & \triangleq & I=I_l ~~~ [I ~ \textit{is the instruction at} ~ l ~ \textit{in} ~ \pi]\\
 %                 &            & [I ~ \textit{is the instruction at} ~ l ~ \textit{in} ~ \pi] \\
 \point(\texttt{m}) & \triangleq & \texttt{m}=l ~~~ [\textit{program point} ~ \wm ~ \textit{is} ~ l ~ \textit{in} ~ \pi]
@@ -98,7 +99,7 @@ The following definition will be useful, too:
 The set of live variables of a program $\pi$ at point $l$ is defined as:
 \vspace{-1mm}
 \begin{equation*}
-\live(\pi,l) \triangleq \{ ~ \wx\in Var ~ | ~ \pi, l\models \live(\wx) ~ \}
+\live(\pi,l) \triangleq \{ ~ \wx\in Var ~ | ~ \pi, l\models \islive(\wx) ~ \}
 \end{equation*}
 \end{definition}
 
@@ -114,8 +115,7 @@ The set of live variables of a program $\pi$ at point $l$ is defined as:
 %\end{example}
 
 \begin{example}
-Dominance analysis is widely employed in a number of program analysis and optimization techniques. In the setting of a CFG, we say that a node $n$ dominates another node $m$ if every path from the CFG's entry node to $m$ must go through $n$. Using CTL operators, we can easily encode this property. Given a program $\pi$ as in \mydefinition\ref{de:program}, we can write:
-
+Dominance analysis is widely employed in a number of program analysis and optimization techniques. In a CFG, we say that a node $n$ dominates another node $m$ if every path from the CFG's entry node to $m$ must go through $n$. Using CTL operators, we can easily encode this property. Given a program $\pi$ as in \mydefinition\ref{de:program}, we can write:
 \begin{equation*}
  \mytt{dom}(n,m) \Longleftrightarrow \pi,I_1 \models \neg E(\neg\wpoint(n)~U~\wpoint(m))
 \end{equation*}

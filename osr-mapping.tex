@@ -185,12 +185,12 @@ $\mathbf{procedure} \> \> \reconstruct$($\wx$, $\pi$, $l$, $\pi'$, $l'$, $l''$):
 \vspace{1mm}
 \everypar={\nl}
 \Indp\Indpp
-\uIf{$\exists\hat{l}:\pi',\hat{l}\models\ureachdef(\wx,l'')\wedge\stmt(\texttt{\rm x:=e})$}{
+\uIf{$\exists\hat{l}:\pi',l''\models\ureachdef(\wx,\hat{l})\wedge\pi',\hat{l}\models\stmt(\texttt{\rm x:=e})$}{
     \lIf{$\hat{l}~\textsf{\rm is visited}$}{
 	\hspace{-0.3em}\Return{$\langle\rangle$} % \hspace{-0.3em}
     }
     mark $\hat{l}$ as visited\;
-    \lIf{$\pi',\hat{l}\models\ureachdef(\wx,l')~\wedge~\pi',l'\models\live(x)~\wedge~\pi,l\models\live(x)$}{
+    \lIf{$\pi',l'\models\ureachdef(\wx,\hat{l})~\wedge~\pi',l'\models\live(x)~\wedge~\pi,l\models\live(x)$}{
     	\hspace{-0.3em}\Return{$\langle\rangle$} % \hspace{-0.3em}
     }
     $\chi\gets \langle\rangle$\;
