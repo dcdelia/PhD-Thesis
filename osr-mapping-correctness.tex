@@ -28,7 +28,7 @@ Let $R$ be a reflexive bisimulation relation between programs $\pi$ and $\pi'$. 
 \end{lemma}
 
 \begin{myproof}
-We prove \eqref{eq:bisim-prop-2} by induction on $i$. The base follows from $\tau_{\pi\sigma}[0]=\tau_{\pi'\sigma}[0]=(\sigma,1)$ and the assumption that $R$ is reflexive. Assume as inductive hypothesis that $\tau_{\pi\sigma}[i]~R~\tau_{\pi'\sigma}[i]$ for any $i<|\tau_{\pi\sigma}|$. Since $|\tau_{\pi\sigma}|>i$ then $\tau_{\pi\sigma}[i] \Rightarrow_{\pi} \tau_{\pi\sigma}[i+1]$ by \ref{de:exec-trace}. It follows by \ref{de:bisimulation} that $\tau_{\pi\sigma}[i+1]~R~\tau_{\pi'\sigma}[i+1]$. 
+We prove \eqref{eq:bisim-prop-2} by induction on $i$. The base follows from $\tau_{\pi\sigma}[0]=\tau_{\pi'\sigma}[0]=(\sigma,1)$ and the assumption that $R$ is reflexive. Assume as inductive hypothesis that $\tau_{\pi\sigma}[i]~R~\tau_{\pi'\sigma}[i]$ for any $i<|\tau_{\pi\sigma}|$. Since $|\tau_{\pi\sigma}|>i$ then $\tau_{\pi\sigma}[i] \Rightarrow_{\pi} \tau_{\pi\sigma}[i+1]$ by \ref{de:exec-trace}. It follows by \ref{de:bisimulation} that $\tau_{\pi\sigma}[i+1]~R~\tau_{\pi'\sigma}[i+1]$.
 
 To prove \eqref{eq:bisim-prop-1}, assume by contradiction that $|\tau_{\pi\sigma}|\neq|\tau_{\pi'\sigma}|$, e.g., $|\tau_{\pi\sigma}|>|\tau_{\pi'\sigma}|=k$. Since $|\tau_{\pi\sigma}|>k$ then $\tau_{\pi\sigma}[k]~R~\tau_{\pi'\sigma}[k]$ by \eqref{eq:bisim-prop-2} and $\tau_{\pi\sigma}[k] \Rightarrow_{\pi} \tau_{\pi\sigma}[k+1]$ by \ref{de:exec-trace}. It follows by \ref{de:bisimulation} that $\tau_{\pi'\sigma}[k] \Rightarrow_{\pi'} \tau_{\pi'\sigma}[k+1]$. Hence $|\tau_{\pi'\sigma}|>k$, contradicting the initial assumption. The proof for the case $|\tau_{\pi'\sigma}|>|\tau_{\pi\sigma}|$ is analogous.
 \end{myproof}
@@ -62,13 +62,14 @@ Straightforward by \ref{le:bisim-prop} and \ref{de:state-equiv-relation}.
 \end{myproof}
 
 \begin{corollary}
-If $\pi$ and $\pi'$ are live-variable bisimilar, then they have the same size: $\pi=\langle I_1,\ldots,I_n\rangle$ $\wedge$ $\pi'=\langle I'_1,\ldots,I'_{n'}\rangle$ $\Longrightarrow$ $n=n'$. 
+\label{co:same-size}
+If $\pi$ and $\pi'$ are live-variable bisimilar, then they have the same size: $\pi=\langle I_1,\ldots,I_n\rangle$ $\wedge$ $\pi'=\langle I'_1,\ldots,I'_{n'}\rangle$ $\Longrightarrow$ $n=n'$.
 \end{corollary}
 \begin{myproof}
 By \ref{le:bisim-prop}, \ref{le:lvb-same-loc}, and \eqref{eq:out-sem}, for any finite trace $\tau_{\pi\sigma}$ it holds $\tau_{\pi\sigma}[|\tau_{\pi\sigma}|]=(-,n+1)$ and $\tau_{\pi'\sigma}[|\tau_{\pi'\sigma}|]=(-,n+1)$. Hence both $\pi$ and $\pi'$ contain $n$ instructions.
 \end{myproof}
 
-\noindent We can now prove that \buildcomp\ generates correct OSR compensation code under the live-variable bisimilarity assumption. 
+\noindent We can now prove that \buildcomp\ generates correct OSR compensation code under the live-variable bisimilarity assumption.
 
 \begin{lemma}[Correctness of Algorithm \buildcomp]
 \label{le:build-comp-corr}
@@ -83,7 +84,7 @@ where $(\sigma_i,l_i)=\tau_{\pi\sigma}[i]$, $(\sigma'_i,l_i)=\tau_{\pi'\sigma}[i
 \begin{myproof}
 The correctness of ${\tt build\_comp}$ relies on the ability of \reconstruct\ to produce compensation code for each variable that is live at OSR destination, but not at origin. Algorithm $\reconstruct(\wx, \pi, l, \pi', l', l'')$ aims to create a sequence of instructions that assigns \wx\ with the value that it would have assumed at $l''$ in $\pi'$, using as input the values of live variable at $l$ in $\pi$.
 
-We proceed by induction on the recursive calls of \reconstruct. For the algorithm to succeed, there must be a unique definition {\tt x:=e} at some point $\hat{l}$ that dominates $l''$, otherwise $undef$ is thrown (see \myfigure\ref{fig:osr-reconstruct}). %If it is not unique, say there are two possible definitions {\tt x:=e} and {\tt x:=e'} that reach $l''$, then 
+We proceed by induction on the recursive calls of \reconstruct. For the algorithm to succeed, there must be a unique definition {\tt x:=e} at some point $\hat{l}$ that dominates $l''$, otherwise $undef$ is thrown (see \myfigure\ref{fig:osr-reconstruct}). %If it is not unique, say there are two possible definitions {\tt x:=e} and {\tt x:=e'} that reach $l''$, then
 The base case happens when either:
 \begin{enumerate}[itemsep=3pt, parsep=0pt]
  \item {\tt e} has no free variables (line 6), hence the compensation code for \wx\ is just {\tt x:=e} (line 9);
