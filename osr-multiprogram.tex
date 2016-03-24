@@ -88,7 +88,7 @@ A natural way to generate a multi-version program consists in starting from a ba
 
 \begin{lemma}
 \label{le:comp-lemma}
-Let $\tau\in{\cal T}_{\Pi,\sigma}$ be an execution trace in the system of the traces for the multi-version program $\Pi$ $=({\cal V}, {\cal E}, {\cal M})$ constructed using \dopasses\ and LVE transformations, and let $\omega_1,\ldots,\omega_k$ be the indices of $\tau$ where an OSR transition has just occurred, with $\tau[\omega_i]=(p_{\omega_i}, \sigma_{\omega_i}, l_{\omega_i})$. Then $\forall i\in[1,k]$ there exists a state $(\hat{\sigma}_i,\hat{l}_i)$ in the trace of $\pi_{p_{\omega_{i}}}$ starting from the initial store $\sigma$ such that $\hat{l}_i=l_{\omega_i}$ and $\hat{\sigma}_i\vert_{\live(\pi_{p_{\omega_{i}}},\hat{l}_i)}=\sigma_{\omega_i}\vert_{\live(\pi_{p_{\omega_{i}}},\hat{l}_i)}$.
+Let $\tau\in{\cal T}_{\Pi,\sigma}$ be an execution trace in the system of the traces for the multi-version program $\Pi$ $=({\cal V}, {\cal E}, {\cal M})$ constructed using \dopasses\ and LVE transformations, and let $\omega_1,\ldots,\omega_k$ be the indices of $\tau$ where an OSR transition has just occurred, with $\tau[\omega_i]=(p_{\omega_i}, \sigma_{\omega_i}, l_{\omega_i})$. Then $\forall i\in[1,k]$ there exists a state $(\hat{\sigma}_i,\hat{l}_i)$ in the trace of $\pi_{p_{\omega_{i}}}$ starting from the initial store $\sigma$ such that $\hat{l}_i=l_{\omega_i}$ and $\hat{\sigma}_i\vert_{\live(\pi_{p_{\omega_{i}}},\,\hat{l}_i)}=\sigma_{\omega_i}\vert_{\live(\pi_{p_{\omega_{i}}},\,\hat{l}_i)}$.
 \end{lemma}
 \begin{myproof}
 To simplify the notation we introduce:
@@ -120,12 +120,42 @@ We now prove our claim by induction on $i$.
 
 \noindent Trivially, $(\sigma_{\omega_1-1},l_{\omega_1-1})\in\tau_{\hat{\pi}_0\sigma}$. We can thus infer from \ref{de:osr-mapping}:
 \begin{align*}
-\exists s_j=(\sigma_j,l_j)\in\tau_{\hat{\pi}_1\sigma}~\text{s.t.}~&\mu_{\hat{\pi}_{0}\hat{\pi}_1}=(l_j,\chi)~\wedge \\
-&\mysem{\chi}(\sigma_{\omega_1-1}\vert_{\live(\hat{\pi}_{0},l_{\omega_1-1})})=\sigma_l\vert_{\live(\hat{\pi}_{1},l_j)}
+\exists s_j=(\sigma_j,l_j)\in\tau_{\hat{\pi}_1\sigma}~\text{s.t.}~&\mu_{\hat{\pi}_{0}\hat{\pi}_1}(l_{\omega_1-1})=(l_j,\chi)~\wedge \\
+&\mysem{\chi}(\sigma_{\omega_1-1}\vert_{\live(\hat{\pi}_{0},\,l_{\omega_1-1})})=\sigma_j\vert_{\live(\hat{\pi}_{1},\,l_j)}
 \end{align*}
 
+\noindent From the definition of $\mu_{\hat{\pi}_{0}\hat{\pi}_1}$ it follows that $\chi=\chi_{\omega_1-1}$ and $l_j=l_{\omega_1}=l_{\omega_1-1}$. To prove the claim we need to show that:
 
-\missing
+\begin{equation*}
+\sigma_j\vert_{\live(\hat{\pi}_{1},\,l_{\omega_1})}=\sigma_{\omega_1}\vert_{\live(\hat{\pi}_{1},\,l_{\omega_1})}
+\end{equation*}
+
+\noindent which follows directly from \Cref{le:build-comp-corr,le:osr-mapping-comp}.
+
+\paragraph*{Step case.} As inductive hypothesis we assume that $\exists (\hat{\sigma}_{k-1},\hat{l}_{k-1})\in\tau_{\hat{\pi}_{k-1}\sigma}$ s.t.:
+\begin{equation*}
+\hat{l}_{k-1}=l_{\omega_{k-1}} ~\wedge~ \hat{\sigma}_{k-1}\vert_{\live(\hat{\pi}_{k-1},\,\hat{l}_{k-1})}=\sigma_{\omega_{k-1}}\vert_{\live(\hat{\pi}_{k-1},\,\hat{l}_{k-1})}
+\end{equation*}
+
+\noindent
+Since no OSR is performed between $\tau[\omega_{k-1}]$ and $\tau[\omega_k-1]$ we can write:
+\begin{gather*}
+(\hat{\sigma}_{k-1}, l_{\omega_{k-1}}) \trans^*_{\hat{\pi}_{k-1}} \cdots \trans^*_{\hat{\pi}_{k-1}} (\tilde{\sigma},l_{\omega_k-1}) \Longleftrightarrow \\
+(\sigma_{\omega_{k-1}}, l_{\omega_{k-1}}) \trans^*_{\hat{\pi}_{k-1}} \cdots \trans^*_{\hat{\pi}_{k-1}} (\sigma_{\omega_k-1},l_{\omega_k-1})
+\end{gather*}
+
+\noindent in the same number of steps, where $\tilde{\sigma}\vert_{\live(\hat{\pi}_{k-1},\,l_{\omega_k-1})} = \sigma_{\omega_k-1}\vert_{\live(\hat{\pi}_{k-1},\,l_{\omega_k-1})}$ by \ref{le:only-live-count}. Since $(\tilde{\sigma},l_{\omega_k-1})\in\tau_{\hat{\pi}_{k-1}\sigma}$ by the strictness of the OSR mapping $\mu_{\hat{\pi}_{k-1}\hat{\pi}_{k}}$:
+\begin{align*}
+\exists s_j=(\sigma_j,l_j)\in\tau_{\hat{\pi}_k\sigma}~\text{s.t.}~&\mu_{\hat{\pi}_{k-1}\hat{\pi}_{k}}(l_{\omega_k-1})=(l_j,\chi)~\wedge \\
+&\mysem{\chi}(\tilde{\sigma}\vert_{\live(\hat{\pi}_{k-1},\,l_{\omega_k-1})})=\sigma_j\vert_{\live(\hat{\pi}_{k},\,l_j)}
+\end{align*}
+
+\noindent From the definition of $\mu_{\hat{\pi}_{k-1}\hat{\pi}_k}$ it follows that $\chi=\chi_{\omega_k-1}$ and $l_j=l_{\omega_k}=l_{\omega_k-1}$. By \Cref{le:build-comp-corr,le:osr-mapping-comp} we thus prove:
+\begin{align*}
+\sigma_j\vert_{\live(\hat{\pi}_{k},\,l_{\omega_k})} &= \mysem{\chi_{\omega_k-1}}(\tilde{\sigma}\vert_{\live(\hat{\pi}_{k-1},\,l_{\omega_k-1})})\\
+&=\mysem{\chi_{\omega_k-1}}(\sigma_{\omega_k-1}\vert_{\live(\hat{\pi}_{k-1},\,l_{\omega_k-1})})\\
+&=\sigma_k\vert_{\live(\hat{\pi}_{k},\,l_{\omega_k})})
+\end{align*}
 \end{myproof}
 
 \begin{theorem}[Multi-Version Program Determinism]
