@@ -8,7 +8,7 @@
 
 \subsection{Motivation and Contributions}
 
-Path profiling associates performance metrics, usually frequency counters, to paths taken in the control flow graph of a routine. Identifying the hottest paths can direct optimizations to portions of the code where most resources are consumed, often yielding significant speedups. For instance, trace scheduling can be used to increase instruction-level parallelism along frequently executed paths~\cite{Fisher81,Young98}. Basic-block and edge profiles, albeit inexpensive and widely available, may not correctly predict frequencies of overlapping paths, and are thus inadequate for such optimizations. 
+Path profiling associates performance metrics, usually frequency counters, to paths taken in the control flow graph of a routine. Identifying the hottest paths can direct optimizations to portions of the code where most resources are consumed, often yielding significant speedups. For instance, trace scheduling can be used to increase instruction-level parallelism along frequently executed paths~\cite{Fisher81,Young98}. Basic-block and edge profiles, albeit inexpensive and widely available, may not correctly predict frequencies of overlapping paths, and are thus inadequate for such optimizations.
 
 The seminal paper by Ball and Larus~\cite{Ball96} introduced a simple and elegant path profiling technique. The main idea was to implicitly number all possible acyclic paths in the control flow graph so that each path is associated with a unique compact path identifier (ID). The authors showed that path IDs can be efficiently generated at run time and can be used to update a table\footnote{Large routines can have too many potential paths to use an array of counters. In this case, a slower (but more space-efficient) hash table is used to record only paths that actually execute~\cite{Ball96}.} of frequency counters. Although in general the number of acyclic paths may grow exponentially with the graph size, in typical control flow graphs this number is usually small enough to fit in current machine word-sizes, making this approach very effective in practice.
 
@@ -16,7 +16,7 @@ While the original Ball-Larus approach was restricted to acyclic paths obtained 
 
 \noindent Different authors have proposed techniques to profile cyclic paths by modifying the original Ball-Larus path numbering scheme in order to identify paths that extend across multiple loop iterations~\cite{Tallam04,Roy09,Li12}. Unfortunately, all known solutions require rather complex algorithms that incur severe performance overheads even for short cyclic paths, leaving the interesting open question of finding simpler and more efficient alternative methods.
 
-\paragraph*{Contributions.} In this thesis, we present a novel, data structure-based approach to multi-iteration path profiling. Our method stems from the observation that any cyclic path in the control flow graph of a routine can be described as a concatenation of Ball-Larus acyclic paths (BL paths). In particular, we show how to accurately profile {\em all executed paths} obtained as a concatenation of up to $k$ BL paths, where $k$ is a user-defined parameter. We reduce multi-iteration path profiling to the problem of counting $n$-grams, i.e., contiguous sequences of $n$ items from a given sequence. To compactly represent collected profiles, we organize them in a forest of prefix trees (or tries)~\cite{Fredkin60} of depth up to $k$, where each node is labeled with a BL path, and paths in a tree represent concatenations of BL paths that were actually executed by the program, along with their frequencies. We also present an efficient construction algorithm based on a variant of the \ksf\ data structure presented in~\cite{Ausiello12}. 
+\paragraph*{Contributions.} In this thesis, we present a novel, data structure-based approach to multi-iteration path profiling. Our method stems from the observation that any cyclic path in the control flow graph of a routine can be described as a concatenation of Ball-Larus acyclic paths (BL paths). In particular, we show how to accurately profile {\em all executed paths} obtained as a concatenation of up to $k$ BL paths, where $k$ is a user-defined parameter. We reduce multi-iteration path profiling to the problem of counting $n$-grams, i.e., contiguous sequences of $n$ items from a given sequence. To compactly represent collected profiles, we organize them in a forest of prefix trees (or tries)~\cite{Fredkin60} of depth up to $k$, where each node is labeled with a BL path, and paths in a tree represent concatenations of BL paths that were actually executed by the program, along with their frequencies. We also present an efficient construction algorithm based on a variant of the \ksf\ data structure presented in~\cite{Ausiello12}.
 
 \subsection{Approach}
 \label{ss:kblpp-approach}
@@ -48,7 +48,7 @@ We let the Ball-Larus profiling algorithm issue a stream of BL path IDs, where e
 %\vspace{1em}
 
 %\noindent
-The first phase is almost identical to the original approach described in~\cite{Ball96}. The target program is statically analyzed and a control flow graph (CFG) is constructed for each routine of interest. The CFG is used to instrument the original program by inserting probes, which allow paths to be traced at run time. When the program is executed, taken acyclic paths are identified using the inserted probes. The main difference with the Ball-Larus approach is that, instead of directly updating a table of frequency counters here, we emit a stream of path IDs, which is passed along to the next stage of the process. This allows us to decouple the task of tracing taken paths from the task of profiling them. 
+The first phase is almost identical to the original approach described in~\cite{Ball96}. The target program is statically analyzed and a control flow graph (CFG) is constructed for each routine of interest. The CFG is used to instrument the original program by inserting probes, which allow paths to be traced at run time. When the program is executed, taken acyclic paths are identified using the inserted probes. The main difference with the Ball-Larus approach is that, instead of directly updating a table of frequency counters here, we emit a stream of path IDs, which is passed along to the next stage of the process. This allows us to decouple the task of tracing taken paths from the task of profiling them.
 
 The profiling phase can be either the original hash table-based method of~\cite{Ball96} used to maintain BL path frequencies
 %for larger programs
@@ -67,7 +67,7 @@ The Ball-Larus path profiling (BLPP) technique~\cite{Ball96} identifies each acy
 \DontPrintSemicolon
 \LinesNumbered
 \SetAlgoNoLine
-\SetNlSkip{1em} 
+\SetNlSkip{1em}
 \Indm\Indmm
 \hrulefill\\
 $\mathbf{procedure} \> \> \texttt{bl\_path\_numbering}$():\;
@@ -169,14 +169,14 @@ Given an input stream $\Sigma$ representing a sequence of BL path IDs and $*$ ma
 The 4-IPF built in the second stage contains exactly one tree for each of the 4 distinct BL path IDs (0, 2, 3, 6) that occur in the stream. We observe that path frequencies in the first level of the 4-IPF are exactly those that traditional Ball-Larus profiling would collect. The second level contains the frequencies of taken paths obtained by concatenating 2 BL paths, etc. Notice that the path labeled with $\langle 2, 0, 0, 2\rangle$ in the 4-IPF, which corresponds to the path $\langle B, C, E, B, D, E, B, D, E, B, C, E \rangle$ in the control flow graph, is a 4-gram that occurs 3 times in $\Sigma$ and is one of the most frequent paths among those that span from 2 up to 4 loop iterations.
 \end{example}
 
-\paragraph*{Properties.} 
+\paragraph*{Properties.}
 A \kipf\ has some relevant properties:
 \begin{enumerate}
 \item $\forall$ nodes $\alpha\in$ $k$-IPF, $k>0$: $$c(\alpha)\ge\sum_{\beta_i\,:\,edge\,(\alpha,\beta_i)\in\,k\mbox{\scriptsize-IPF}} c(\beta_i);$$
 \item $\forall k>0$, $k$-IPF $\subseteq$ ($k+1$)-IPF.
 \end{enumerate}
 
-\noindent By Property~1, since path counters are non-negative, they are monotonically non-increasing as we walk down a tree in the \kipf. The inequality $\ge$ in Property~1 may be strict ($>$) if the execution trace of a routine invocation does not end at the exit basic block; this may be the case when a subroutine call is performed at an internal node of the CFG. 
+\noindent By Property~1, since path counters are non-negative, they are monotonically non-increasing as we walk down a tree in the \kipf. The inequality $\ge$ in Property~1 may be strict ($>$) if the execution trace of a routine invocation does not end at the exit basic block; this may be the case when a subroutine call is performed at an internal node of the CFG.
 
 Property~2 implies that, for each tree $T_1$ in the $k$-IPF there is a tree $T_2$ in the $(k+1)$-IPF such that $T_2$ is equal to $T_1$ after removing the leaves at level $k+1$.
 %, i.e., $T_1$ is a subtree of $T_2$ starting at the root of $T_2$.
@@ -206,7 +206,7 @@ The partition of the sequence into chunks induces a division of the forest into 
 \end{figure}
 \fi
 
-\begin{example} 
+\begin{example}
 \label{ex:kblpp-ksf}
 Let us consider again the example given in \myfigure\ref{fig:kblpp-example}. For $k=4$, we can partition the stream into maximal chunks of up to $k-1=3$ consecutive BL path IDs as follows: $$\Sigma=\langle *, \underbrace{\framebox{6, 2, 0}}_{c_1}, \underbrace{\framebox{0, 2, 2}}_{c_2}, \underbrace{\framebox{0, 0, 2}}_{c_3}, \underbrace{\framebox{2, 0, 0}}_{c_4}, \underbrace{\framebox{2, 3}}_{c_5}\rangle.$$
 The $4$-SF of $\Sigma$, defined in terms of chunks $c_1, \ldots, c_5$, is shown in \myfigure\ref{fig:kblpp-ksf}. Notice for instance that 2-gram $\langle 0,0\rangle$ occurs three times in $\Sigma$ and five times in the $4$-SF. However, only three of them end in the bottom slab and hence are counted in the frequency counters.
@@ -226,19 +226,19 @@ Let $k\ge 2$ and let $c_1, c_2, c_3, \ldots,$ $c_m$ be the chunks of $\Sigma$ ob
 \noindent By \mydefinition\ref{def:kblpp-ksf}, since each chunk $c_i$ has length up to $k-1$, then a \ksf\ has at most $2k-2$ levels and depth $2k-3$. As observed above, the correctness of the \ksf\ representation stems from the fact that, since each occurrence of an $n$-gram with $n\le k$ appears in $c_i\cdot c_{i+1}$ for some $i$, then there is a tree in the \ksf\ representing it.
 
 \begin{example} In accordance with \mydefinition\ref{def:kblpp-ksf}, the forest of \myfigure\ref{fig:kblpp-ksf} for the stream of \myexample\ref{ex:kblpp-ksf} is ${\cal F}(L)$, where $L=\langle$ $
-\langle 6\rangle, 
-\langle 6, 2\rangle, 
-\langle 6, 2, 0\rangle, 
-\langle 6, 2, 0, 0\rangle, 
+\langle 6\rangle,
+\langle 6, 2\rangle,
+\langle 6, 2, 0\rangle,
+\langle 6, 2, 0, 0\rangle,
 \langle 6, 2, 0, 0,$
 $
 2\rangle,
 \langle 6, 2, 0, 0, 2, 2\rangle,
-%\langle 0\rangle, 
-%\langle 0, 2\rangle, 
-%\langle 0, 2, 2\rangle, 
-\langle 0, 2, 2, 0\rangle, 
-\langle 0, 2, 2, 0, 0\rangle, 
+%\langle 0\rangle,
+%\langle 0, 2\rangle,
+%\langle 0, 2, 2\rangle,
+\langle 0, 2, 2, 0\rangle,
+\langle 0, 2, 2, 0, 0\rangle,
 \langle 0, 2, 2, 0, 0, 2\rangle,
 %\langle 0\rangle,
 %\langle 0, 0\rangle,
@@ -275,7 +275,7 @@ $
 \DontPrintSemicolon
 \LinesNumbered
 \SetAlgoNoLine
-\SetNlSkip{1em} 
+\SetNlSkip{1em}
 \Indm\Indmm
 \hrulefill\\
 $\mathbf{procedure} \> \> \texttt{process\_bl\_path\_id}$($r$):\;
@@ -347,7 +347,7 @@ Both $\tau$ and $\beta$ are updated to point to the child labeled with $r$ (line
 
 As an informal proof that each subsequence of length up to $k$ is counted exactly once in the \ksf, we first observe that, if the subsequence extends across two consecutive chunks, then it appears exactly once in the forest (connecting a node in the upper slab to a node in the lower slab). In contrast, if the subsequence is entirely contained in a chunk, then it appears twice: once in the upper slab of the tree rooted at the beginning of the chunk, and once in the lower slab rooted in at the beginning of the preceding chunk. However, in this case only the counter in the lower part of the forest is updated (line 27): for this reason, the sum of all counters in the \ksf\ is equal to the length of the stream.
 
-\paragraph*{k-SF to k-IPF conversion.} Once the profiling phase has terminated, 
+\paragraph*{k-SF to k-IPF conversion.} Once the profiling phase has terminated,
 %i.e., the stream $\Sigma$ is over,
 we convert the \ksf\ into a \kipf\ using the procedure
 %{\tt make\_k\_ipf}
@@ -362,7 +362,7 @@ The key intuition behind the correctness of the conversion algorithm is that for
 \DontPrintSemicolon
 \LinesNumbered
 \SetAlgoNoLine
-\SetNlSkip{1em} 
+\SetNlSkip{1em}
 \Indm\Indmm
 \hrulefill\\
 $\mathbf{procedure} \> \> \texttt{make\_k\_ipf}$():\;
@@ -418,7 +418,7 @@ remove dummy root $\phi$ from the \kipf\;
 \DontPrintSemicolon
 \LinesNumbered
 \SetAlgoNoLine
-\SetNlSkip{1em} 
+\SetNlSkip{1em}
 \Indm\Indmm
 \hrulefill\\
 $\mathbf{procedure} \> \> \texttt{join\_subtree}$($\rho,\gamma,d$):\;
@@ -481,7 +481,7 @@ Maintaining a prefix forest during a program's execution would be too costly: we
 \subsection{Comparison with Related Work}
 
 The seminal work of Ball and Larus~\cite{Ball96} has spawned much research interest in the development of new path profiling techniques in the last 15 years. In particular, several works focus on profiling acyclic paths with a lower overhead by using sampling techniques~\cite{Bond05,Bond05b} or choosing a subset of {\em interesting} paths~\cite{Apiwattanapong02,Joshi04,Vaswani07}.
-%or using one-time instrumentation that is later removed~\cite{Structural Path Profiling}; 
+%or using one-time instrumentation that is later removed~\cite{Structural Path Profiling};
 On the other hand, only a few works have dealt with cyclic-path profiling.
 
 Tallam \etal~\cite{Tallam04} extend the Ball-Larus path numbering algorithm to record slightly longer paths across loop back edges and procedure boundaries. The extended Ball-Larus paths overlap and, in particular, are shorter than two iterations for paths that cross loop boundaries. These overlapping paths enable very precise estimation of frequencies of potentially much longer paths, with an average imprecision in estimated total flow of those paths ranging from $-4\%$ to $+8\%$. However, experimental results reveal that the average cost of collecting frequencies of overlapping paths is about 4.2 times that of canonical \blpp.
@@ -495,6 +495,6 @@ The common trait of all these works it to extend the Ball-Larus encoding algorit
 
 %The main goal of all these works is to reduce profiling overhead without incurring significant loss of accuracy. Our approach is orthogonal to this line of research and regards space efficiency as an additional resource optimization criterion besides profile accuracy and time efficiency. When the purpose of profiling is to identify hot contexts, exhaustive instrumentation, sampling, and bursting might all be combined with our approach and benefit of our space reduction technique. In Section \missing\ we present an integration of our technique with static bursting~\cite{Zhuang06}, which results in faster running times without substantially affecting accuracy.
 
-Of a different flavor is the technique introduced by Young~\cite{Young98} for profiling {\em general paths}, i.e., fixed-length sequences of taken branches that might span multiple loop iterations.
+Of a different flavor is the technique introduced by Young~\cite{Young98thesis} for profiling {\em general paths}, i.e., fixed-length sequences of taken branches that might span multiple loop iterations.
 %(see Section~\ref{sse:instr-scheduling}).
 Unfortunately, this technique scales poorly for increasing path lengths $l$ both in terms of space usage and running time. In particular, the running time is proportional not only to the length of the stream of taken branches, but also to the number of possible sequences of length $l$, that is likely to be exponential in $l$. In order to reduce the per-taken-branch update time, the algorithm uses also additional space with respect to that required for storing the path counters and identifiers; such space is proportional to the number of possible sequences of length $l$ as well.
