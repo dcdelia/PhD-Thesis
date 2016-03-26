@@ -4,6 +4,7 @@
 \usepackage{enumitem}
 \usepackage{amsfonts,amsmath,amssymb}
 \usepackage{tabularx}
+\usepackage{cprotect}
 
 \let\oldnl\nl% Store \nl in \oldnl
 \newcommand{\nonl}{\renewcommand{\nl}{\let\nl\oldnl}}% Remove line number for one line
@@ -136,3 +137,6 @@
 \newcommand{\reconstruct}{\mytt{reconstruct}}
 \newcommand{\apply}{\mytt{apply}}
 \newcommand{\dopasses}{\mytt{do\_passes}}
+
+%debugging
+\newcommand{\speccpu}{{\tt SPEC CPU2006}}
