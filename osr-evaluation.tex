@@ -263,15 +263,14 @@ We implemented our technique in \tinyvm, introducing a number of features to:
 
 \noindent We evaluated our technique on the \speccpu~\cite{Henning06} and the \phoronixpts~\cite{Phoronix} benchmarking suites, reporting data for a subset of their C/C++ benchmarks. We profiled each benchmark to identify the hottest method and generated the IR for it using \clang\ with no optimization enabled other than \mytt{mem2reg}. Starting from this version of the IR, which we will refer to as {\em base}, we generated an {\em opt} version by applying all our instrumented LLVM optimizations. 
 
-A description of the benchmarks is reported in \mytable\ref{tab:OSR-alC-bench-desc}.
+The list of benchmarks and transformations that are effective on their hottest method is reported in \mytable\ref{tab:OSR-alC-bench-desc}. Details on the IR-level manipulations are reported instead in \mytable\ref{tab:OSR-alC-bench-IR}.
 
 \begin{table}[t]
 \begin{center}
 \begin{small}
-\newcolumntype{D}{>{\centering\arraybackslash}m{0.95cm}}
 \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c| }
         \cline{3-10}
-        \multicolumn{2}{l|}{} & \multicolumn{6}{c|}{Optimizations} & \multicolumn{2}{c|}{Utils} \\
+        \multicolumn{2}{l|}{} & \multicolumn{6}{c|}{Optimizations} & \multicolumn{2}{c|}{Utilities} \\
         \hline
         Suite & Benchmark & \em{ADCE} & \em{CP} & \em{CSE} & \em{SCCP} & \em{LICM} & \em{Sink} & \em{LS} & \em{LCSSA} \\ 
         \hline
@@ -305,10 +304,49 @@ A description of the benchmarks is reported in \mytable\ref{tab:OSR-alC-bench-de
 \end{small}
 %\end{adjustbox}
 \end{center}
-\caption{\label{tab:OSR-alC-bench-desc} Description of the benchmarks.} 
+\caption{\label{tab:OSR-alC-bench-desc} Optimizations and utility passes effective on the hottest function of each benchmark. Optimization passes have been applied in the same order (left-to-right) as they apper in the table. Utility passes {\em LC} and {\em LCSSA} are pre-requisites of {\em LICM}.} 
 \end{table}
 
-
+\begin{table}[t]
+\begin{center}
+\begin{small}
+\newcolumntype{D}{>{\leftragged\arraybackslash}m{4cm}}
+\begin{tabularx}{0.9\textwidth}{|c|X|c|c|c|c|}
+\cline{3-6}
+\multicolumn{2}{l|}{} & \multicolumn{2}{c|}{base} & \multicolumn{2}{c|}{opt} \\
+\hline
+Benchmark & Function & $|\pi|$ & $|\phi|$ & $|\pi|$ & $|\phi|$ \\
+\hline
+bzip2 & mainSort & 657 & 32 & 596 & 44 \\ 
+\hline
+h264ref & SetupFastFullPelSearch & 671 & 28 & 576 & 36 \\ 
+\hline
+hmmer & P7Viterbi & 568 & 6 & 383 & 8 \\
+\hline
+namd & ComputeNonbondedUtil::calc\_pair\_ energy\_fullelect & 1737 & 159 & 1636 & 224 \\
+\hline
+perlbench & S\_regmatch & 5574 & 305 & 5001 & 355 \\
+\hline
+sjeng & std\_eval & 1940 & 93 & 1540 & 105 \\
+\hline
+soplex & SPxSteepPR::entered4X & 195 & 2 & 154 & 2 \\
+\hline
+bullet & btGjkPairDetector::getClosestPoints NonVirtual & 587 & 24 & 553 & 42 \\
+\hline
+dcraw & vng\_interpolate & 590 & 37 & 545 & 49 \\
+\hline
+ffmpeg & decode\_cabac\_residual\_internal & 618 & 34 & 462 & 40 \\
+\hline
+fhourstones & ab & 288 & 29 & 284 & 39 \\
+\hline
+vp8 & vp8\_full\_search\_sadx8 & 334 & 41 & 299 & 60 \\
+\hline
+\end{tabularx} 
+\end{small}
+%\end{adjustbox}
+\end{center}
+\caption{\label{tab:OSR-alC-bench-IR} Optimizations and utility passes effective on the hottest function of each benchmark. Optimization passes have been applied in the same order (left-to-right) as they apper in the table. Utility passes {\em LC} and {\em LCSSA} are pre-requisites of {\em LICM}.} 
+\end{table}
 
 %The list of benchmarks and optimizations that are effective on their hottest methods is reported in \mytable\ref{tab:benchmarks}.
 
