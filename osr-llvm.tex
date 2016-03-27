@@ -70,6 +70,7 @@ The open OSR scenario is similar, with one main difference (see \myfigure\ref{fi
 
 %\subsection{Implementing OSR in LLVM}
 \subsection{LLVM Implementation}
+\label{ss:osrkit-implementation}
 
 The LLVM compiler infrastructure~\cite{Lattner04} provides a Just-In-Time compiler called MCJIT that is currently being used for generating optimized code at run-time in virtual machines for dynamic languages. MCJIT is employed in both industrial and research projects, including Webkit's Javascript engine, the open-source Python implementation Pyston, the Rubinius project for Ruby, Julia for high-performance technical computing, McVM for MATLAB, CXXR for the R language, Terra for Lua, and the Pure functional programming language. The MCJIT compiler shares the same optimization pipeline with LLVM front-ends for static languages such as \clang, and it provides dynamic features such as native code loading and linking, as well as a customizable memory manager for code and data sections.
 
@@ -81,7 +82,7 @@ Currently VM builders using MCJIT are required to have a deep knowledge of the i
 
 %avoiding low-lever tampering with stack frames can more easily preserve ABI calling conventions
 
-We prototyped our idea of flexible OSR infrastructure working entirely at IR level in a library for MCJIT called \osrkit. \osrkit\ provides a number of useful abstractions that include open and resolved OSR instrumentation of IR base functions without breaking the SSA (Static Single Assignment) form, liveness analysis, generation of OSR continuation functions, and mapping of LLVM values between different function versions along with an interface for compensation code generation.
+We prototyped our idea of flexible OSR infrastructure working entirely at IR level in a library for MCJIT called \osrkit. \osrkit\ provides a number of useful abstractions that include open and resolved OSR instrumentation of IR base functions without breaking the SSA (Static Single Assignment) form~\cite{Cytron91}, liveness analysis, generation of OSR continuation functions, and mapping of LLVM values between different function versions along with an interface for compensation code generation.
 
 We also implemented a proof-of-concept VM called \tinyvm\ that provides an interactive environment for LLVM IR manipulation, JIT compilation, and benchmarking. All of our code is publicly available and has been endorsed by the joint Artifact Evaluation process of CGO-PPoPP 2016.
 
