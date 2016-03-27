@@ -261,9 +261,11 @@ We implemented our technique in \tinyvm, introducing a number of features to:
  \item for each feasible OSR point in $f_{base}$/$f_{opt}$, invoke \osrkit\ to materialize the compensation code $\chi$ produced by \reconstruct\ into a sequence of IR instructions for the OSR entrypoint block of $f'_{opt}$/$f'_{base}$ (\mysection\ref{ss:osr-llvm-approach}).
 \end{itemize}
 
-\noindent We evaluated our technique on the \speccpu~\cite{Henning06} and the \phoronixpts~\cite{Phoronix} benchmarking suites, reporting data for a subset of their C/C++ benchmarks. We profiled each benchmark to identify the hottest method and generated the IR for it using \clang\ with no optimization enabled other than \mytt{mem2reg}. Starting from this version of the IR, which we will refer to as {\em base}, we generated an {\em opt} version by applying all our instrumented LLVM optimizations. 
+\noindent We instrumented a number of standard LLVM optimization passes, including {\em aggressive dead code elimination} (ADCE), {\em constant propagation} (CP), {\em common subexpression elimination} (CSE), {\em loop-invariant code motion} (LICM), {\em sparse conditional constant propagation} (SCCP), and {\em code sinking} (Sink). We also instrumented a number of utility passes required by LICM, such as {\em natural loop canonicalization} (LC) and {\em LCSSA-form construction} (LCSSA). Optimizations performed by the back-end (e.g., instruction scheduling, register allocation, peephole optimizations) do not require instrumentation as we operate at the IR level.
 
-The list of benchmarks and transformations that are effective on their hottest method is reported in \mytable\ref{tab:OSR-alC-bench-desc}. Details on the IR-level manipulations are reported instead in \mytable\ref{tab:OSR-alC-bench-IR}.
+We evaluated our technique on the \speccpu~\cite{Henning06} and the \phoronixpts~\cite{Phoronix} benchmarking suites, reporting data for a subset of their C/C++ benchmarks. We profiled each benchmark to identify the hottest method and generated the IR for it using \clang\ with no optimization enabled other than \mytt{mem2reg}. Starting from this version of the IR, which we will refer to as {\em base}, we generated an {\em opt} version by applying all our instrumented LLVM optimizations. 
+
+The list of benchmarks and transformations that are effective on their hottest method is reported in \mytable\ref{tab:OSR-alC-bench-desc}. Numbers reported in \mytable\ref{tab:OSR-alC-bench-IR} for the IR manipulations performed by the transformations suggest that, while the {\em opt} version is typically shorter than its {\em base} counterpart, it might have a larger number of $\phi$-nodes (most of them are inserted during the LCSSA-form construction). We observed that SCCP was able to eliminate a large number of unreachable blocks for \mytt{ffmpeg}, while for the remaining benchmarks the majority of instruction deletions are performed by CSE, which replaces all the uses of these instructions in the rest of the code with uses of equivalent available instructions. 
 
 \begin{table}[t]
 \begin{center}
@@ -307,15 +309,15 @@ The list of benchmarks and transformations that are effective on their hottest m
 \caption{\label{tab:OSR-alC-bench-desc} Optimizations and utility passes effective on the hottest function of each benchmark. Optimization passes have been applied in the same order (left-to-right) as they apper in the table. Utility passes {\em LC} and {\em LCSSA} are pre-requisites of {\em LICM}.} 
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!t]
 \begin{center}
 \begin{small}
-\newcolumntype{D}{>{\leftragged\arraybackslash}m{4cm}}
 \begin{tabularx}{0.9\textwidth}{|c|X|c|c|c|c|}
 \cline{3-6}
 \multicolumn{2}{l|}{} & \multicolumn{2}{c|}{base} & \multicolumn{2}{c|}{opt} \\
 \hline
 Benchmark & Function & $|\pi|$ & $|\phi|$ & $|\pi|$ & $|\phi|$ \\
+\hline
 \hline
 bzip2 & mainSort & 657 & 32 & 596 & 44 \\ 
 \hline
@@ -341,14 +343,56 @@ fhourstones & ab & 288 & 29 & 284 & 39 \\
 \hline
 vp8 & vp8\_full\_search\_sadx8 & 334 & 41 & 299 & 60 \\
 \hline
-\end{tabularx} 
+\end{tabularx}
+
+\vspace{6mm}
+
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+Benchmark & Added & Deleted & Hoisted & Sunk & $RAUW_I$ & $RAUW_C$ & $RAUW_A$ \\
+\hline
+\hline
+bzip2 & 16 & 77 & 12 & 3 & 71 & 0 & 2 \\
+\hline
+h264ref & 9 & 105 & 4 & 21 & 102 & 0 & 0 \\
+\hline
+hmmer & 2 & 187 & 13 & 1 & 187 & 0 & 0 \\
+\hline
+namd & 68 & 169 & 36 & 73 & 145 & 17 & 0 \\
+\hline
+perlbench & 86 & 667 & 96 & 28 & 627 & 0 & 0 \\
+\hline
+sjeng & 13 & 413 & 20 & 34 & 412 & 1 & 0 \\
+\hline
+soplex & 0 & 41 & 2 & 4 & 41 & 0 & 0 \\
+\hline
+bullet & 26 & 60 & 37 & 3 & 51 & 1 & 0 \\
+\hline
+dcraw & 13 & 58 & 25 & 6 & 58 & 0 & 0 \\
+\hline
+ffmpeg & 11 & 168 & 9 & 17 & 52 & 51 & 0 \\
+\hline
+fhourstones & 14 & 20 & 3 & 0 & 14 & 2 & 0 \\
+\hline
+vp8 & 19 & 54 & 17 & 34 & 54 & 0 & 0 \\
+\hline
+\end{tabular} 
 \end{small}
 %\end{adjustbox}
 \end{center}
-\caption{\label{tab:OSR-alC-bench-IR} Optimizations and utility passes effective on the hottest function of each benchmark. Optimization passes have been applied in the same order (left-to-right) as they apper in the table. Utility passes {\em LC} and {\em LCSSA} are pre-requisites of {\em LICM}.} 
+\caption{\label{tab:OSR-alC-bench-IR} Details on the IR manipulations on the hottest function of each benchmark. For each function we report the number of instructions $|\pi|$ ($|\phi|$ of which represent $\phi$-nodes) for both the {\em base} and the {\em opt} version. We then report the number of primitive actions for code manipulations tracked across the applied transformations. $RAUW_{\{A,C,I\}}$ is used to indicate \RAUWfull\ actions performed for some {$N$} having Argument, Constant, or Instruction type in LLVM.
+} 
 \end{table}
 
-%The list of benchmarks and optimizations that are effective on their hottest methods is reported in \mytable\ref{tab:benchmarks}.
-
 \subsubsection*{Platform}
-Experiments were performed on an octa-core 2.3Ghz Intel Xeon E5-4610 v2 with 256+256KB of L1 cache, 2MB of L2 cache, 16MB of shared L3 cache, and 128 GB of DDR3 main memory, running Debian Wheezy 7, Linux kernel 3.2.0, LLVM 3.6.2 (Release build, compiled using gcc 4.7.2), 64 bit. For each benchmark we analyze CPU time performing 10 trials preceded by an initial warm-up iteration; reported confidence intervals are stated at 95\% confidence level.
+Experiments were performed on a machine equipped with an Intel Core i7-3632QM processor, running Ubuntu 14.10, LLVM 3.6.2 (Release build), 64 bit.
+
+\subsection{OSR to Optimized Version}
+
+\missing shows the fraction of OSR points from {\em base} to {\em opt} that are feasible depending on the version of \reconstruct\ being used.
+
+Locations that can fire an OSR with no need of a compensation code (i.e., $\chi=\langle\rangle$) account for a limited fraction of all the potential OSR points (less than $10\%$ for most benchmarks). This suggests that optimizations can significantly modify a program's live state across program locations.
+
+We observe that the $live$ version of \reconstruct\ performs well on some benchmarks (e.g., \mytt{perlbench}, \mytt{dcraw}) and poorly on others (e.g., \mytt{h264ref}, \mytt{namd}). The enhancements introduced in the $live_{(e)}$ version are effective for some benchmarks (e.g., \mytt{bzip2}, \mytt{namd}), while aliasing information exploited in the $alias$ version increases the number of feasible OSR points for all benchmarks. For $9$ out of $12$ of them, it is possible in fact to build a compensation code using only live variables at the OSR source for more than $60\%$ of potential OSR points. An inspection of the codes reveals that the assignment step (line $8$ of \reconstruct) produces on average $12.58$ compensation instructions per OSR point (with a peak of $46.25$ on \mytt{perlbench}).
+
+When in the $avail$ version \reconstruct\ is allowed to extend the liveness range of an ``available'' variable, the percentage of feasible OSR points grows to nearly $100\%$. The only exception is \mytt{bullet}: the algorithm fails on a $\phi$-node taking as incoming values a number of LCSSA $\phi$-nodes all yielding the same value, but the current implementation is unable to detect and use it directly.
