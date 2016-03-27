@@ -404,6 +404,50 @@ We observe that the $live$ version of \reconstruct\ performs well on some benchm
 
 When in the $avail$ version \reconstruct\ is allowed to extend the liveness range of an ``available'' variable, the percentage of feasible OSR points grows to nearly $100\%$. We observed for \mytt{bullet} that a specific $\phi$-node needs to be reconstructed at nearly $20\%$ of feasible OSR points: this node takes as incoming values a number of $\phi$-nodes that in turn all yield the same value. While LLVM's built-in method for detecting trivially constant $\phi$-nodes does not cover this case, our recursive heuristic introduced in the $live_{(e)}$ version is able to identify the value and use it directly.
 
+\begin{table}[!ht]
+\begin{center}
+\begin{small}
+\begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+\cline{2-9}
+\multicolumn{1}{l|}{} & \multicolumn{2}{c|}{$|\chi|\leftarrow live_{(e)}$} & \multicolumn{2}{c|}{$|\chi|\leftarrow alias$} & \multicolumn{2}{c|}{$|\chi|\leftarrow avail$} & \multicolumn{2}{c|}{$|K_{avail}|$} \\
+\hline
+Benchmark & Avg & Max & Avg & Max & Avg & Max & Avg & Max \\
+\hline
+\hline
+bzip2 & 4.29 & 14 & 4.3 & 14 & 4.73 & 13 & 3.6 & 8 \\
+\hline
+h264ref & 1.94 & 2 & 2.9 & 5 & 3.37 & 5 & 1.02 & 2 \\
+\hline
+hmmer & 3.3 & 5 & 16.11 & 23 & 16.63 & 24 & 4.02 & 7 \\
+\hline
+namd & 18.48 & 28 & 18.61 & 28 & 17.82 & 28 & 3.38 & 6 \\
+\hline
+perlbench & 46.29 & 57 & 46.12 & 57 & 45.82 & 57 & 1.24 & 12 \\
+\hline
+sjeng & 9.51 & 21 & 9.72 & 21 & 18.52 & 32 & 4.2 & 12 \\
+\hline
+soplex & 5.08 & 7 & 5.02 & 7 & 4.38 & 7 & 2.34 & 4 \\
+\hline
+bullet & 16.79 & 46 & 16.69 & 46 & 15.93 & 46 & 6.15 & 17 \\
+\hline
+dcraw & 7.72 & 15 & 7.6 & 15 & 7.32 & 15 & 1.97 & 7 \\
+\hline
+ffmpeg & 5.22 & 8 & 5.05 & 8 & 4.03 & 8 & 1.85 & 3 \\
+\hline
+fhourstones & 4.64 & 6 & 4.5 & 6 & 4.98 & 6 & 1.7 & 2 \\
+\hline
+vp8 & 9.6 & 16 & 10.51 & 16 & 10.13 & 17 & 2.35 & 6 \\
+\hline
+\hline
+Mean & 11.07 & 18.75 & 12.26 & 20.50 & 12.81 & 21.50 & 2.82 & 7.17 \\
+\hline
+\end{tabular} 
+\end{small}
+%\end{adjustbox}
+\end{center}
+\caption{\label{tab:OSR-alC-prologue-BtoO} \missing} 
+\end{table}
+
 \missing
 
 \subsection{OSR to Base Version}
