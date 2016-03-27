@@ -1,0 +1,13 @@
+#benchmark	OSR_points no_CC CC_required	naive	delta_opts	delta_alias	delta_dead
+bzip2	552	8	544	0	358	0	186
+h264ref	539	10	529	274	1	0	254
+hmmer	375	63	312	6	0	0	306
+namd	1412	75	1337	5	0	0	1261
+perlbench	4643	121	4522	2650	0	0	1485
+sjeng	1434	484	950	92	0	0	858
+soplex	152	47	105	47	20	0	38
+bullet	511	224	287	19	143	0	125
+dcraw	495	373	122	34	0	0	88
+ffmpeg	421	23	398	0	288	0	90
+fhourstones	243	107	136	15	0	0	121
+vp8	239	33	206	46	137	0	23

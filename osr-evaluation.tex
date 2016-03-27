@@ -389,10 +389,36 @@ Experiments were performed on a machine equipped with an Intel Core i7-3632QM pr
 
 \subsection{OSR to Optimized Version}
 
-\missing shows the fraction of OSR points from {\em base} to {\em opt} that are feasible depending on the version of \reconstruct\ being used.
+\myfigure\ref{fig:osr-BC-BtoO} shows the fraction of program points that are feasible for an OSR from {\em base} to {\em opt} depending on the version of \reconstruct\ being used.
 
 Locations that can fire an OSR with no need of a compensation code (i.e., $\chi=\langle\rangle$) account for a limited fraction of all the potential OSR points (less than $10\%$ for most benchmarks). This suggests that optimizations can significantly modify a program's live state across program locations.
 
-We observe that the $live$ version of \reconstruct\ performs well on some benchmarks (e.g., \mytt{perlbench}, \mytt{dcraw}) and poorly on others (e.g., \mytt{h264ref}, \mytt{namd}). The enhancements introduced in the $live_{(e)}$ version are effective for some benchmarks (e.g., \mytt{bzip2}, \mytt{namd}), while aliasing information exploited in the $alias$ version increases the number of feasible OSR points for all benchmarks. For $9$ out of $12$ of them, it is possible in fact to build a compensation code using only live variables at the OSR source for more than $60\%$ of potential OSR points. An inspection of the codes reveals that the assignment step (line $8$ of \reconstruct) produces on average $12.58$ compensation instructions per OSR point (with a peak of $46.25$ on \mytt{perlbench}).
+\begin{figure}[!t]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{figures/osr-BC-BtoO/osr-BC-BtoO.eps}
+\caption{\protect\input{figures/osr-BC-BtoO/caption}}
+\end{center}
+\end{figure}
 
-When in the $avail$ version \reconstruct\ is allowed to extend the liveness range of an ``available'' variable, the percentage of feasible OSR points grows to nearly $100\%$. The only exception is \mytt{bullet}: the algorithm fails on a $\phi$-node taking as incoming values a number of LCSSA $\phi$-nodes all yielding the same value, but the current implementation is unable to detect and use it directly.
+We observe that the $live$ version of \reconstruct\ performs well on some benchmarks (e.g., \mytt{perlbench}, \mytt{bullet}, \mytt{dcraw}) and poorly on others (e.g., \mytt{h264ref}, \mytt{namd}). The enhancements introduced in the $live_{(e)}$ version are effective for some benchmarks (e.g., \mytt{namd}, \mytt{sjeng}), while aliasing information exploited in the $alias$ version increases the number of feasible OSR points for all benchmarks. For $9$ out of $12$ of them, it is possible in fact to build a compensation code using only live variables at the OSR source for more than $60\%$ of potential OSR points. 
+
+When in the $avail$ version \reconstruct\ is allowed to extend the liveness range of an ``available'' variable, the percentage of feasible OSR points grows to nearly $100\%$. We observed for \mytt{bullet} that a specific $\phi$-node needs to be reconstructed at nearly $20\%$ of feasible OSR points: this node takes as incoming values a number of $\phi$-nodes that in turn all yield the same value. While LLVM's built-in method for detecting trivially constant $\phi$-nodes does not cover this case, our recursive heuristic introduced in the $live_{(e)}$ version is able to identify the value and use it directly.
+
+\missing
+
+\subsection{OSR to Base Version}
+
+\myfigure\ref{fig:osr-BC-OtoB} reports the fraction of OSR points eligible for {\em opt} to {\em base} deoptimization. We observe that the fraction of locations that can fire an OSR with an empty $\chi$ varies significantly from benchmark to benchmark, suggesting a dependence on the structure of the original program.
+
+\begin{figure}[!t]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{figures/osr-BC-OtoB/osr-BC-OtoB.eps}
+\caption{\protect\input{figures/osr-BC-OtoB/caption}}
+\end{center}
+\end{figure}
+
+For $9$ out of $12$ benchmarks, compensation code can be built using only live variables for more than $50\%$ of potential OSR points.
+%The assignment step of \reconstruct\ produces on average $2.3$ compensation instructions, with a peak of $5.74$ on \mytt{vp8}.
+When the $avail$ version is used, the percentage of feasible OSR points is greater than $90\%$ on all benchmarks and nearly $100\%$ for $9$ out of $12$ of them.
+
+Results for the $alias$ version of \reconstruct\ are not reported, as they do not improve those for $live_{(e)}$. Indeed, aliasing information is useful when a variable to set at destination is aliased by multiple variables at source, which we do not expect to happen in an optimized code.
