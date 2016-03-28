@@ -40,7 +40,7 @@ To capture a variety of programming patterns and styles from applications with d
 \cline{3-8}
 \multicolumn{2}{l|}{} & \multicolumn{1}{c|}{Total} & \multicolumn{2}{c|}{Optimized} & \multicolumn{3}{c|}{Endangered} \\
 \hline
-Benchmark & \multicolumn{1}{c|}{LOC} & \multicolumn{1}{c|}{$f_{tot}$} & \multicolumn{1}{c|}{$f_{opt}$}  & \multicolumn{1}{c|}{\unitfrac{$f_{opt}$}{$f_{tot}$}} & \multicolumn{1}{c|}{$f_{end}$} & \multicolumn{1}{c|}{\unitfrac{$f_{end}$}{$f_{tot}$}} & \multicolumn{1}{c|}{\unitfrac{$f_{opt}$}{$f_{opt}$}} \\ 
+Benchmark & \multicolumn{1}{c|}{LOC} & \multicolumn{1}{c|}{$|F_{tot}|$} & \multicolumn{1}{c|}{$|F_{opt}|$}  & \multicolumn{1}{c|}{\tiny$\frac{|F_{opt}|}{|F_{tot}|}$} & \multicolumn{1}{c|}{$|F_{end}|$} & \multicolumn{1}{c|}{\tiny$\frac{|F_{end}|}{|F_{tot}|}$} & \multicolumn{1}{c|}{\tiny$\frac{|F_{end}|}{|F_{opt}|}$} \\ 
 \hline
 \hline
 bzip2 & 8\,293 & 100 & 66 & 0.66 & 24 & 0.24 & 0.36 \\ 
@@ -73,12 +73,104 @@ sphinx3 & 25\,090 & 369 & 275 & 0.75 & 76 & 0.21 & 0.28 \\
 \caption{\label{tab:CS-debug-benchmarks} Description of the C benchmarks in the \speccpu\ suite.} 
 \end{table}
 
+\begin{table}[ht]
+\begin{center}
+\begin{small}
+\begin{tabular}{ |c|C{1.4cm}|C{1.4cm}|C{0.95cm}|C{0.95cm}|r| }
+\cline{2-6}
+\multicolumn{1}{l|}{} & \multicolumn{2}{c|}{Fraction of affected} & \multicolumn{3}{c|}{Dead user scalars} \\
+\multicolumn{1}{l|}{} & \multicolumn{2}{c|}{program points} & \multicolumn{3}{c|}{per affected point} \\
+\hline
+Benchmark & $Avg_w$ & $Avg_u$ & $Avg$ & $\sigma$ & $Max$ \\ 
+\hline
+\hline
+bzip2 & 0.17 & 0.12 & 1.22 & 0.55 & 5 \\
+\hline
+gcc & 0.25 & 0.22 & 1.13 & 0.31 & 14 \\
+\hline
+gobmk & 0.40 & 0.29 & 1.48 & 0.72 & 9 \\
+\hline
+h264ref & 0.45 & 0.55 & 1.69 & 1.23 & 14 \\
+\hline
+hmmer & 0.17 & 0.22 & 1.13 & 0.37 & 5 \\
+\hline
+lbm & 0.30 & 0.51 & 1.97 & 1.37 & 3 \\
+\hline
+libquantum & 0.13 & 0.10 & 1.06 & 0.17 & 2 \\
+\hline
+mcf & 0.35 & 0.32 & 1.00 & 0.00 & 1 \\
+\hline
+milc & 0.24 & 0.21 & 1.14 & 0.29 & 3 \\
+\hline
+perlbench & 0.37 & 0.35 & 1.16 & 0.36 & 8 \\
+\hline
+sjeng & 0.26 & 0.20 & 1.24 & 0.42 & 3 \\
+\hline
+sphinx3 & 0.29 & 0.31 & 1.19 & 0.44 & 6 \\
+\hline
+\hline
+Mean & 0.28 & 0.28 & 1.28 & 0.52 & 6.08 \\
+\hline
+\end{tabular} 
+\end{small}
+\end{center}
+\caption{\label{tab:CS-debug-affected-points} Fractions of program points at which values are endangered, and number of affected values and such points. The second and third column report the unweighted and weighted (using the number of instructions in each unoptimized function version as weight) average of the fraction of endangered program points per function, respectively.
+} 
+\end{table}
+
+
+
+
+\begin{figure}[!ht]
+\begin{center}
+\centerline{
+\includegraphics[width=0.45\textwidth]{figures/CS-debug-tot-dead/tot-dead-gcc-logscale.eps}
+\includegraphics[width=0.45\textwidth]{figures/CS-debug-tot-dead/tot-dead-gcc-linear.eps}
+}
+\vspace{2mm}
+\centerline{
+\includegraphics[width=0.45\textwidth]{figures/CS-debug-tot-dead/tot-dead-gobmk-logscale.eps}
+\includegraphics[width=0.45\textwidth]{figures/CS-debug-tot-dead/tot-dead-gobmk-linear.eps}
+}
+\vspace{2mm}
+\centerline{
+\includegraphics[width=0.45\textwidth]{figures/CS-debug-tot-dead/tot-dead-perlbench-logscale.eps}
+\includegraphics[width=0.45\textwidth]{figures/CS-debug-tot-dead/tot-dead-perlbench-linear.eps}
+}
+\caption{\protect\input{figures/CS-debug-tot-dead/caption}}
+\end{center}
+\end{figure}
+
 \begin{figure}[!ht]
 \begin{center}
 \includegraphics[width=0.8\textwidth]{figures/CS-debug-ratio/CS-debug-ratio.eps}
 \caption{\protect\input{figures/CS-debug-ratio/caption}}
 \end{center}
 \end{figure}
+
+\begin{table}[!ht]
+\begin{center}
+\begin{small}
+\begin{adjustbox}{width=0.925\textwidth}
+%\begin{tabular}{ |c|cccccccccccc||c| }
+\begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c|c|c||c| }
+\cline{2-14}
+\multicolumn{1}{c|}{} & \rot{bzip2} & \rot{gcc} & \rot{gobmk} & \rot{h264ref} & \rot{hmmer} & \rot{lbm} & \rot{libquantum\hspace{0.5em}} & \rot{mcf} & \rot{milc} & \rot{perlbench} & \rot{sjeng} & \rot{sphinx3} & \rot{Mean} \\
+\hline
+$avg$ & 2.29 & 1.99 & 0.38 & 3.48 & 1.95 & 0 & 2.00 & 1.82 & 1.68 & 3.14 & 1.45 & 1.67 & 1.82 \\
+$\sigma$ & 3.20 & 4.51 & 1.23 & 8.09 & 2.33 & 0 & 3.12 & 0.87 & 1.93 & 4.60 & 1.26 & 2.05 & 2.77 \\
+\hline
+%C & 12.00 & 77.00 & 12.00 & 88.00 & 9.00 & 0.00 & 10.00 & 3.00 & 8.00 & 32.00 & 5.00 & 11.00 & 22.25 \\
+$avg$ & 3.24 & 2.77 & 2.31 & 4.90 & 2.79 & X & 3.00 & 1.82 & 2.19 & 4.76 & 1.88 & 2.31 & 2.91 \\ 
+$\sigma$ & 3.38 & 5.12 & 2.22 & 9.23 & 2.33 & X & 3.46 & 0.87 & 1.94 & 4.94 & 1.12 & 2.08 & 3.34 \\
+\hline
+\end{tabular} 
+\end{adjustbox}
+\end{small}
+\end{center}
+\caption{\label{tab:CS-debug-affected-shit} \missing.
+} 
+\end{table}
 
 
 %However, when attempting to debug optimized programs, most debuggers may give misleading information about the value of variables at breakpoints.

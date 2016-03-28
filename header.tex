@@ -6,8 +6,8 @@
 \usepackage{tabularx}
 \usepackage{cprotect}
 \usepackage{multirow}
-%\usepackage{adjustbox}
-\usepackage{units}
+\usepackage{adjustbox}
+%\usepackage{units}
 
 \let\oldnl\nl% Store \nl in \oldnl
 \newcommand{\nonl}{\renewcommand{\nl}{\let\nl\oldnl}}% Remove line number for one line
@@ -152,3 +152,10 @@
 %debugging
 \newcommand{\speccpu}{{\tt SPEC CPU2006}}
 \newcommand{\phoronixpts}{{\tt Phoronix PTS}}
+
+%% stuff for tabular
+\newcommand*\rot{\rotatebox{90}}
+% hack for wrapping: http://tex.stackexchange.com/questions/54069/table-with-text-wrapping
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}m{#1}}
+% maybe see also http://tex.stackexchange.com/questions/115668/wrapping-text-in-multicolumn

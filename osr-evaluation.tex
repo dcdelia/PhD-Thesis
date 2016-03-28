@@ -21,29 +21,29 @@ We address questions Q1-Q3 by analyzing the performance of \osrkit\ on a selecti
 \begin{small}
     \begin{tabular}{ |c|c| }
         \hline
-        Benchmark & Description \\ 
+        Benchmark & Description \\
         \hline
         \hline
-        b-trees & Adaptation of a GC bench for binary trees \\ 
+        b-trees & Adaptation of a GC bench for binary trees \\
         \hline
-        fannkuch & Fannkuch benchmark on permutations \\ 
+        fannkuch & Fannkuch benchmark on permutations \\
         \hline
-        fasta & Generation of DNA sequences \\ 
+        fasta & Generation of DNA sequences \\
         \hline
-        fasta-redux & Generation of DNA sequences (with lookup table) \\ 
+        fasta-redux & Generation of DNA sequences (with lookup table) \\
         \hline
-        mbrot & Mandelbrot set generation \\ 
+        mbrot & Mandelbrot set generation \\
         \hline
-        n-body & N-body simulation of Jovian planets \\ 
+        n-body & N-body simulation of Jovian planets \\
         \hline
-        rev-comp & Reverse-complement of DNA sequences \\ 
+        rev-comp & Reverse-complement of DNA sequences \\
         \hline
-        sp-norm & Eigenvalue calculation with power method \\ 
+        sp-norm & Eigenvalue calculation with power method \\
         \hline
-    \end{tabular} 
+    \end{tabular}
 \end{small}
 \end{center}
-\caption{\label{tab:osr-shootout} Description of the \shootout\ benchmarks.} 
+\caption{\label{tab:osr-shootout} Description of the \shootout\ benchmarks.}
 \end{table}
 
 We generate the IR modules for our experiments with \clang\ starting from the C version of the \shootout\ suite. To cover scenarios where OSR machinery is inserted in programs with different optimization levels, we consider two versions: 1) {\em unoptimized}, where the only LLVM optimization we perform is \memtoreg\ to promote stack references to registers and construct the SSA form; 2) {\em optimized}, where we apply {\tt opt} {\tt -O1} to the unoptimized version.
@@ -86,8 +86,8 @@ For recursive benchmarks, we insert an OSR point in the body of the method that 
 
 Results for the unoptimized and optimized versions of the benchmarks are reported in \myfigure\ref{fig:osr-code-quality-base} and \myfigure\ref{fig:osr-code-quality-O1}, respectively. For both scenarios we observe that the overhead is very small, i.e., less than $1\%$ for most benchmarks and less than $2\%$ in the worst case. For some benchmarks, code might run slightly faster after OSR point insertion due to instruction cache effects.
 %We analyzed the code produced by the x86-64 back-end: the OSR machinery is lowered into three native instructions that load a counter in a register, compare it against a constant value and jump to the OSR block accordingly.
-The number of times the OSR condition is checked for each benchmark is 
-%the same as in the experiments 
+The number of times the OSR condition is checked for each benchmark is
+%the same as in the experiments
 reported in \mytable\ref{tab:osr-sameFun}.
 
 \subsection{Overhead of OSR Transitions}
@@ -97,42 +97,38 @@ reported in \mytable\ref{tab:osr-sameFun}.
 \begin{table}[ht]
 \begin{center}
 \begin{small}
-% hack for wrapping: http://tex.stackexchange.com/questions/54069/table-with-text-wrapping
-\newcolumntype{A}{>{\centering\arraybackslash}m{1.33cm}}
-\newcolumntype{B}{>{\centering\arraybackslash}m{1.00cm}}
-\newcolumntype{C}{>{\centering\arraybackslash}m{1.15cm}}
-    \begin{tabular}{ |c|A|B|C|B|C| }
+    \begin{tabular}{ |c|C{1.33cm}|C{1.00cm}|C{1.15cm}|C{1.00cm}|C{1.15cm}| }
         \cline{3-6}
         \multicolumn{2}{c|}{} & \multicolumn{2}{c|}{{\em Unoptimized code}} & \multicolumn{2}{c|}{{\em Optimized code}} \\
         \hline
-        Benchmark & Fired OSRs (M) & Live values & Avg time (ns) & Live values & Avg time (ns) \\ 
+        Benchmark & Fired OSRs (M) & Live values & Avg time (ns) & Live values & Avg time (ns) \\
         \hline
         \hline
-        b-trees & 605 & 2 & 1.731 & 3 & 0.974 \\ 
+        b-trees & 605 & 2 & 1.731 & 3 & 0.974 \\
         \hline
-        b-trees-large & 2\,690 & 2 & 1.749 & 3 & 1.423 \\ 
+        b-trees-large & 2\,690 & 2 & 1.749 & 3 & 1.423 \\
         \hline
-        fannkuch & 399 & 0 & 1.793 & 0 & 0.621 \\ 
+        fannkuch & 399 & 0 & 1.793 & 0 & 0.621 \\
         \hline
-        fasta & 400 & 2 & 2.335 & 2 & 2.699 \\ 
+        fasta & 400 & 2 & 2.335 & 2 & 2.699 \\
         \hline
-        fasta-redux & 400 & 4 & 2.306 & 4 & 2.269 \\ 
+        fasta-redux & 400 & 4 & 2.306 & 4 & 2.269 \\
         \hline
-        mbrot & 256 & 15 & 5.016 & 15 & 3.628 \\ 
+        mbrot & 256 & 15 & 5.016 & 15 & 3.628 \\
         \hline
-        mbrot-large & 1\,024 & 15 & 5.268 & 15 & 4.637 \\ 
+        mbrot-large & 1\,024 & 15 & 5.268 & 15 & 4.637 \\
         \hline
-        n-body & 50 & 3 & 2.952 & 3 & 6.929 \\ 
+        n-body & 50 & 3 & 2.952 & 3 & 6.929 \\
         \hline
-        n-body-large & 500 & 3 & 2.953 & 3 & 6.953 \\ 
+        n-body-large & 500 & 3 & 2.953 & 3 & 6.953 \\
         \hline
-        rev-comp & 6 & 8 & -10.158 & 8 & 8.267 \\ 
+        rev-comp & 6 & 8 & -10.158 & 8 & 8.267 \\
         \hline
-        sp-norm & 1\,210 & 2 & 0.772 & 2 & -0.030 \\ 
-        \hline 
+        sp-norm & 1\,210 & 2 & 0.772 & 2 & -0.030 \\
+        \hline
         sp-norm-large & 19\,360 & 2 & 0.778 & 2 & -0.003 \\
         \hline
-    \end{tabular} 
+    \end{tabular}
 \end{small}
 \end{center}
 \caption{\label{tab:osr-sameFun}Cost of OSR transitions to the same function. For each benchmark we report the number of fired OSR transitions (rounded to millions), the number of live values passed at the OSR point, and the average time for a transition.
@@ -142,7 +138,7 @@ reported in \mytable\ref{tab:osr-sameFun}.
 Hot code portions for OSR point insertion have been identified as in the Q1 experiments for code quality. Depending on the characteristics of the hot loop, we either transform its body into a separate function and instrument its entrypoint, or, when the loop calls a method with a high self time, we insert an OSR point at the beginning of that method.
 
 Normalized differences reported in the table represent a reasonable estimate of the average cost of firing an OSR transition.
-%, which in other words is the cost of performing a function call passing the live variables as arguments. 
+%, which in other words is the cost of performing a function call passing the live variables as arguments.
 Reported numbers are in the order of nanoseconds, and might be negative due to instruction cache effects. We remark that for this experiment slicing the loop body is preferable to inserting an OSR point in it, as the continuation function should fire an OSR itself at the very next loop iteration and so on, possibly leading to an undesired stack growth.
 
 \subsection{OSR Machinery Generation}
@@ -153,9 +149,9 @@ We now discuss the overhead of the \osrkit\ library for inserting OSR machinery 
 \begin{small}
     \begin{tabular}{ |c|c|c|c|c|c|c| }
         \cline{3-7}
-        \multicolumn{2}{l|}{} & \multicolumn{2}{c|}{{\em Open OSR {\tiny$(\mu s)$}}} & \multicolumn{3}{c|}{{\em Resolved OSR  {\tiny$(\mu s)$}}} \\ 
+        \multicolumn{2}{l|}{} & \multicolumn{2}{c|}{{\em Open OSR {\tiny$(\mu s)$}}} & \multicolumn{3}{c|}{{\em Resolved OSR  {\tiny$(\mu s)$}}} \\
         \cline{3-7}
-        \multicolumn{2}{l|}{} & Insert & Gen. & Insert & \multicolumn{2}{|c|}{Generate \fosrto} \\ 
+        \multicolumn{2}{l|}{} & Insert & Gen. & Insert & \multicolumn{2}{|c|}{Generate \fosrto} \\
         \cline{1-2} \cline{6-7}
         Benchmark & \textbar IR\textbar & point & stub & point & Total & Avg/inst \\
         \hline
@@ -174,9 +170,9 @@ We now discuss the overhead of the \osrkit\ library for inserting OSR machinery 
         \hline
         rev-comp & 145 & 16.31 & 39.99 & 13.90 & 810.84 & 5.59 \\
         \hline
-        sp-norm & 28 & 15.31 & 27.50 & 12.41 & 154.54 & 5.52 \\ 
+        sp-norm & 28 & 15.31 & 27.50 & 12.41 & 154.54 & 5.52 \\
         \hline
-    \end{tabular} 
+    \end{tabular}
 \caption{\label{tab:osr-instrTime} Q3: OSR machinery insertion in optimized code. Time measurements are expressed in microseconds. Results for unoptimized code are very similar and thus not reported.}
 \end{small}
 \end{table}
@@ -186,7 +182,7 @@ For open OSR points, we report the time spent in inserting the OSR point in the 
 Not surprisingly, constructing a continuation function takes longer than the other operations (i.e., up to 1 ms vs. 20-40 us), as it involves cloning and manipulating the body of the target function and thus depends on its size: \mytable\ref{tab:osr-instrTime} hence comes with an additional column in which time is normalized against the number of IR instructions in the target function.
 
 \subsection{Discussion}
-Experimental results presented in the previous sections suggest that inserting an OSR point is unlikely to degrade the quality of generated code (Q1). The time required to fire an OSR transition is negligible (i.e., order of nanoseconds, Q2), while the cost of OSR-point insertion and of generating a continuation function - either when inserting a resolved OSR point, or from the callback method invoked at an open OSR transition - 
+Experimental results presented in the previous sections suggest that inserting an OSR point is unlikely to degrade the quality of generated code (Q1). The time required to fire an OSR transition is negligible (i.e., order of nanoseconds, Q2), while the cost of OSR-point insertion and of generating a continuation function - either when inserting a resolved OSR point, or from the callback method invoked at an open OSR transition -
 is likely to be dominated by the cost of its compilation (Q3).
 
 For a front-end, the choice whether to insert an OSR point into a function for dynamic optimization merely depends on the trade-off between the expected benefits in terms of execution time and the overheads from generating on optimized version of the function and eventually JIT-compiling it; compared to these two operations, the cost of OSR-related operations is negligible. \missing
@@ -221,7 +217,7 @@ The hoisting case - although \store(s) are typically only sunk - is the converse
 Without loss of generality, we can capture the effects of a live-variable equivalent program transformation in terms of six primitive actions:
 \begin{itemize}[parsep=0pt,partopsep=0pt]
  \item \mytt{add}$(inst, loc)$: insert a new instruction $inst$ at location $loc$;
- \item \mytt{delete}$(loc)$: delete the instruction at $loc$; 
+ \item \mytt{delete}$(loc)$: delete the instruction at $loc$;
  \item \mytt{hoist}$(loc, newLoc)$: hoist an instruction from $loc$ to $newLoc$;
  \item \mytt{sink}$(loc, newLoc)$: sink an instruction from $loc$ to $newLoc$;
  \item \mytt{replace\_operand}$(inst, old\_op, new\_op)$: replace an operand $old\_op$ for a a given instruction with another operand $new\_op$;
@@ -239,7 +235,7 @@ In our experience, to make an LLVM pass OSR-aware we usually needed to insert 5-
 
 \subsubsection*{Implementing \mytt{build\_comp}}
 
-In this section, we discuss the implications of implementing the \buildcomp\ algorithm presented in \myalgorithm\ref{alg:osr-trans}\ifauthorea{}{ (page \pageref{alg:osr-trans})} for a program written in SSA form. While this form guarantees that the reaching definition for a variable is unique at any point it dominates, \reconstruct\ gives up when attempting to reconstruct an assignment made through a $\phi$ function. We also conservatively prevent it from inserting \load\ instructions in the compensation code. 
+In this section, we discuss the implications of implementing the \buildcomp\ algorithm presented in \myalgorithm\ref{alg:osr-trans}\ifauthorea{}{ (page \pageref{alg:osr-trans})} for a program written in SSA form. While this form guarantees that the reaching definition for a variable is unique at any point it dominates, \reconstruct\ gives up when attempting to reconstruct an assignment made through a $\phi$ function. We also conservatively prevent it from inserting \load\ instructions in the compensation code.
 
 Compared to the abstract model described in \mysection\ref{ss:osr-language-framework}, the particular form of IR code generated by LLVM may limit in our context the effectiveness of algorithm \reconstruct(\myalgorithm\ref{alg:osr-reconstruct}\ifauthorea{}{ on page \pageref{alg:osr-reconstruct}}). For this reason, in our experiments in LLVM we consider four versions of \reconstruct, each one extending the previous one.
 
@@ -263,9 +259,9 @@ We implemented our technique in \tinyvm, introducing a number of features to:
 
 \noindent We instrumented a number of standard LLVM optimization passes, including {\em aggressive dead code elimination} (ADCE), {\em constant propagation} (CP), {\em common subexpression elimination} (CSE), {\em loop-invariant code motion} (LICM), {\em sparse conditional constant propagation} (SCCP), and {\em code sinking} (Sink). We also instrumented a number of utility passes required by LICM, such as {\em natural loop canonicalization} (LC) and {\em LCSSA-form construction} (LCSSA). Optimizations performed by the back-end (e.g., instruction scheduling, register allocation, peephole optimizations) do not require instrumentation as we operate at the IR level.
 
-We evaluated our technique on the \speccpu~\cite{Henning06} and the \phoronixpts~\cite{Phoronix} benchmarking suites, reporting data for a subset of their C/C++ benchmarks. We profiled each benchmark to identify the hottest method and generated the IR for it using \clang\ with no optimization enabled other than \memtoreg. Starting from this version of the IR, which we will refer to as {\em base}, we generated an {\em opt} version by applying all our instrumented LLVM optimizations. 
+We evaluated our technique on the \speccpu~\cite{Henning06} and the \phoronixpts~\cite{Phoronix} benchmarking suites, reporting data for a subset of their C/C++ benchmarks. We profiled each benchmark to identify the hottest method and generated the IR for it using \clang\ with no optimization enabled other than \memtoreg. Starting from this version of the IR, which we will refer to as {\em base}, we generated an {\em opt} version by applying all our instrumented LLVM optimizations.
 
-The list of benchmarks and transformations that are effective on their hottest method is reported in \mytable\ref{tab:OSR-alC-bench-desc}. Numbers reported in \mytable\ref{tab:OSR-alC-bench-IR} for the IR manipulations performed by the transformations suggest that, while the {\em opt} version is typically shorter than its {\em base} counterpart, it might have a larger number of $\phi$-nodes (most of them are inserted during the LCSSA-form construction). We observed that SCCP was able to eliminate a large number of unreachable blocks for \mytt{ffmpeg}, while for the remaining benchmarks the majority of instruction deletions are performed by CSE, which replaces all the uses of these instructions in the rest of the code with uses of equivalent available instructions. 
+The list of benchmarks and transformations that are effective on their hottest method is reported in \mytable\ref{tab:OSR-alC-bench-desc}. Numbers reported in \mytable\ref{tab:OSR-alC-bench-IR} for the IR manipulations performed by the transformations suggest that, while the {\em opt} version is typically shorter than its {\em base} counterpart, it might have a larger number of $\phi$-nodes (most of them are inserted during the LCSSA-form construction). We observed that SCCP was able to eliminate a large number of unreachable blocks for \mytt{ffmpeg}, while for the remaining benchmarks the majority of instruction deletions are performed by CSE, which replaces all the uses of these instructions in the rest of the code with uses of equivalent available instructions.
 
 \begin{table}[t]
 \begin{center}
@@ -274,39 +270,39 @@ The list of benchmarks and transformations that are effective on their hottest m
         \cline{3-10}
         \multicolumn{2}{l|}{} & \multicolumn{6}{c|}{Optimizations} & \multicolumn{2}{c|}{Utilities} \\
         \hline
-        Suite & Benchmark & \em{ADCE} & \em{CP} & \em{CSE} & \em{SCCP} & \em{LICM} & \em{Sink} & \em{LS} & \em{LCSSA} \\ 
+        Suite & Benchmark & \em{ADCE} & \em{CP} & \em{CSE} & \em{SCCP} & \em{LICM} & \em{Sink} & \em{LS} & \em{LCSSA} \\
         \hline
         \hline
-        \multirow{7}{*}{SPEC} & bzip2 & & & \checkmark & & \checkmark & \checkmark & & \checkmark \\ 
+        \multirow{7}{*}{SPEC} & bzip2 & & & \checkmark & & \checkmark & \checkmark & & \checkmark \\
         \cline{2-10}
-        & h264ref & \checkmark & & \checkmark & & \checkmark & \checkmark & \checkmark & \checkmark \\ 
+        & h264ref & \checkmark & & \checkmark & & \checkmark & \checkmark & \checkmark & \checkmark \\
         \cline{2-10}
-        & hmmer & & & \checkmark & & \checkmark & \checkmark & & \checkmark \\ 
+        & hmmer & & & \checkmark & & \checkmark & \checkmark & & \checkmark \\
         \cline{2-10}
-        & namd & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & & \checkmark \\ 
+        & namd & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & & \checkmark \\
         \cline{2-10}
-        & perlbench & \checkmark & & \checkmark & & \checkmark & \checkmark & \checkmark & \checkmark \\ 
+        & perlbench & \checkmark & & \checkmark & & \checkmark & \checkmark & \checkmark & \checkmark \\
         \cline{2-10}
-        & sjeng & & & \checkmark & \checkmark & \checkmark & \checkmark & & \checkmark \\ 
+        & sjeng & & & \checkmark & \checkmark & \checkmark & \checkmark & & \checkmark \\
         \cline{2-10}
-        & soplex & & & \checkmark & \checkmark & \checkmark & \checkmark & & \\ 
+        & soplex & & & \checkmark & \checkmark & \checkmark & \checkmark & & \\
         \hline
         \hline
-        \multirow{5}{*}{PTS} & bullet & & \checkmark & \checkmark & & \checkmark & \checkmark & & \checkmark \\ 
+        \multirow{5}{*}{PTS} & bullet & & \checkmark & \checkmark & & \checkmark & \checkmark & & \checkmark \\
         \cline{2-10}
-        & dcraw & & & \checkmark & & \checkmark & \checkmark & \checkmark & \checkmark \\ 
+        & dcraw & & & \checkmark & & \checkmark & \checkmark & \checkmark & \checkmark \\
         \cline{2-10}
-        & ffmpeg & \checkmark & \checkmark & \checkmark & & \checkmark & \checkmark & \checkmark & \checkmark \\ 
+        & ffmpeg & \checkmark & \checkmark & \checkmark & & \checkmark & \checkmark & \checkmark & \checkmark \\
         \cline{2-10}
-        & fhourstones & & \checkmark & \checkmark & & \checkmark & & \checkmark & \checkmark \\ 
+        & fhourstones & & \checkmark & \checkmark & & \checkmark & & \checkmark & \checkmark \\
         \cline{2-10}
-        & vp8 & & & \checkmark & & \checkmark & \checkmark & & \checkmark \\ 
+        & vp8 & & & \checkmark & & \checkmark & \checkmark & & \checkmark \\
         \hline
-    \end{tabular} 
+    \end{tabular}
 \end{small}
 %\end{adjustbox}
 \end{center}
-\caption{\label{tab:OSR-alC-bench-desc} Optimizations and utility passes effective on the hottest function of each benchmark. Optimization passes have been applied in the same order (left-to-right) as they apper in the table. Utility passes {\em LC} and {\em LCSSA} are pre-requisites of {\em LICM}.} 
+\caption{\label{tab:OSR-alC-bench-desc} Optimizations and utility passes effective on the hottest function of each benchmark. Optimization passes have been applied in the same order (left-to-right) as they apper in the table. Utility passes {\em LC} and {\em LCSSA} are pre-requisites of {\em LICM}.}
 \end{table}
 
 \begin{table}[!t]
@@ -319,9 +315,9 @@ The list of benchmarks and transformations that are effective on their hottest m
 Benchmark & Function & $|\pi|$ & $|\phi|$ & $|\pi|$ & $|\phi|$ \\
 \hline
 \hline
-bzip2 & mainSort & 657 & 32 & 596 & 44 \\ 
+bzip2 & mainSort & 657 & 32 & 596 & 44 \\
 \hline
-h264ref & SetupFastFullPelSearch & 671 & 28 & 576 & 36 \\ 
+h264ref & SetupFastFullPelSearch & 671 & 28 & 576 & 36 \\
 \hline
 hmmer & P7Viterbi & 568 & 6 & 383 & 8 \\
 \hline
@@ -376,12 +372,12 @@ fhourstones & 14 & 20 & 3 & 0 & 14 & 2 & 0 \\
 \hline
 vp8 & 19 & 54 & 17 & 34 & 54 & 0 & 0 \\
 \hline
-\end{tabular} 
+\end{tabular}
 \end{small}
 %\end{adjustbox}
 \end{center}
 \caption{\label{tab:OSR-alC-bench-IR} Details on the IR manipulations on the hottest function of each benchmark. For each function we report the number of instructions $|\pi|$ ($|\phi|$ of which represent $\phi$-nodes) for both the {\em base} and the {\em opt} version. We then report the number of primitive actions for code manipulations tracked across the applied transformations. $RAUW_{\{A,C,I\}}$ is used to indicate \RAUWfull\ actions performed for some {$N$} having Argument, Constant, or Instruction type in LLVM.
-} 
+}
 \end{table}
 
 \subsubsection*{Platform}
@@ -400,7 +396,7 @@ Locations that can fire an OSR with no need of a compensation code (i.e., $\chi=
 \end{center}
 \end{figure}
 
-We observe that the $live$ version of \reconstruct\ performs well on some benchmarks (e.g., \mytt{perlbench}, \mytt{bullet}, \mytt{dcraw}) and poorly on others (e.g., \mytt{h264ref}, \mytt{namd}). The enhancements introduced in the $live_{(e)}$ version are effective for some benchmarks (e.g., \mytt{namd}, \mytt{sjeng}), while aliasing information exploited in the $alias$ version increases the number of feasible OSR points for all benchmarks. For $9$ out of $12$ of them, it is possible in fact to build a compensation code using only live variables at the OSR source for more than $60\%$ of potential OSR points. 
+We observe that the $live$ version of \reconstruct\ performs well on some benchmarks (e.g., \mytt{perlbench}, \mytt{bullet}, \mytt{dcraw}) and poorly on others (e.g., \mytt{h264ref}, \mytt{namd}). The enhancements introduced in the $live_{(e)}$ version are effective for some benchmarks (e.g., \mytt{namd}, \mytt{sjeng}), while aliasing information exploited in the $alias$ version increases the number of feasible OSR points for all benchmarks. For $9$ out of $12$ of them, it is possible in fact to build a compensation code using only live variables at the OSR source for more than $60\%$ of potential OSR points.
 
 When in the $avail$ version \reconstruct\ is allowed to extend the liveness range of an ``available'' variable, the percentage of feasible OSR points grows to nearly $100\%$. We observed for \mytt{bullet} that a specific $\phi$-node needs to be reconstructed at nearly $20\%$ of feasible OSR points: this node takes as incoming values a number of $\phi$-nodes that in turn all yield the same value. While LLVM's built-in method for detecting trivially constant $\phi$-nodes does not cover this case, our recursive heuristic introduced in the $live_{(e)}$ version is able to identify the value and use it directly.
 
@@ -441,10 +437,10 @@ vp8 & 9.6 & 16 & 10.51 & 16 & 10.13 & 17 & 2.35 & 6 \\
 \hline
 Mean & {\bf 11.07} & 18.75 & {\bf 12.26} & 20.50 & {\bf 12.81} & 21.50 & {\bf 2.82} & 7.17 \\
 \hline
-\end{tabular} 
+\end{tabular}
 \end{small}
 \end{center}
-\caption{\label{tab:OSR-alC-prologue-BtoO} Average and peak size $|\chi|$ of the compensation code generated by the $live_{(e)}$, $alias$, and $avail$ versions of algorithm \reconstruct. $|K_{avail}|$ is the size of the set of variables that we should artificially keep alive in order to make program points represented by white bars in \myfigure\ref{fig:osr-BC-BtoO} feasible for an OSR from {\em base} to {\em opt}.} 
+\caption{\label{tab:OSR-alC-prologue-BtoO} Average and peak size $|\chi|$ of the compensation code generated by the $live_{(e)}$, $alias$, and $avail$ versions of algorithm \reconstruct. $|K_{avail}|$ is the size of the set of variables that we should artificially keep alive in order to make program points represented by white bars in \myfigure\ref{fig:osr-BC-BtoO} feasible for an OSR from {\em base} to {\em opt}.}
 \end{table}
 
 In \mytable\ref{tab:OSR-alC-prologue-BtoO} we report the average and peak size of the compensation code $\chi$ generated by the $live_{(e)}$, $alias$, and $avail$ variants of \reconstruct\ across feasible OSR points. Figures for $live$ are not reported as they would not add much to the discussion. Note also that average values have been calculated for different sets of program points, although the set of a version includes the set of the previous version.
@@ -507,10 +503,10 @@ vp8 & 5.74 & 13 & 5.51 & 13 & 1.18 & 5 \\
 \hline
 Mean & {\bf 2.30} & 4.58 & {\bf 2.87} & 7.33 & {\bf 2.00} & 6.67 \\
 \hline
-\end{tabular} 
+\end{tabular}
 \end{small}
 \end{center}
-\caption{\label{tab:OSR-alC-prologue-OtoB} Average and peak size $|\chi|$ of the compensation code generated by the $live_{(e)}$ and $avail$ versions of algorithm \reconstruct. $|K_{avail}|$ is the size of the set of variables that we should artificially keep alive in order to make program points represented by white bars in \myfigure\ref{fig:osr-BC-OtoB} feasible for an OSR from {\em opt} to {\em base}.} 
+\caption{\label{tab:OSR-alC-prologue-OtoB} Average and peak size $|\chi|$ of the compensation code generated by the $live_{(e)}$ and $avail$ versions of algorithm \reconstruct. $|K_{avail}|$ is the size of the set of variables that we should artificially keep alive in order to make program points represented by white bars in \myfigure\ref{fig:osr-BC-OtoB} feasible for an OSR from {\em opt} to {\em base}.}
 \end{table}
 
 In \mytable\ref{tab:OSR-alC-prologue-OtoB} we report the average and peak size of the compensation code $\chi$ generated by the $live_{(e)}$ and $avail$ variants of \reconstruct\ across feasible OSR points, along with the average and peak number of available variables for which $avail$ artificially extends liveness to support OSR at program points represented by white bars in \myfigure\ref{fig:osr-BC-OtoB}. We observe that, compare to the {\em base}-to-{\em opt} case, the size of the compensation code is much smaller, suggesting that shorter portions of executions need to be reconstructed when OSR-ing to less optimized code.
