@@ -40,7 +40,7 @@ To capture a variety of programming patterns and styles from applications with d
 \cline{3-8}
 \multicolumn{2}{l|}{} & \multicolumn{1}{c|}{Total} & \multicolumn{2}{c|}{Optimized} & \multicolumn{3}{c|}{Endangered} \\
 \hline
-Benchmark & \multicolumn{1}{c|}{LOC} & \multicolumn{1}{c|}{$f_{tot}$} & \multicolumn{1}{c|}{$f_{opt}$}  & \multicolumn{1}{c|}{$\frac{f_{opt}}{f_{tot}}$} & \multicolumn{1}{c|}{$f_{end}$} & \multicolumn{1}{c|}{$\%_{tot}$} & \multicolumn{1}{c|}{$\%_{opt}$} \\ 
+Benchmark & \multicolumn{1}{c|}{LOC} & \multicolumn{1}{c|}{$f_{tot}$} & \multicolumn{1}{c|}{$f_{opt}$}  & \multicolumn{1}{c|}{\unitfrac{$f_{opt}$}{$f_{tot}$}} & \multicolumn{1}{c|}{$f_{end}$} & \multicolumn{1}{c|}{\unitfrac{$f_{end}$}{$f_{tot}$}} & \multicolumn{1}{c|}{\unitfrac{$f_{opt}$}{$f_{opt}$}} \\ 
 \hline
 \hline
 bzip2 & 8\,293 & 100 & 66 & 0.66 & 24 & 0.24 & 0.36 \\ 
@@ -72,6 +72,13 @@ sphinx3 & 25\,090 & 369 & 275 & 0.75 & 76 & 0.21 & 0.28 \\
 \end{center}
 \caption{\label{tab:CS-debug-benchmarks} Description of the C benchmarks in the \speccpu\ suite.} 
 \end{table}
+
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{figures/CS-debug-ratio/CS-debug-ratio.eps}
+\caption{\protect\input{figures/CS-debug-ratio/caption}}
+\end{center}
+\end{figure}
 
 
 %However, when attempting to debug optimized programs, most debuggers may give misleading information about the value of variables at breakpoints.
