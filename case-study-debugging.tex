@@ -10,11 +10,11 @@ deleted or reordered instructions, or values might have been overwritten as a co
 
 In general, there are two ways for a symbolic debugger to present meaningful information about the debugged optimized program~\cite{Wu99}. It provides {\em expected behavior} of the program if it hides the effect of the optimizations from the user and presents the program state consistent with what the user expects from the unoptimized code. It provides {\em truthful behavior} if it makes the user aware of the effects of optimizations and warns of possibly surprising outcomes.
 
-Adl-Tabatabai observed in his PhD thesis that constraining optimizations or adding machinery during compilation to aid debugging do not solve the problem of debugging the optimized translation of a program, as the user debugs suboptimal code~\cite{Adl-Tabatabai96thesis}. Source-level debuggers thus need to implement sophisticated techniques to recover expected behavior when possible, without relying on intrusive compiler extensions.
+Adl-Tabatabai observes in his PhD thesis that constraining optimizations or adding machinery during compilation to aid debugging do not solve the problem of debugging the optimized translation of a program, as the user debugs suboptimal code~\cite{Adl-Tabatabai96thesis}. Source-level debuggers thus need to implement techniques to recover expected behavior when possible, without relying on intrusive compiler extensions.
 
 \subsection{Using \texorpdfstring{$\texttt{build\_comp}$}{build\_comp} for State Recovery}
 %\subsection{Using  for State Recovery}
-On-Stack Replacement has been pioneered in implementations of the SELF programming language to provide expected behavior with globally optimized code~\cite{Holzle92}. OSR shields the debugger from the effects of optimizations by dynamically deoptimizing code on demand. Debugging information is supplied by the compiler at discrete {\em interrupt points}, which act as a barrier for optimizations, letting the compiler run unhindered between them. Starting from the observation that our algorithms for generating OSR Mappings (\mysection\ref{ss:osr-mapping}) do not place barriers for live-variable equivalent transformations, we investigated whether they could encode useful information for expected-behavior recovery in a source-level debugger.
+On-Stack Replacement has been pioneered in implementations of the SELF programming language to provide expected behavior with globally optimized code~\cite{Holzle92}. OSR shields the debugger from the effects of optimizations by dynamically deoptimizing code on demand. Debugging information is supplied by the compiler at discrete {\em interrupt points}, which act as a barrier for optimizations, letting the compiler run unhindered between them. Starting from the observation that our algorithms for generating OSR mappings (\mysection\ref{ss:osr-mapping}) do not place barriers for live-variable equivalent transformations, we investigated whether they could encode useful information for expected-behavior recovery in a source-level debugger.
 
 As in most recent works on optimized code debugging, we focus on identifying and recovering scalar source variables in the presence of global optimizations. In LLVM, debugging information is inserted by the front-end as {\em metadata} attached to global variables, single instructions, functions or entire IR modules. Debugging metadata are transparent to optimization passes, do not prevent optimizations from happening, and are designed to be agnostic about the target debugging information representation (e.g., DWARF, stabs). Two intrinsics are used to associate IR virtual registers with source-level variables:
 \begin{itemize}[itemsep=0pt,parsep=3pt]
@@ -22,15 +22,13 @@ As in most recent works on optimized code debugging, we focus on identifying and
  \item \mytt{llvm.dbg.value} informs that a source variable is being set to the value held by the virtual register.
 \end{itemize}
 
-
-
-
+\noindent We extended \tinyvm\ to reconstruct this mapping and also to indentify which program locations in the unoptimized IR version $f_{base}$ correspond to source-level locations for a function (as they would correspond to a possible user breakpoint location). An OSR mapping is then generated when OSR-aware transformation passes are applied to $f_{base}$ to generate the optimized version $f_{opt}$. For each location in $f_{opt}$ that might correspond to (i.e., have as OSR landing pad) a source-level location in $f_{base}$, we determine which variables live at destination are live also at source (and thus yield the same value), and which instead need to be reconstructed. We thus rely on the SSA form to identify which assignment(s) should be made in \reconstruct, as distinct assignments to source-level variables are represented by distinct IR objects. $\phi$-nodes at control-flow merge points of course can not be reconstructed, but our preliminary experimental investigation suggests that this might not be a huge issue in practice. 
 
 %As pointed out in~\cite{Adl-Tabatabai96}, compiler transformations cause {\em endangered} variables by either eliminating or moving assignments to source variables. 
 
 \subsection{Experimental Results}
+To capture a large variety of programming patterns and styles, we have analyzed each method for each C benchmark in the \speccpu\ suite.
 
 
-%The {\em code location} problem
 %However, when attempting to debug optimized programs, most debuggers may give misleading information about the value of variables at breakpoints.
 %Hence, the programmer has the difficult task of attempting to unravel the optimized code 
