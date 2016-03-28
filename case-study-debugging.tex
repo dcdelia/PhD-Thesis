@@ -22,12 +22,56 @@ As in most recent works on optimized code debugging, we focus on identifying and
  \item \mytt{llvm.dbg.value} informs that a source variable is being set to the value held by the virtual register.
 \end{itemize}
 
-\noindent We extended \tinyvm\ to reconstruct this mapping and also to indentify which program locations in the unoptimized IR version $f_{base}$ correspond to source-level locations for a function (as they would correspond to a possible user breakpoint location). An OSR mapping is then generated when OSR-aware transformation passes are applied to $f_{base}$ to generate the optimized version $f_{opt}$. For each location in $f_{opt}$ that might correspond to (i.e., have as OSR landing pad) a source-level location in $f_{base}$, we determine which variables live at destination are live also at source (and thus yield the same value), and which instead need to be reconstructed. We thus rely on the SSA form to identify which assignment(s) should be made in \reconstruct, as distinct assignments to source-level variables are represented by distinct IR objects. $\phi$-nodes at control-flow merge points of course can not be reconstructed, but our preliminary experimental investigation suggests that this might not be a huge issue in practice. 
+\noindent We extended \tinyvm\ to reconstruct this mapping and also to indentify which program locations in the unoptimized IR version $f_{base}$ correspond to source-level locations for a function (as they would correspond to a possible user breakpoint location). An OSR mapping is then generated when OSR-aware transformation passes are applied to $f_{base}$ to generate the optimized version $f_{opt}$. For each location in $f_{opt}$ that might correspond to (i.e., have as OSR landing pad) a source-level location in $f_{base}$, we determine which variables live at destination are live also at source (and thus yield the same value), and which instead need to be reconstructed. We thus rely on the SSA form to identify which assignment(s) should be made in \reconstruct, as distinct assignments to source-level variables are represented by distinct IR objects. $\phi$-nodes at control-flow merge points of course can not be reconstructed, but our preliminary experimental investigation suggests that this might not be a huge issue in practice.
+
+\missing % DIRE DI COME USARE QUESTE INFO (invisible breakpoints lo dico dopo?)
 
 %As pointed out in~\cite{Adl-Tabatabai96}, compiler transformations cause {\em endangered} variables by either eliminating or moving assignments to source variables. 
 
 \subsection{Experimental Results}
-To capture a large variety of programming patterns and styles, we have analyzed each method for each C benchmark in the \speccpu\ suite.
+To capture a variety of programming patterns and styles from applications with different sizes, we have analyzed each method for each C benchmark in the \speccpu\ suite.
+
+\begin{table}[ht]
+\begin{center}
+\begin{small}
+\begin{tabular}{ |c|r|r|r|r|r|r|r| }
+\cline{3-8}
+\multicolumn{2}{l|}{} & \multicolumn{6}{c|}{Functions} \\
+\cline{3-8}
+\multicolumn{2}{l|}{} & \multicolumn{1}{c|}{Total} & \multicolumn{2}{c|}{Optimized} & \multicolumn{3}{c|}{Endangered} \\
+\hline
+Benchmark & \multicolumn{1}{c|}{LOC} & \multicolumn{1}{c|}{$f_{tot}$} & \multicolumn{1}{c|}{$f_{opt}$}  & \multicolumn{1}{c|}{$\frac{f_{opt}}{f_{tot}}$} & \multicolumn{1}{c|}{$f_{end}$} & \multicolumn{1}{c|}{$\%_{tot}$} & \multicolumn{1}{c|}{$\%_{opt}$} \\ 
+\hline
+\hline
+bzip2 & 8\,293 & 100 & 66 & 0.66 & 24 & 0.24 & 0.36 \\ 
+\hline
+gcc & 521\,078 & 5\,577 & 3\,884 & 0.70 & 1\,149 & 0.21 & 0.30 \\
+\hline
+gobmk & 197\,215 & 2\,523 & 1\,664 & 0.66 & 893 & 0.35 & 0.54 \\ 
+\hline
+h264ref & 51\,578 & 590 & 466 & 0.79 & 163 & 0.28 & 0.35 \\ 
+\hline
+hmmer & 35\,992 & 538 & 429 & 0.80 & 80 & 0.15 & 0.19 \\ 
+\hline
+lbm & 1\,155 & 19 & 17 & 0.89 & 2 & 0.11 & 0.12 \\ 
+\hline
+libquantum & 4\,358 & 115 & 85 & 0.74 & 9 & 0.08 & 0.11\\ 
+\hline
+mcf & 2\,658 & 24 & 21 & 0.88 & 11 & 0.46 & 0.52 \\ 
+\hline
+milc & 15\,042 & 235 & 157 & 0.67 & 34 & 0.14 & 0.22\\ 
+\hline
+perlbench & 155\,418 & 1\,870 & 1\,286 & 0.69 & 593 & 0.32 & 0.46 \\ 
+\hline
+sjeng & 13\,847 & 144 & 113 & 0.78 & 31 & 0.22 & 0.27 \\ 
+\hline
+sphinx3 & 25\,090 & 369 & 275 & 0.75 & 76 & 0.21 & 0.28 \\ 
+\hline
+\end{tabular} 
+\end{small}
+\end{center}
+\caption{\label{tab:CS-debug-benchmarks} Description of the C benchmarks in the \speccpu\ suite.} 
+\end{table}
 
 
 %However, when attempting to debug optimized programs, most debuggers may give misleading information about the value of variables at breakpoints.
