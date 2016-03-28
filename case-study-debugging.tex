@@ -1,14 +1,35 @@
 \section{Source-level Debugging of Optimized Code}
 A {\em source-level} (or {\em symbolic}) {\em debugger} is a program development tool that allows a programmer to monitor an executing program at the source-language level. Interactive mechanisms are typically provided to the user to halt/resume the execution at {\em breakpoints}, and to inspect the state of the program in terms of its source language. The importance of the design and use of these tools was already clear in the '60s~\cite{Evans66}.
 
-\missing % DIRE DEI MOTIVI (vedi tesi Adl etc)
+\missing % DIRE DEI MOTIVI (vedi tesi Adl etc) - DEVO DIRE ANCHE LA COSA DI SINK E DCE?
 
 As pointed out by Hennessy in his seminal paper from 1982~\cite{Hennessy82}, a classic conflict exists between the application of optimization techniques and the ability to debug a program symbolically. A debugger provides the user with the illusion that the source program is executing one statement at a time. On the other hand, optimizations preserve the semantic equivalence between optimized and unoptimized code, but normally alter the structure or intermediate results of a program.
 
 Two problems surface when trying to symbolically debug optimized code~\cite{Adl-Tabatabai96,Jaramillo00}. First, the debugger must determine the position in the optimized code that corresponds to the breakpoint in the source code ({\em code location} problem). Second, the user expects to see the values of source variables at a breakpoint in a manner consistent with the source code, even though the optimizer might have 
 deleted or reordered instructions, or values might have been overwritten as a consequence of the register allocator's choices ({\em data location} problem).
 
-In general, there are two ways for a symbolic debugger to present meaningful information about the debugged optimized program~\cite{Wu99}. It provides {\em expected behavior} of the program if it hides the effect of the optimizations from the user and presents the program state consistent with what the user expects from the unoptimized code. It provides {\em truthful behavior}
+In general, there are two ways for a symbolic debugger to present meaningful information about the debugged optimized program~\cite{Wu99}. It provides {\em expected behavior} of the program if it hides the effect of the optimizations from the user and presents the program state consistent with what the user expects from the unoptimized code. It provides {\em truthful behavior} if it makes the user aware of the effects of optimizations and warns of possibly surprising outcomes.
+
+Adl-Tabatabai observed in his PhD thesis that constraining optimizations or adding machinery during compilation to aid debugging do not solve the problem of debugging the optimized translation of a program, as the user debugs suboptimal code~\cite{Adl-Tabatabai96thesis}. Source-level debuggers thus need to implement sophisticated techniques to recover expected behavior when possible, without relying on intrusive compiler extensions.
+
+\subsection{Using \texorpdfstring{$\texttt{build\_comp}$}{build\_comp} for State Recovery}
+%\subsection{Using  for State Recovery}
+On-Stack Replacement has been pioneered in implementations of the SELF programming language to provide expected behavior with globally optimized code~\cite{Holzle92}. OSR shields the debugger from the effects of optimizations by dynamically deoptimizing code on demand. Debugging information is supplied by the compiler at discrete {\em interrupt points}, which act as a barrier for optimizations, letting the compiler run unhindered between them. Starting from the observation that our algorithms for generating OSR Mappings (\mysection\ref{ss:osr-mapping}) do not place barriers for live-variable equivalent transformations, we investigated whether they could encode useful information for expected-behavior recovery in a source-level debugger.
+
+As in most recent works on optimized code debugging, we focus on identifying and recovering scalar source variables in the presence of global optimizations. In LLVM, debugging information is inserted by the front-end as {\em metadata} attached to global variables, single instructions, functions or entire IR modules. Debugging metadata are transparent to optimization passes, do not prevent optimizations from happening, and are designed to be agnostic about the target debugging information representation (e.g., DWARF, stabs). Two intrinsics are used to associate IR virtual registers with source-level variables:
+\begin{itemize}[itemsep=0pt,parsep=3pt]
+ \item \mytt{llvm.dbg.declare} typically associates a source variable with an \alloca\footnote{\alloca\ is used to allocate space on the stack of the current function, to be automatically released when the function returns. Front-ends are not required to generate code in SSA form, but they can manipulate local variables created with \alloca\ using \load\ and \store\ instruction. Then the SSA form can be constructed using \memtoreg.} buffer;
+ \item \mytt{llvm.dbg.value} informs that a source variable is being set to the value held by the virtual register.
+\end{itemize}
+
+
+
+
+
+%As pointed out in~\cite{Adl-Tabatabai96}, compiler transformations cause {\em endangered} variables by either eliminating or moving assignments to source variables. 
+
+\subsection{Experimental Results}
+
 
 %The {\em code location} problem
 %However, when attempting to debug optimized programs, most debuggers may give misleading information about the value of variables at breakpoints.
