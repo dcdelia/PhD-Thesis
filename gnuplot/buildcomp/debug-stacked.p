@@ -2,11 +2,11 @@ reset
 load "palette.p"
 set terminal x11
 #set key on top center outside maxrows 1
-set key on at 7.7,115 maxrows 1 samplen 3 font ",16"
+set key on at 7.7,1.15 maxrows 1 samplen 3 font ",16"
 set title "Global average recoverability ratio" offset 0,2 font ",20"
-set ylabel "Source-level locations (%)"
+#set ylabel "Source-level locations (%)"
 set xrange [-0.75:11.75]
-set yrange [0:100]
+set yrange [0:1]
 set mytics 2
 set grid ytics mytics
 set style data histogram
@@ -22,8 +22,8 @@ set grid y
 set grid noxtics
 
 plot \
-    'data/debug-stacked.csv' using (100*$2):xtic(1) t 'live_{(e)}' fs ls 4,\
-     '' using (100*$3) t 'avail' fs ls 6
+    'data/debug-stacked.csv' using ($2):xtic(1) t 'live_{(e)}' fs ls 4,\
+     '' using ($3) t 'avail' fs ls 6
 
 set terminal postscript eps color enhanced dashed "Helvetica" 16
 set output 'out/debug-stacked.eps'

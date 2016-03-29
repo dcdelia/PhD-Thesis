@@ -195,6 +195,7 @@ For a front-end, the choice whether to insert an OSR point into a function for d
 In this section we present and evaluate an implementation in LLVM of the techniques described in \mysection\ref{ss:osr-a-la-carte}. In particular, we discuss how to deal with the presence of memory \load\ and \store\ instructions, and how to implement algorithms \apply\ and \buildcomp\ in a real compiler. We then investigate whether in the presence of a number of common compiler optimizations, \buildcomp\ can ``offer'' an extensive menu of possible program points where OSR can safely occur, generating the possibly required compensation code in an automated fashion.
 
 \subsection{Implementation}
+\label{ss:BC-implementation}
 The LLVM compiler infrastructure is designed to support transparent, life-long program analysis and transformation for arbitrary programs~\cite{Lattner04}. LLVM is widely used to efficiently compile static languages (e.g., C, C++, Objective C/C++) and, as we have seen in \mysection\ref{ss:osrkit-implementation}, as a JIT compiler for a variety of dynamic languages.
 
 The core of LLVM is its low-level intermediate representation (IR): a front-end for a high-level language can compile a program's source code to LLVM IR; platform-independent optimization passes then manipulate the IR, and a back-end eventually compiles IR to native code, performing architecture-specific further optimizations. Front-end authors can thus benefit from LLVM's shared extensive optimization pipeline to generate better code for their language.

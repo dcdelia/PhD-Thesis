@@ -28,7 +28,7 @@ As in most recent works on optimized code debugging, we focus on identifying and
 
 %As pointed out in~\cite{Adl-Tabatabai96}, compiler transformations cause {\em endangered} variables by either eliminating or moving assignments to source variables. 
 
-\subsection{Experimental Results}
+\subsection{The \texorpdfstring{$\texttt{SPEC CPU2006}$}{SPEC CPU2006} Benchmarks}
 
 \begin{table}[!t]
 \begin{center}
@@ -124,9 +124,7 @@ Mean & 0.28 & 0.28 & 1.28 & 0.52 & 6.08 \\
 
 To investigate possible correlations between the size of a function and the number of user variables affected by source-level debugging issues, we analyzed the corpus of functions for the three largest benchmarks in our suite, namely \mytt{gcc}, \mytt{gobmk}, and \mytt{perlbench}. \myfigure\ref{fig:CS-debug-ratio} shows scatter plots in which each point represents a function: the horiziontal position is given by the number of IR instructions in the unoptimized code, while the vertical position by the sum of the number of endangered user variables across program points corresponding to source-level locations.
 
-
-
-\begin{figure}[!ht]
+\begin{figure}[!t]
 \begin{center}
 \centerline{
 \includegraphics[width=0.45\textwidth]{figures/CS-debug-tot-dead/tot-dead-gcc-logscale.eps}
@@ -146,12 +144,23 @@ To investigate possible correlations between the size of a function and the numb
 \end{center}
 \end{figure}
 
+The log-log plots for \mytt{gcc} may suggest a trendline such that larger functions would typically have a large number of affected variables. However, this trend is less pronounced in \mytt{perlbench}, and nearly absent from \mytt{gobmk}. Linear plots should provide a better visualization of what happens for larger functions and for functions with a higher total number of affected variables. We can safely conclude that, although larger functions might be more prone to source-level debugging issues, these issues frequently arise for smaller functions as well.
+
+\subsection{Experimental Results}
+We have evaluated the ability of \buildcomp\ to correctly reconstruct the source-level expected value for all the endangered user variables in the \speccpu\ experiments. For each function, we measured the {\em average recoverability ratio}, defined as the average across all program points corresponding to source-level locations of the ratio between recoverable and endangered user variables for a specific point. Two versions of \reconstruct\ can be useful in this setting: $live_{(e)}$ and $avail$ (\mysection\ref{ss:BC-implementation}).
+
+$live_{(e)}$ can be used in a debugger that can evaluate expressions over the current program state, such as \gdb\ or LLDB\footnote{As LLDB is tightly coupled with the rest of the LLVM infrastructure, it can also utilize its JIT to run and evaluate arbitrary code.}. In fact, this version of \reconstruct\ needs only to access the live state of the optimized program at the breakpoint.
+
+$avail$ can be integrated in a debugger using {\em invisible} breakpoints to spill a number of non-live available values before they are overwritten. Invisible breakpoints are indeed largely employed in source-level debuggers (e.g., ~\cite{Zellweger83,Wu99,Jaramillo00}). Using spilled values and the current live state, expected values for endangered user variables can be reconstructed as for $live_{(e)}$. Alternatively, in a virtual machine with a JIT compiler and an integrated debugger, the runtime might decide to recompile a function when the user inserts a breakpoint in it, artificially extending the liveness range for the values that will be needed by \buildcomp.
+
 \begin{figure}[!ht]
 \begin{center}
 \includegraphics[width=0.8\textwidth]{figures/CS-debug-ratio/CS-debug-ratio.eps}
 \caption{\protect\input{figures/CS-debug-ratio/caption}}
 \end{center}
 \end{figure}
+
+\missing
 
 \begin{table}[!ht]
 \begin{center}
