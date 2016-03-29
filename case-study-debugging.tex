@@ -149,7 +149,7 @@ The log-log plots for \mytt{gcc} may suggest a trendline such that larger functi
 \subsection{Experimental Results}
 We have evaluated the ability of \buildcomp\ to correctly reconstruct the source-level expected value for all the endangered user variables in the \speccpu\ experiments. For each function, we measured the {\em average recoverability ratio}, defined as the average across all program points corresponding to source-level locations of the ratio between recoverable and endangered user variables for a specific point. Two versions of \reconstruct\ can be useful in this setting: $live_{(e)}$ and $avail$ (\mysection\ref{ss:BC-implementation}).
 
-$live_{(e)}$ can be used in a debugger that can evaluate expressions over the current program state, such as \gdb\ or LLDB\footnote{As LLDB is tightly coupled with the rest of the LLVM infrastructure, it can also utilize its JIT to run and evaluate arbitrary code.}. In fact, this version of \reconstruct\ needs only to access the live state of the optimized program at the breakpoint.
+$live_{(e)}$ can be used in a debugger that can evaluate expressions over the current program state, such as \gdb\ or LLDB\footnote{As LLDB is tightly coupled with the rest of the LLVM infrastructure, it can also utilize its JIT to run and evaluate arbitrary code. \gdb\ can typically evaluate complex expressions as well.}. In fact, this version of \reconstruct\ needs only to access the live state of the optimized program at the breakpoint.
 
 $avail$ can be integrated in a debugger using {\em invisible} breakpoints to spill a number of non-live available values before they are overwritten. Invisible breakpoints are indeed largely employed in source-level debuggers (e.g., ~\cite{Zellweger83,Wu99,Jaramillo00}). Using spilled values and the current live state, expected values for endangered user variables can be reconstructed as for $live_{(e)}$. Alternatively, in a virtual machine with a JIT compiler and an integrated debugger, the runtime might decide to recompile a function when the user inserts a breakpoint in it, artificially extending the liveness range for the values that will be needed by \buildcomp.
 
@@ -160,31 +160,40 @@ $avail$ can be integrated in a debugger using {\em invisible} breakpoints to spi
 \end{center}
 \end{figure}
 
-\missing
+\myfigure\ref{fig:CS-debug-ratio} shows for each benchmark the global average recoverability ratio achieved by $live_{(e)}$ and $avail$ on the set of affected functions $F_{end}$. To compute the global average, the average recoverability ratio for each function has been weighted using the size of the unoptimized function as weight. We observe that $avail$ performs particularly well on all benchmarks, with a global ratio higher than $0.95$ for half of the benchmarks, and higher than $0.9$ for $10$ out of $12$ benchmarks. In the worst case (\mytt{gobmk}), we observe a global ratio slightly higher than $0.83$. Results thus suggest that \buildcomp\ can be effective in recovering a vast majority of expected values for endangered source-level variables.
 
 \begin{table}[!ht]
 \begin{center}
 \begin{small}
 \begin{adjustbox}{width=0.925\textwidth}
-%\begin{tabular}{ |c|cccccccccccc||c| }
-\begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c|c|c||c| }
+\begin{tabular}{ |c|c|c|c|c|c|>{\centering}p{0.58cm}|c|c|c|c|c|c||c| }
 \cline{2-14}
 \multicolumn{1}{c|}{} & \rot{bzip2} & \rot{gcc} & \rot{gobmk} & \rot{h264ref} & \rot{hmmer} & \rot{lbm} & \rot{libquantum\hspace{0.5em}} & \rot{mcf} & \rot{milc} & \rot{perlbench} & \rot{sjeng} & \rot{sphinx3} & \rot{Mean} \\
 \hline
-$avg$ & 2.29 & 1.99 & 0.38 & 3.48 & 1.95 & 0 & 2.00 & 1.82 & 1.68 & 3.14 & 1.45 & 1.67 & 1.82 \\
-$\sigma$ & 3.20 & 4.51 & 1.23 & 8.09 & 2.33 & 0 & 3.12 & 0.87 & 1.93 & 4.60 & 1.26 & 2.05 & 2.77 \\
-\hline
+%$avg$ & 2.29 & 1.99 & 0.38 & 3.48 & 1.95 & 0 & 2.00 & 1.82 & 1.68 & 3.14 & 1.45 & 1.67 & 1.82 \\
+%$\sigma$ & 3.20 & 4.51 & 1.23 & 8.09 & 2.33 & 0 & 3.12 & 0.87 & 1.93 & 4.60 & 1.26 & 2.05 & 2.77 \\
+%\hline
 %C & 12.00 & 77.00 & 12.00 & 88.00 & 9.00 & 0.00 & 10.00 & 3.00 & 8.00 & 32.00 & 5.00 & 11.00 & 22.25 \\
-$avg$ & 3.24 & 2.77 & 2.31 & 4.90 & 2.79 & X & 3.00 & 1.82 & 2.19 & 4.76 & 1.88 & 2.31 & 2.91 \\ 
-$\sigma$ & 3.38 & 5.12 & 2.22 & 9.23 & 2.33 & X & 3.46 & 0.87 & 1.94 & 4.94 & 1.12 & 2.08 & 3.34 \\
+$frac$ & 0.71 & 0.72 & 0.16 & 0.71 & 0.70 & - & 0.67 & 1.00 & 0.76 & 0.66 & 0.77 & 0.72 & 0.69 \\
+\hline
+$avg$ & 3.24 & 2.77 & 2.31 & 4.90 & 2.79 & - & 3.00 & 1.82 & 2.19 & 4.76 & 1.88 & 2.31 & 2.91 \\ 
+\hline
+\hline
+$\sigma$ & 3.38 & 5.12 & 2.22 & 9.23 & 2.33 & - & 3.46 & 0.87 & 1.94 & 4.94 & 1.12 & 2.08 & 3.34 \\
 \hline
 \end{tabular} 
 \end{adjustbox}
 \end{small}
 \end{center}
-\caption{\label{tab:CS-debug-affected-shit} \missing.
+\caption{\label{tab:CS-debug-dead-avail} Available values to preserve when using $avail$. For functions that require to preserve at least one value, we report the fraction $frac$ of $|F_{end}|$ they cumulatively account for, the average number $avg$ of values to preserve across such functions, and the associated standard deviation $\sigma$.
 } 
 \end{table}
+
+To estimate how many values should be preserved - through either invisible breakpoints or recompilation - to use $avail$ in a debugger, we collected for each function the ``keep'' set of non-live available values to save to support deoptimization across all program points corresponding to source-level locations. We then computed the mean and the standard deviation for the size of this set on all functions in $F_{end}$. Figures reported in \mytable\ref{tab:CS-debug-dead-avail} show that typically a third of the functions in $F_{end}$ do not require any values to be preserved. For the remaining functions, on average $2.91$ values need to be preserved, with a peak of $4.90$ observed for \mytt{h264ref}.
+
+Observe that values in the keep set do not necessarily neeed to be preserved simultaneously at all program points same points: indeed, some of them might be required only in certain regions of a function. In the debugging practice, what typically happens is that values are saved using an invisible breakpoint before they are overwritten, and deleted as soon as they are no longer needed~\cite{Jaramillo00}. For the recompilation-based approach, on the other hand, numbers reported in \mytable\ref{tab:CS-debug-dead-avail} should be interpreted as a pessimistic upper-bound for register pressure increase.
+
+\subsection{Discussion}
 
 
 %However, when attempting to debug optimized programs, most debuggers may give misleading information about the value of variables at breakpoints.
