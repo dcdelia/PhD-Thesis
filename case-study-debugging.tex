@@ -29,9 +29,8 @@ As in most recent works on optimized code debugging, we focus on identifying and
 %As pointed out in~\cite{Adl-Tabatabai96}, compiler transformations cause {\em endangered} variables by either eliminating or moving assignments to source variables. 
 
 \subsection{Experimental Results}
-To capture a variety of programming patterns and styles from applications with different sizes, we have analyzed each method for each C benchmark in the \speccpu\ suite.
 
-\begin{table}[ht]
+\begin{table}[!t]
 \begin{center}
 \begin{small}
 \begin{tabular}{ |c|r|r|r|r|r|r|r| }
@@ -70,15 +69,19 @@ sphinx3 & 25\,090 & 369 & 275 & 0.75 & 76 & 0.21 & 0.28 \\
 \end{tabular} 
 \end{small}
 \end{center}
-\caption{\label{tab:CS-debug-benchmarks} Description of the C benchmarks in the \speccpu\ suite.} 
+\caption{\label{tab:CS-debug-benchmarks} Characteristics of the C benchmarks from the \speccpu\ suite.} 
 \end{table}
 
-\begin{table}[ht]
+To capture a variety of programming patterns and styles from applications with different sizes, we have analyzed each method for each C benchmark in the \speccpu\ suite, applying the same sequence of OSR-aware optimization passes used in \mysection\ref{ss:bc-exp-setup} to the baseline IR version obtained with \clang\ \mytt{-O0} and then processed with \memtoreg. \mytable\ref{tab:CS-debug-benchmarks} reports for each benchmark the code size, the total number of functions in it, the number of functions amenable to optimization and, in turn, how many optimized functions report ``endangered'' user variables from a source-level debugger's perspective.
+
+We observe that the fraction of functions that do not benefit from optimizations (i.e., $1-|F_{opt}|/F_{tot}|$) ranges from one tenth to one third of the total number of functions. For the optimized functions, the fraction of those that belong to $F_{end}$ - defined as the set of functions that require recovery of the expected behavior - ranges from $0.11$ (\mytt{libquantum}) to $0.54$ (\mytt{gobmk}).
+
+\begin{table}[!ht]
 \begin{center}
 \begin{small}
 \begin{tabular}{ |c|C{1.4cm}|C{1.4cm}|C{0.95cm}|C{0.95cm}|r| }
 \cline{2-6}
-\multicolumn{1}{l|}{} & \multicolumn{2}{c|}{Fraction of affected} & \multicolumn{3}{c|}{Dead user scalars} \\
+\multicolumn{1}{l|}{} & \multicolumn{2}{c|}{Fraction of affected} & \multicolumn{3}{c|}{Endangered user vars} \\
 \multicolumn{1}{l|}{} & \multicolumn{2}{c|}{program points} & \multicolumn{3}{c|}{per affected point} \\
 \hline
 Benchmark & $Avg_w$ & $Avg_u$ & $Avg$ & $\sigma$ & $Max$ \\ 
@@ -114,10 +117,12 @@ Mean & 0.28 & 0.28 & 1.28 & 0.52 & 6.08 \\
 \end{tabular} 
 \end{small}
 \end{center}
-\caption{\label{tab:CS-debug-affected-points} Fractions of program points at which values are endangered, and number of affected values and such points. The second and third column report the unweighted and weighted (using the number of instructions in each unoptimized function version as weight) average of the fraction of endangered program points per function, respectively.
-} 
+\caption{\label{tab:CS-debug-affected-points} Fraction of program points with endangered user variables, and number of affected variables. The second and third column report weighted $Avg_g$ and unweighted $Avg_u$ average, respectively, of the fraction of such points for functions in $F_{end}$. We use the number of IR instructions in the unoptimized code as weight for computing $Avg_w$, and consider only IR program points corresponding to source-level locations. We then show mean, std deviation, and peak number of endangered variables at such points.} 
 \end{table}
 
+\mytable\ref{tab:CS-debug-affected-points} reports figures that we have collected for functions in $F_{end}$. We observe that on average, more than one in every four program points there is at least a user variable whose source-level value might not be reported correctly by a debugger. For most functions in the benchmarks, the average number of affected user variables at such points ranges between $1$ and $2$, although for some benchmarks we observe high peak values at specific points (e.g., $9$ for \mytt{gobmk} and $14$ for \mytt{gcc} and \mytt{h264ref}).
+
+To investigate possible correlations between the size of a function and the number of user variables affected by source-level debugging issues, we analyzed the corpus of functions for the three largest benchmarks in our suite, namely \mytt{gcc}, \mytt{gobmk}, and \mytt{perlbench}. \myfigure\ref{fig:CS-debug-ratio} shows scatter plots in which each point represents a function: the horiziontal position is given by the number of IR instructions in the unoptimized code, while the vertical position by the sum of the number of endangered user variables across program points corresponding to source-level locations.
 
 
 
