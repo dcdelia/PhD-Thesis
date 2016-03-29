@@ -1,4 +1,5 @@
 \section{Source-level Debugging of Optimized Code}
+\label{se:CS-debug}
 A {\em source-level} (or {\em symbolic}) {\em debugger} is a program development tool that allows a programmer to monitor an executing program at the source-language level. Interactive mechanisms are typically provided to the user to halt/resume the execution at {\em breakpoints}, and to inspect the state of the program in terms of its source language.
 
 The importance of the design and use of these tools was already clear in the '60s~\cite{Evans66}. In a production environment it is desirable to use optimizations, and bugs can surface when optimizations are enabled, as the debuggable translation of a program may hide them, or because differences in timing behavior may cause the appearance of bugs due to race conditions~\cite{Adl-Tabatabai96thesis}. Also, optimizations may be absolutely necessary to executed a program - for example, because of memory limitations, efficiency reasons, or other platform-specific constraints.
