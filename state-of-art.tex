@@ -1,24 +1,33 @@
 \chapter{State of the Art}
 \label{ch:literature}
 
-\section{Performance Profiling}
+To address performance challenges faced by modern runtime systems, vendors have invested considerable resources in adaptive optimization technology. Today, mainstream virtual machines come with sophisticated infrastructure for online profiling, run-time compilation, and feedback-directed optimizations (FDOs)~\cite{Arnold05}. This chapter aims at providing an overview of the most commonly used techniques for adaptive optimizations systems.
 
-\subsection{Means for Collecting Profiling Information}
+\section{Profiling Techniques}
+Motivated by the observation that most programs spend the majority of time in a small fraction of their code, virtual machines typically adopt {\em selective optimization} policies in order to focus their efforts on hot portions only. Indeed, optimization comes at a cost, and the expected performance gains from it should compensate for the overhead from collecting and processing profiling information and performing associated transformations.
 
-\subsection{Intra-Procedural Profiling Techniques}
+\subsection*{Collecting Profiles}
+A key technical challenge for an adaptive optimization system is to collect accurate profile data while keeping the overhead low.
 
-\subsection{Inter-Procedural Profiling Techniques}
+In order to collect coarse-grained information, such as the set of most frequently executed methods, two profiling mechanisms have emerged. Counter-based mechanisms associate counters with methods, and each counter is updated when the associated method is entered. A similar strategy can be adopted also to count how many times loop back edges are traversed. Sampling-based mechanisms instead periodically interrupt the program to inspect its state, for instance by walking the call stack, and they can incur a lower overhead when sampling is triggered by an external clock.
 
-\section{Optimized Code Generation}
+However, the most effective FDOs typically require finer-grained profiles, regarding, e.g., individual statements, basic blocks, or paths taken in the control-flow graph of a function. Collecting such profiles with low overhead is a major challenge, especially online. Program instrumentation consists in injecting additional code in a running program, enabling the collection of a wide range of profiling data. Exhaustive instrumentation can be very expensive, and is typically combined with sampling techniques in order to affect only a limited percentage of the execution events. Several works have explored the trade-off between accuracy and performance in this scenario. In particular, Arnold and Ryder~\cite{Arnold01} described a technique that allows the system to turn instrumentation on and off at a fine granularity. A similar mechanism is used in~\cite{Zhuang06} to implement context-sensitive profiling in a JVM.
 
-\subsection{Profile-Guided Optimization}
+Indeed, the primary mechanism to reduce instrumentation overhead is to limit the time during which instrumented code executes~\cite{Arnold05}. Several VMs apply instrumentation to unoptimized code conly, turning it off when a method is recompiled. This approach has several advantages, but its main drawback is that it fails to capture changes in the dominant behavior after the early stages. Whaley~\cite{Whaley01} proposed a three-stage model in which instrumentation for fine-grained profiling is inserted in the second stage only. Multi-tier compilation systems, such as the one implemented in WebKit~\cite{Pizlo14}, may also insert instrumentation in later stages (i.e., in more optimized code).
 
-\subsection{Just-In-Time Compilation}
+The work on {\em vertical profiling} paper by Hauswirth \etal~\cite{Hauswirth04} sheds light on the need to perform profiling at all levels of the execution stack - including services provided by the runtime - for performance understanding. Indeed, techniques such as dynamic compilation and garbage collection influence program behavior in a way that makes correlation of performance to source code challenging.
 
-\subsubsection{On-Stack Replacement}
+Hardware performance monitors provided by specialized hardware in mainstream processors are an additional source of information that an adaptive optimizer may use. What makes them challenging to use in practice is the difficulty in mapping low-level collected data to high-level program constructs. Schneider \etal\ explored how to track them back to individual bytecode instructions in the Jikes RVM~\cite{Schneider07}.
 
-\subsubsection{Tracing JIT Compilation}
-
-\subsection{Other Related Work}
+%\section{Performance Profiling}
+%\subsection{Means for Collecting Profiling Information}
+%\subsection{Intra-Procedural Profiling Techniques}
+%\subsection{Inter-Procedural Profiling Techniques}
+%\section{Optimized Code Generation}
+%\subsection{Profile-Guided Optimization}
+%\subsection{Just-In-Time Compilation}
+%\subsubsection{On-Stack Replacement}
+%\subsubsection{Tracing JIT Compilation}
+%\subsection{Other Related Work}
 
 % Dynamic Binary Optimization, Self-Optimizing AST
