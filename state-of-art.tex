@@ -55,7 +55,13 @@ A fully automatic online Feedback-Directed Optimization (FDO) system is the key 
 
 \paragraph*{Inlining.} Replacing a call site with the code of the function it invokes is one of the most widely employed optimization techniques. Inlining can be particularly effective in the context of object-oriented languages, but performing it too aggressively would place a burden on compilation time and code bloat. The implementations of the SELF language~\cite{Holzle92,Holzle96} introduced progressively sophisticated techniques for effective dynamic inlining: in particular, they augmented inlining with type feedback based on types profiled for receivers.
 
-Lessons learned from devirtualization of function calls in statically compiled object oriented languages (e.g., ~\cite{Bacon96,Dean96}) have been precious to implement inlining in the presence of dynamic class loading. For instance, HotSpot performs guarded inlining when class hierarchy analysis suggests a monomorphic call site.
+Lessons learned from devirtualization of function calls in statically compiled object oriented languages (e.g., ~\cite{Bacon96,Dean96}) have been precious to implement inlining in the presence of dynamic class loading. For instance, HotSpot performs guarded inlining when class hierarchy analysis suggests a likely monomorphic call site.
+
+\paragraph*{Multiversioning and Specialization.} A compiler may decide to generate multiple implementations of a code sequence, and let the program choose the best one at run time. In a dynamic setting, versions can indeed be generated using run-time profiling information: the guarded inlining example discussed above indeed is a form of multiversioning. To divert execution to a safe code version, a compiler can either add a slow path in the code - possibly separated from the fast path to avoid polluting the results of data-flow analyses - or trigger an OSR when a guard fails. The latter approach has been used for instance in SELF-91 to support deferred compilation~\cite{Chambers91}; HotSpot and Jikes RVM nowadays implement deferred compilation in a similar manner.
+
+Specialization is a form of multi-versioning which speculates on run-time facts, and is thus closely related to partial evaluation. When a type inference engine cannot infer precise information for a function, type-based JIT specialization can be used to generate specialized copies of the function body~\cite{Cooper92} depending on the speculations made for each argument's type. Value-based JIT specialization~\cite{Santos13} creates specialized function bodies based on the run-time values for a subset of the arguments, and can be effective for functions that are either called only once, or repeatedly called with the same parameters.
+
+\paragraph*{Other Techniques.} The universe of FDO techniques is 
 
 %\section{Performance Profiling}
 %\subsection{Means for Collecting Profiling Information}
