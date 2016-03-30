@@ -44,6 +44,12 @@ JIT compilation is used by modern runtime to gain the benefits of both static co
 
 \paragraph*{OSR Transitions.} Ideally, an adaptive optimization system should be able to generate a more optimized version of a function as soon as deemed necessary, and let the program run it. In the presence of long-running functions, however, it is not affordable for a runtime to wait for a less optimized function to complete, and redirect future invocations of it to the more optimized code. {\em On-Stack Replacement} (OSR) is thus used to replace a function while it executes, resuming execution in a different code version. OSR is a staple of modern runtimes, as it is used in optimization cycles to switch to faster code versions as soon as they become available, and - even more importantly - to perform deoptimization when a speculative assumption made for the running function at compilation time does not hold anymore.
 
+\paragraph*{Trace-based JIT.} Trace-based JIT compilation has been proposed in~\cite{Gal09} to deal with the absence of concrete type information when compiling code for dynamic languages. Tracing JIT compilers can identify frequently executed sequences of instructions inside loops, and then generate specialized code for the dynamic types observed on each path through the loop. Guards are inserted in the optimized code to verify that types do not change across subsequent iterations: when this happens, execution leaves the trace through a side exit. Trace stitching can be used to concatenate sequences of optimized code at frequently taken side exits.
+
+\paragraph*{Partial Evaluation.} Futamura~\cite{Futamura99} proposed partial evaluation to derive compiled code from an interpreter and a program's source code, and has extensively been studied for functional languages.
+
+
+
 
 %\section{Performance Profiling}
 %\subsection{Means for Collecting Profiling Information}
