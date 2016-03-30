@@ -1,7 +1,7 @@
 \chapter{State of the Art}
 \label{ch:literature}
 
-To address performance challenges faced by modern runtime systems, vendors have invested considerable resources in adaptive optimization technology. Today, mainstream virtual machines come with sophisticated infrastructure for online profiling, run-time compilation, and feedback-directed optimizations (FDOs)~\cite{Arnold05}. This chapter aims at providing an overview of the most commonly used techniques for adaptive optimizations systems.
+To address performance challenges faced by modern runtime systems, vendors have invested considerable resources in adaptive optimization technology. Today, mainstream virtual machines come with sophisticated infrastructure for online profiling, run-time compilation, and feedback-directed optimization~\cite{Arnold05}. This chapter aims at providing an overview of the most commonly used techniques for adaptive optimizations systems.
 
 \section{Profiling Techniques}
 Motivated by the observation that most programs spend the majority of time in a small fraction of their code, virtual machines typically adopt {\em selective optimization} policies in order to focus their efforts on hot portions only. Indeed, optimization comes at a cost, and the expected performance gains from it should compensate for the overhead from collecting and processing profiling information and performing associated transformations.
@@ -46,10 +46,12 @@ JIT compilation is used by modern runtime to gain the benefits of both static co
 
 \paragraph*{Trace-based JIT.} Trace-based JIT compilation has been proposed in~\cite{Gal09} to deal with the absence of concrete type information when compiling code for dynamic languages. Tracing JIT compilers can identify frequently executed sequences of instructions inside loops, and then generate specialized code for the dynamic types observed on each path through the loop. Guards are inserted in the optimized code to verify that types do not change across subsequent iterations: when this happens, execution leaves the trace through a side exit. Trace stitching can be used to concatenate sequences of optimized code at frequently taken side exits.
 
-\paragraph*{Partial Evaluation.} Futamura~\cite{Futamura99} proposed partial evaluation to derive compiled code from an interpreter and a program's source code, and has extensively been studied for functional languages.
+\paragraph*{Partial Evaluation.} Futamura~\cite{Futamura99} proposed partial evaluation to derive compiled code from an interpreter and a program's source code, and has extensively been studied for functional languages. Partial evaluation is used in Truffle/Graal~\cite{Wurthinger13} to perform aggressive optimizations assuming that the values of some variables do not change. For the interested reader, we refer to~\cite{Marr15} for a detailed discussion of the pros and cons of tracing JIT vs. partial evaluation.
 
+\paragraph*{Basic Block Versioning.} Basic Block Versioning (BBV)~\cite{ChevalierBoisvert15} is a JIT compilation technique that generates type-specialized code for basic blocks lazily, interleaving execution and compilation as new type combinations are observed. BBV is simple to implement, can remove redundant type checks from critical code paths, and has recently been extended with simple inter-procedural optimizations. It might be thus an option for VM builders to implement a baseline JIT compiler.
 
-
+\section{Feedback-Directed Optimization}
+A fully automatic online Feedback-Directed Optimization (FDO) system is the key for continuous optimization in an adaptive runtime. As highligthed in~\cite{Arnold05}, FDO has several advantages: it can overcome limitations of static optimizers by exploiting run-time information that cannot be statically inferred; it enables the runtime to update its decision
 
 %\section{Performance Profiling}
 %\subsection{Means for Collecting Profiling Information}
