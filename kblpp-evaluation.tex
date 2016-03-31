@@ -47,7 +47,7 @@ In this section we illustrate the details of our experimental methodology, focus
 
 We evaluated \kblpp\ against a variety of prominent benchmarks drawn from three suites. The \dacapo\ suite~\cite{Blackburn06} consists of a set of open source, real-world applications with non-trivial memory loads. We use the superset of all benchmarks from \dacapo\ releases 2006-10-MR2 and 9.12 that can run successfully in the Jikes RVM, using the largest available workload for each benchmark. In particular, {\tt avrora}, {\tt jython}, {\tt luindex}, {\tt sunflow}, and {\tt xalan} are taken from the 9.12 release, while {\tt chart}, {\tt eclipse}, and {\tt hsqldb} are from the 2006-10-MR2 release.
 
-The \specjvm\ suite focuses on the performance of the hardware processor and memory subsystem when executing common general purpose application computations. Benchmarks from the suite that can run successfully\footnote{Due to limitations of the GNU classpath, only a small number of them are supported.} on the Jikes RVM include: {\tt compiler.compiler}, {\tt compress}, {\tt mpegaudio}, and {\tt scimark.\{montecarlo, sor.large, sparse.large\}}.
+The \specjvm\ suite~\cite{SpecJVM2008} focuses on the performance of the hardware processor and memory subsystem when executing common general purpose application computations. Benchmarks from the suite that can run successfully\footnote{Due to limitations of the GNU classpath, only a small number of them are supported.} on the Jikes RVM include: {\tt compiler.compiler}, {\tt compress}, {\tt mpegaudio}, and {\tt scimark.\{montecarlo, sor.large, sparse.large\}}.
 
 Finally, we chose two memory-intensive benchmarks ({\tt heapsort} and {\tt md}) from the \javagrande\ $2.0$ suite~\cite{Bull99} to further evaluate the performance of \kblpp.
 
@@ -74,7 +74,7 @@ In \myfigure\ref{fig:kblpp-slowdown} we report for each benchmark the profiling 
 \end{figure}
 \fi
 
-In \myfigure\ref{fig:kblpp-hash} we report the measured number of hash table accesses for our experiments, which decreases as predicted on all benchmarks with intense loop iteration activity. Notice that, not only does \kblpp\ perform fewer hash table operations, but since only a subset of BL path IDs are inserted, the table is also smaller yielding further performance improvements. For codes such as {\tt avrora} and {\tt hsqldb}, which perform on average a small number of iterations, increasing $k$ beyond this number does not yield any benefit.
+\noindent In \myfigure\ref{fig:kblpp-hash} we report the measured number of hash table accesses for our experiments, which decreases as predicted on all benchmarks with intense loop iteration activity. Notice that, not only does \kblpp\ perform fewer hash table operations, but since only a subset of BL path IDs are inserted, the table is also smaller yielding further performance improvements. For codes such as {\tt avrora} and {\tt hsqldb}, which perform on average a small number of iterations, increasing $k$ beyond this number does not yield any benefit.
 
 \ifdefined\noauthorea
 \begin{figure}[!ht]
@@ -98,7 +98,7 @@ Benchmarks {\tt compress}, {\tt scimark.montecarlo}, {\tt heapsort}, and {\tt md
 \end{figure}
 \fi
 
-\myfigure\ref{fig:kblpp-cpi} shows this phenomenon, comparing the four outliers with other benchmarks in our suite. By analyzing L1 and L2 cache miss rates, reported in \myfigure\ref{fig:kblpp-cache} (a) and \myfigure\ref{fig:kblpp-cache} (b), we noticed that performance degrades due to poor memory access locality. We believe this to be an issue of our current implementation of \kblpp, in which we did not make any effort aimed at improving cache efficiency in accessing the \ksf, rather than a limitation of the general approach we propose. Indeed, as nodes may be unpredictably scattered in memory due to the linked structure of the forest, pathological situations may arise where node scanning incurs several cache misses.
+\noindent \myfigure\ref{fig:kblpp-cpi} shows this phenomenon, comparing the four outliers with other benchmarks in our suite. By analyzing L1 and L2 cache miss rates, reported in \myfigure\ref{fig:kblpp-cache} (a) and \myfigure\ref{fig:kblpp-cache} (b), we noticed that performance degrades due to poor memory access locality. We believe this to be an issue of our current implementation of \kblpp, in which we did not make any effort aimed at improving cache efficiency in accessing the \ksf, rather than a limitation of the general approach we propose. Indeed, as nodes may be unpredictably scattered in memory due to the linked structure of the forest, pathological situations may arise where node scanning incurs several cache misses.
 
 \ifdefined\noauthorea
 \begin{figure}[!ht]
@@ -114,10 +114,7 @@ Benchmarks {\tt compress}, {\tt scimark.montecarlo}, {\tt heapsort}, and {\tt md
 \end{figure}
 \fi
 
-Notice that, since we never delete either entries from the hash table or nodes from the \ksf, our implementation does not place any additional burden on the garbage collector. The profiler causes memory release operations only when a thread terminates, dumping all of its data structures at once.
-
-\subsection{Memory Usage and Structural Properties}
-\myfigure\ref{fig:kblpp-space} compares the space requirements of \blpp\ and \kblpp\ for different values of $k$. The chart reports the total number of items stored in the hash table by \blpp\ and the number of nodes in the \ksf.
+\noindent Notice that, since we never delete either entries from the hash table or nodes from the \ksf, our implementation does not place any additional burden on the garbage collector. The profiler causes memory release operations only when a thread terminates, dumping all of its data structures at once.
 
 \ifdefined\noauthorea
 \begin{figure}[!ht]
@@ -127,6 +124,9 @@ Notice that, since we never delete either entries from the hash table or nodes f
 \end{center}
 \end{figure}
 \fi
+
+\subsection{Memory Usage and Structural Properties}
+\myfigure\ref{fig:kblpp-space} compares the space requirements of \blpp\ and \kblpp\ for different values of $k$. The chart reports the total number of items stored in the hash table by \blpp\ and the number of nodes in the \ksf.
 
 Since both \blpp\ and \kblpp\ exhaustively encode exact counters for all distinct taken paths of bounded length, space depends on intrinsic structural properties of the benchmark. Programs with intense loop iteration activity are characterized by substantially higher space requirements by \kblpp, which collects profiles containing up to several millions of paths. Notice that on some benchmarks we ran out of memory for large values of $k$, hence some bars in the charts we report in this section are missing. In \myfigure\ref{fig:kblpp-space-kipf} we report the number of nodes in the \kipf, which corresponds to the number of paths profiled by \kblpp. Notice that, since a path may be represented more than once in the \ksf, the \kipf\ represents a more compact version of the \ksf.
 
@@ -148,8 +148,6 @@ Since both \blpp\ and \kblpp\ exhaustively encode exact counters for all distinc
 \end{figure}
 \fi
 
-As a final experiment, we measured structural properties of the \kipf\ such as average degree of internal nodes (\myfigure\ref{fig:kblpp-kipf-degree}) and the average leaf depth (\myfigure\ref{fig:kblpp-kipf-leaves}). Our tests reveal that the average node degree generally decreases with $k$, showing that similar patterns tend to appear frequently across different iterations. Some benchmarks, however, such as {\tt sunflow} and {\tt heapsort} exhibit a larger variety of path ramifications, witnessed by increasing node degrees at deeper levels of the \kipf. The average leaf depth allows us to characterize the loop iteration activity of different benchmarks. Notice that for some benchmarks, such as {\tt avrora} and {\tt hsqldb}, most cycles consist of a small number of iterations: hence, by increasing $k$ beyond this number, \kblpp\ does not collect any additional useful information.
-
 \ifdefined\noauthorea
 \begin{figure}[!ht]
 \begin{center}
@@ -158,3 +156,5 @@ As a final experiment, we measured structural properties of the \kipf\ such as a
 \end{center}
 \end{figure}
 \fi
+
+\noindent As a final experiment, we measured structural properties of the \kipf\ such as average degree of internal nodes (\myfigure\ref{fig:kblpp-kipf-degree}) and the average leaf depth (\myfigure\ref{fig:kblpp-kipf-leaves}). Our tests reveal that the average node degree generally decreases with $k$, showing that similar patterns tend to appear frequently across different iterations. Some benchmarks, however, such as {\tt sunflow} and {\tt heapsort} exhibit a larger variety of path ramifications, witnessed by increasing node degrees at deeper levels of the \kipf. The average leaf depth allows us to characterize the loop iteration activity of different benchmarks. Notice that for some benchmarks, such as {\tt avrora} and {\tt hsqldb}, most cycles consist of a small number of iterations: hence, by increasing $k$ beyond this number, \kblpp\ does not collect any additional useful information.

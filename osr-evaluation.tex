@@ -9,15 +9,16 @@ In this section we present a preliminar experimental study of \osrkit. In partic
 \item[Q3] What is the overhead of \osrkit\ for inserting OSR points and creating a stub or a continuation function?
 \end{description}
 
-\missing
-
+\noindent Experimental results suggest that inserting an OSR point is unlikely to degrade the quality of generated code, and that the time spent in IR manipulation is likely to be dominated by compilation costs. For an optimizer, the choice whether to insert an OSR point into a function merely depends on the trade-off between the expected benefits in terms of execution time and the overhead from generating the new code version: compared to this task, the cost of OSR-related operations is negligible.
 
 \subsection{Experimental Setup}
 
 \subsubsection*{Benchmarks}
 We address questions Q1-Q3 by analyzing the performance of \osrkit\ on a selection of the \shootout\ benchmarks, also known as the Computer Language Benchmarks Game~\cite{shootout}, running in \tinyvm. In particular, we focus on single-threaded benchmarks that do not rely on external libraries to perform their core computations. Benchmarks and their description are reported in \mytable\ref{tab:osr-shootout}; four of them ({\tt b-trees}, {\tt mbrot}, {\tt n-body} and {\tt sp-norm}) are evaluated against two workloads of different size.
 
-\begin{table}[ht]
+We generate the IR modules for our experiments with \clang\ starting from the C version of the \shootout\ suite. To cover scenarios where OSR machinery is inserted in programs with different optimization levels, we consider two versions: 1) {\em unoptimized}, where the only LLVM optimization we perform is \memtoreg\ to promote stack references to registers and construct the SSA form; 2) {\em optimized}, where we apply {\tt opt} {\tt -O1} to the unoptimized version.
+
+\begin{table}[!hb]
 \begin{center}
 \begin{small}
     \begin{tabular}{ |c|c| }
@@ -47,8 +48,6 @@ We address questions Q1-Q3 by analyzing the performance of \osrkit\ on a selecti
 \caption{\label{tab:osr-shootout} Description of the \shootout\ benchmarks.}
 \end{table}
 
-We generate the IR modules for our experiments with \clang\ starting from the C version of the \shootout\ suite. To cover scenarios where OSR machinery is inserted in programs with different optimization levels, we consider two versions: 1) {\em unoptimized}, where the only LLVM optimization we perform is \memtoreg\ to promote stack references to registers and construct the SSA form; 2) {\em optimized}, where we apply {\tt opt} {\tt -O1} to the unoptimized version.
-
 \subsubsection*{Environment}
 \tinyvm\ supports interactive invocations of functions and it can compile LLVM IR either generated at run-time or loaded from disk. The main design goal behind \tinyvm\ is the creation of an interactive environment for IR manipulation and JIT-compilation of functions: for instance, it allows the user to insert OSR points in loaded functions, run optimization passes on them or display their CFGs, repeatedly invoke a function for a specified amount of times and so on.
 
@@ -59,8 +58,12 @@ Experiments were performed on an octa-core 2.3Ghz Intel Xeon E5-4610 v2 with 256
 
 \subsection{Impact on Code Quality}
 
+In order to measure how much a never-firing OSR point might impact code quality (Q1), we analyzed the source-code structure of each benchmark and profiled its run-time behavior to identify performance-critical sections for OSR point insertion. The distinction between open and resolved OSR points is nearly irrelevant in this context: we choose to focus on open OSR points, passing {\tt null} as the {\tt val} argument for the stub (see \mysection\ref{ss:osrkit-implementation}).
+
+For iterative benchmarks, we insert an OSR point in the body of their hottest loops. We classify a loop as hottest when its body is executed for a very high cumulative number of iterations (e.g., from millions up to billions) and it either calls the method with the highest {\em self} time in the program, or it performs the most computational-intensive operations for the program in its own body.
+
 \ifdefined\noauthorea
-\begin{figure}[!ht]
+\begin{figure}[t]
 \begin{center}
 \includegraphics[width=0.65\textwidth]{figures/osr-code-quality-base/osr-code-quality-base.eps}
 \caption{\protect\input{figures/osr-code-quality-base/caption}}
@@ -69,17 +72,13 @@ Experiments were performed on an octa-core 2.3Ghz Intel Xeon E5-4610 v2 with 256
 \fi
 
 \ifdefined\noauthorea
-\begin{figure}[ht]
+\begin{figure}[t]
 \begin{center}
 \includegraphics[width=0.65\textwidth]{figures/osr-code-quality-O1/osr-code-quality-O1.eps}
 \caption{\protect\input{figures/osr-code-quality-O1/caption}}
 \end{center}
 \end{figure}
 \fi
-
-In order to measure how much a never-firing OSR point might impact code quality (Q1), we analyzed the source-code structure of each benchmark and profiled its run-time behavior to identify performance-critical sections for OSR point insertion. The distinction between open and resolved OSR points is nearly irrelevant in this context: we choose to focus on open OSR points, passing {\tt null} as the {\tt val} argument for the stub (see \missing).
-
-For iterative benchmarks, we insert an OSR point in the body of their hottest loops. We classify a loop as hottest when its body is executed for a very high cumulative number of iterations (e.g., from millions up to billions) and it either calls the method with the highest {\em self} time in the program, or it performs the most computational-intensive operations for the program in its own body.
 
 These loops are natural candidates for OSR point insertion: for instance, the Jikes RVM inserts yield points on backward branches to trigger operations such as method recompilation through OSR and thread preemption for garbage collection. In the \shootout\ benchmarks, the number of such loops is typically 1 (2 for {\tt spectral-norm}).
 
@@ -136,7 +135,7 @@ reported in \mytable\ref{tab:osr-sameFun}.
 }
 \end{table}
 
-Hot code portions for OSR point insertion have been identified as in the Q1 experiments for code quality. Depending on the characteristics of the hot loop, we either transform its body into a separate function and instrument its entrypoint, or, when the loop calls a method with a high self time, we insert an OSR point at the beginning of that method.
+\noindent Hot code portions for OSR point insertion have been identified as in the Q1 experiments for code quality. Depending on the characteristics of the hot loop, we either transform its body into a separate function and instrument its entrypoint, or, when the loop calls a method with a high self time, we insert an OSR point at the beginning of that method.
 
 Normalized differences reported in the table represent a reasonable estimate of the average cost of firing an OSR transition.
 %, which in other words is the cost of performing a function call passing the live variables as arguments.
@@ -147,6 +146,7 @@ Reported numbers are in the order of nanoseconds, and might be negative due to i
 We now discuss the overhead of the \osrkit\ library for inserting OSR machinery in the IR of a function (Q3). \mytable\ref{tab:osr-instrTime} reports for each benchmark the number of IR instructions in the instrumented function and the time spent in the IR manipulation. Locations for OSR points are chosen as in the Q1 experiments, and the target function is a clone of the source function.
 
 \begin{table}[ht]
+\begin{center}
 \begin{small}
     \begin{tabular}{ |c|c|c|c|c|c|c| }
         \cline{3-7}
@@ -174,19 +174,16 @@ We now discuss the overhead of the \osrkit\ library for inserting OSR machinery 
         sp-norm & 28 & 15.31 & 27.50 & 12.41 & 154.54 & 5.52 \\
         \hline
     \end{tabular}
-\caption{\label{tab:osr-instrTime} Q3: OSR machinery insertion in optimized code. Time measurements are expressed in microseconds. Results for unoptimized code are very similar and thus not reported.}
 \end{small}
+\end{center}
+\caption{\label{tab:osr-instrTime} Q3: OSR machinery insertion in optimized code. Time measurements are expressed in microseconds. Results for unoptimized code are very similar and thus not reported.}
 \end{table}
 
-For open OSR points, we report the time spent in inserting the OSR point in the function and in generating the stub; both operations do not depend on the size of the function. For resolved OSR points, we report the time spent in inserting the OSR point and in generating the \fosrto\ function.
+\noindent For open OSR points, we report the time spent in inserting the OSR point in the function and in generating the stub; both operations do not depend on the size of the function. For resolved OSR points, we report the time spent in inserting the OSR point and in generating the \fosrto\ function.
 
 Not surprisingly, constructing a continuation function takes longer than the other operations (i.e., up to 1 ms vs. 20-40 us), as it involves cloning and manipulating the body of the target function and thus depends on its size: \mytable\ref{tab:osr-instrTime} hence comes with an additional column in which time is normalized against the number of IR instructions in the target function.
 
-\subsection{Discussion}
-Experimental results presented in the previous sections suggest that inserting an OSR point is unlikely to degrade the quality of generated code (Q1). The time required to fire an OSR transition is negligible (i.e., order of nanoseconds, Q2), while the cost of OSR-point insertion and of generating a continuation function - either when inserting a resolved OSR point, or from the callback method invoked at an open OSR transition -
-is likely to be dominated by the cost of its compilation (Q3).
-
-For a front-end, the choice whether to insert an OSR point into a function for dynamic optimization merely depends on the trade-off between the expected benefits in terms of execution time and the overheads from generating on optimized version of the function and eventually JIT-compiling it; compared to these two operations, the cost of OSR-related operations is negligible. \missing
+On our benchmarks, the overall cost of IR manipulation is in the order of hundreds of microseconds, and is thus very likely to be dominated by the cost of just-in-time compilation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -194,7 +191,7 @@ For a front-end, the choice whether to insert an OSR point into a function for d
 \section{OSR Mapping Generation}
 \label{se:eval-OSR-alC}
 
-In this section we present and evaluate an implementation in LLVM of the techniques described in \mysection\ref{se:osr-a-la-carte}. In particular, we discuss how to deal with the presence of memory \load\ and \store\ instructions, and how to implement algorithms \apply\ and \buildcomp\ in a real compiler. We then investigate whether in the presence of a number of common compiler optimizations, \buildcomp\ can ``offer'' an extensive menu of possible program points where OSR can safely occur, generating the possibly required compensation code in an automated fashion.
+In this section we present and evaluate an implementation in LLVM of the techniques described in \mysection\ref{se:osr-a-la-carte}. In particular, we discuss how to deal with the presence of memory \load\ and \store\ instructions, and how to implement algorithms \apply\ and \buildcomp\ in a real compiler. We then investigate whether in the presence of a number of common compiler optimizations, \buildcomp\ can offer an extensive ``menu'' of possible program points where OSR can safely occur, generating the possibly required compensation code in an automated fashion. Our experiments suggest that bidirectional OSR transitions can be supported almost everywhere in this setting.
 
 \subsection{Implementation}
 \label{ss:BC-implementation}
