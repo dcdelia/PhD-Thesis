@@ -13,7 +13,7 @@ We distill the essence of OSR to a simple imperative calculus with an operationa
 \input{osr-language}
 \input{osr-language-reasoning}
 
-\subsection{On-Stack Replacement Framework}
+\subsection{OSR Framework}
 OSR consists in dynamically transferring execution from a point $l$ in a program $\pi$ to a point $l'$ in a program $\pi'$ so that execution can transparently continue from $\pi'$ without altering the original intended semantics of $\pi$. To model this behavior, we assume there exists a function that maps each point $l$ in $\pi$ where OSR can safely be fired to the corresponding point $l'$ in $\pi'$ from which execution can continue.
 As we observed in \mysection\ref{ss:osr-llvm-approach}, the OSR practice often makes the conservative assumption that $\pi'$ can always continue from the very same memory store as $\pi$. However, this assumption may reduce the number of points where sound OSR transitions can be fired. To overcome this limitation and support more aggressive OSR transitions, our model includes a {\em store compensation code} $\chi$ to be executed during an OSR transition from point $l$ in $\pi$ to point $l'$ in $\pi'$. The goal of the compensation code is to fix the memory store of $\pi$ at $l$ so that execution can safely continue in $\pi'$ from $l'$ with the fixed store. Note that, if no compensation is needed for an OSR transition, $\mysem{\chi}$ is simply the identity function. We formalize these concepts in the next sections.
 

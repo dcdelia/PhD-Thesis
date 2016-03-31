@@ -105,9 +105,9 @@
   includehead,
   marginparwidth=72pt,
   heightrounded}
-  
+
 \if@twoside\geometry{hmarginratio=55:89}\fi
-  
+
 
 
 
@@ -192,7 +192,7 @@
 %  \@savemarbox\@marbox{\raggedleft #1}%
 %  \@savemarbox\@currbox{\raggedright #1}%
 %  \@xympar}
-%  
+%
 % simpler version which cannot redefine marginpar. A new command
 % (mnote) is needed
 \g@addto@macro\@marginparreset{\footnotesize\itshape}
@@ -239,67 +239,67 @@
 %% Advisors
 \newcount\SAP@advisorcount
 \newtoks\SAP@advisortoks
-\newcommand{\advisor}[1]{% 
-  \ifnum\SAP@advisorcount=\z@ 
-    \SAP@advisortoks={#1}% 
-  \else 
-    \SAP@advisortoks=\expandafter{\the\SAP@advisortoks\\[0.75mm]#1}% 
-  \fi 
+\newcommand{\advisor}[1]{%
+  \ifnum\SAP@advisorcount=\z@
+    \SAP@advisortoks={#1}%
+  \else
+    \SAP@advisortoks=\expandafter{\the\SAP@advisortoks\\[0.75mm]#1}%
+  \fi
   \advance\SAP@advisorcount\@ne}
 
 %% Co-Advisors
 \newcount\SAP@coadvisorcount
 \newtoks\SAP@coadvisortoks
-\newcommand{\coadvisor}[1]{% 
-  \ifnum\SAP@coadvisorcount=\z@ 
-    \SAP@coadvisortoks={#1}% 
-  \else 
-    \SAP@coadvisortoks=\expandafter{\the\SAP@coadvisortoks\\[0.75mm]#1}% 
-  \fi 
+\newcommand{\coadvisor}[1]{%
+  \ifnum\SAP@coadvisorcount=\z@
+    \SAP@coadvisortoks={#1}%
+  \else
+    \SAP@coadvisortoks=\expandafter{\the\SAP@coadvisortoks\\[0.75mm]#1}%
+  \fi
   \advance\SAP@coadvisorcount\@ne}
 
 %% Directors
 \newcount\SAP@directorcount
 \newtoks\SAP@directortoks
-\newcommand{\director}[1]{% 
-  \ifnum\SAP@directorcount=\z@ 
-    \SAP@directortoks={#1}% 
-  \else 
-    \SAP@directortoks=\expandafter{\the\SAP@directortoks\\[0.75mm]#1}% 
-  \fi 
+\newcommand{\director}[1]{%
+  \ifnum\SAP@directorcount=\z@
+    \SAP@directortoks={#1}%
+  \else
+    \SAP@directortoks=\expandafter{\the\SAP@directortoks\\[0.75mm]#1}%
+  \fi
   \advance\SAP@directorcount\@ne}
 
 %% Tutor (TFA only)
 \newcount\SAP@tutorcount
 \newtoks\SAP@tutortoks
-\newcommand{\tutor}[1]{% 
-  \ifnum\SAP@tutorcount=\z@ 
-    \SAP@tutortoks={#1}% 
-  \else 
-    \SAP@tutortoks=\expandafter{\the\SAP@tutortoks\\[0.75mm]#1}% 
-  \fi 
+\newcommand{\tutor}[1]{%
+  \ifnum\SAP@tutorcount=\z@
+    \SAP@tutortoks={#1}%
+  \else
+    \SAP@tutortoks=\expandafter{\the\SAP@tutortoks\\[0.75mm]#1}%
+  \fi
   \advance\SAP@tutorcount\@ne}
 
 %% Tutor Coordinatori (TFA only)
 \newcount\SAP@tutorcoordcount
 \newtoks\SAP@tutorcoordtoks
-\newcommand{\tutorcoord}[1]{% 
-  \ifnum\SAP@tutorcoordcount=\z@ 
-    \SAP@tutorcoordtoks={#1}% 
-  \else 
-    \SAP@tutorcoordtoks=\expandafter{\the\SAP@tutorcoordtoks\\[0.75mm]#1}% 
-  \fi 
+\newcommand{\tutorcoord}[1]{%
+  \ifnum\SAP@tutorcoordcount=\z@
+    \SAP@tutorcoordtoks={#1}%
+  \else
+    \SAP@tutorcoordtoks=\expandafter{\the\SAP@tutorcoordtoks\\[0.75mm]#1}%
+  \fi
   \advance\SAP@tutorcoordcount\@ne}
 
 %% Examiners
 \newcount\SAP@examinercount
 \newtoks\SAP@examinertoks
-\newcommand{\examiner}[1]{% 
-  \ifnum\SAP@examinercount=\z@ 
-    \SAP@examinertoks={#1 (\SAP@chairman)}% 
-  \else 
-    \SAP@examinertoks=\expandafter{\the\SAP@examinertoks\\[0.75mm]#1}% 
-  \fi 
+\newcommand{\examiner}[1]{%
+  \ifnum\SAP@examinercount=\z@
+    \SAP@examinertoks={#1 (\SAP@chairman)}%
+  \else
+    \SAP@examinertoks=\expandafter{\the\SAP@examinertoks\\[0.75mm]#1}%
+  \fi
   \advance\SAP@examinercount\@ne}
 
 \def\SAP@examdate{}
@@ -355,7 +355,7 @@
 % Titlepage:
 
 	\begin{titlepage}
-	
+
 	\linespread{1}\selectfont
 
     \newcommand{\SAP@parbox}[2][]{\hspace{1.72cm}\parbox[t][##1][t]{11.9cm}{##2}}
@@ -390,9 +390,9 @@
     \@author\\[0.75mm]
     \SAP@IDnumberLabel\ \SAP@IDnumber}
 
-    
-    
-    
+
+
+
     \SAP@parbox[4.5cm]{%
     \makebox[11.9cm][l]{%
       \parbox[t]{5.9cm}{%
@@ -419,7 +419,7 @@
 
     \SAP@parbox{\SAP@DeclarationLabel\ \SAP@PhDcourseDeclarationLabel\\[2mm]
     \SAP@submitdate}
-    
+
 	\end{titlepage}
 \clearpage
 \SAP@composebacktitlepage
@@ -447,7 +447,7 @@
 % Titlepage:
 
 	\begin{titlepage}
-	
+
 	\linespread{1}\selectfont
 
     \newcommand{\SAP@parbox}[2][]{\hspace{1.72cm}\parbox[t][##1][t]{11.9cm}{##2}}
@@ -505,9 +505,9 @@
         \fi
         \the\SAP@directortoks}
     }
-    
+
     \vspace{1cm}
-    
+
     \makebox[11.9cm][l]{%
           \parbox[t]{5.9cm}{%
             \ifcase\SAP@coadvisorcount
@@ -520,7 +520,7 @@
         }}
 
     \SAP@parbox{\SAP@AcademicYearLabel\ \SAP@submitdate}
-    
+
 	\end{titlepage}
 \clearpage
 \SAP@composebacktitlepage
@@ -545,7 +545,7 @@
 % Titlepage:
 
 	\begin{titlepage}
-	
+
 	\linespread{1}\selectfont
 
     \newcommand{\SAP@parbox}[2][]{\hspace{1.72cm}\parbox[t][##1][t]{11.9cm}{##2}}
@@ -605,7 +605,7 @@
     }}
 
     \SAP@parbox{\SAP@AcademicYearLabel\ \SAP@submitdate}
-    
+
 	\end{titlepage}
 \clearpage
 \SAP@composebacktitlepage
@@ -634,7 +634,7 @@
 % Titlepage:
 
 	\begin{titlepage}
-	
+
 	\linespread{1}\selectfont
 
     \newcommand{\SAP@parbox}[2][]{\hspace{1.72cm}\parbox[t][##1][t]{11.9cm}{##2}}
@@ -694,7 +694,7 @@
     }}
 
     \SAP@parbox{\SAP@AcademicYearLabel\ \SAP@submitdate}
-    
+
 	\end{titlepage}
 \clearpage
 \SAP@composebacktitlepage
@@ -722,7 +722,7 @@
 % Titlepage:
 
 	\begin{titlepage}
-	
+
 	\linespread{1}\selectfont
 
     \newcommand{\SAP@parbox}[2][]{\hspace{1.72cm}\parbox[t][##1][t]{11.9cm}{##2}}
@@ -781,9 +781,9 @@
         \fi
         \the\SAP@coadvisortoks}
     }
-    
+
     \vspace{1cm}
-    
+
     \makebox[11.9cm][l]{%
           \parbox[t]{5.9cm}{%
             \ifcase\SAP@tutorcount
@@ -809,7 +809,7 @@
         }}
 
     \SAP@parbox{\SAP@AcademicYearLabel\ \SAP@submitdate}
-    
+
 	\end{titlepage}
 \clearpage
 \SAP@composebacktitlepage
@@ -876,11 +876,11 @@
 
 %Material for which the author is the copyright owner cannot be
 %used without the written permission of the author.
-%The permission to reproduce copyright protected material does not extend 
+%The permission to reproduce copyright protected material does not extend
 %to any material that is copyright of a third party; authorization to
 %reproduce such material must be obtained from the copyright owners concerned.
 %If you believe that a copyright infringement is present in this thesis,
-%please contact the author, providing your name, contact details, full 
+%please contact the author, providing your name, contact details, full
 %details of the copyright infringement and advise whether you are the copyright
 %owner or a representative of the copyright owner.\\
 
@@ -963,8 +963,8 @@
   \newcommand{\SAP@TFAschoolHeadLabel}{Training done at:}
   \newcommand{\SAP@TFAschoolPrincipalLabel}{Principal}
   \newcommand{\SAP@DeclarationLabel}{A thesis
-  submitted in partial fulfillment of the requirements\\
-    for the degree of Doctor of Philosophy in}
+  submitted in partial fulfillment of the requirements for\\
+    the degree of Doctor of Philosophy in}
   \newcommand{\SAP@ThesisNotDefensedLabel}{Thesis not yet defended}
   \newcommand{\SAP@ThesisDefensedLabelA}{Thesis defended on}
   \newcommand{\SAP@ThesisDefensedLabelB}{in front of a Board of Examiners composed by}
@@ -1026,11 +1026,11 @@
   \newcommand{\SAP@sapthesisInformationLabel}{Questa tesi \`e stata composta con \LaTeX\ e la classe Sapthesis}
   \newcommand{\SAP@emailLabel}{Email dell'autore}}
 
-  
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% USEFUL COMMANDS %%
 
-\newcommand*{\SAP@upbox}[1]{\textrm{\upshape#1}} 
+\newcommand*{\SAP@upbox}[1]{\textrm{\upshape#1}}
 \AtBeginDocument{
 
   \definecolor{sapred}{rgb}{0.5098039,0.1411765,0.2}
@@ -1043,46 +1043,46 @@
       \@ifpackageloaded{polyglossia}{\csname SAP@\languagename\endcsname}{\SAP@english}}
   \fi
 
-  % degree 
-  \providecommand{\degree}{\SAP@upbox{\textdegree}} 
-  \providecommand{\g}{\degree} 
+  % degree
+  \providecommand{\degree}{\SAP@upbox{\textdegree}}
+  \providecommand{\g}{\degree}
 
   % gradi Celsius
   \providecommand{\celsius}{\ensuremath{\SAP@upbox{\textdegree}\kern-\scriptspace\mathrm{C}}}
   \ifxetex
     \ProvideTextCommandDefault{\C}{\celsius}
   \else
-  
+
     \providecommand{\C}{\celsius}
   \fi
-  
-  % Angstrom 
-  \providecommand{\angstrom}{\SAP@upbox{\AA}} 
-  \providecommand{\A}{\angstrom} 
-  
-  % micro 
-  \providecommand{\micro}{\SAP@upbox{\textmu}} 
-  
-  % Ohm 
-  \providecommand{\ohm}{\SAP@upbox{\textohm}} 
-  
-  % times (only math) 
-  \providecommand{\x}{\times} 
-  
-  % measurement unit 
-  \providecommand*{\un}[1]{\ensuremath{\mathrm{\,#1}}} 
 
-  % Napier's number 
-  \providecommand{\eu}{\ensuremath{\mathrm{e}}} 
-  
-  % imaginary unit 
-  \providecommand{\iu}{\ensuremath{\mathrm{i}}} 
-  
-  % roman subscript 
-  \providecommand*{\rb}[1]{\ensuremath{_\mathrm{#1}}} 
-  
-  % roman superscript 
-  \providecommand*{\rp}[1]{\ensuremath{^\mathrm{#1}}} 
+  % Angstrom
+  \providecommand{\angstrom}{\SAP@upbox{\AA}}
+  \providecommand{\A}{\angstrom}
+
+  % micro
+  \providecommand{\micro}{\SAP@upbox{\textmu}}
+
+  % Ohm
+  \providecommand{\ohm}{\SAP@upbox{\textohm}}
+
+  % times (only math)
+  \providecommand{\x}{\times}
+
+  % measurement unit
+  \providecommand*{\un}[1]{\ensuremath{\mathrm{\,#1}}}
+
+  % Napier's number
+  \providecommand{\eu}{\ensuremath{\mathrm{e}}}
+
+  % imaginary unit
+  \providecommand{\iu}{\ensuremath{\mathrm{i}}}
+
+  % roman subscript
+  \providecommand*{\rb}[1]{\ensuremath{_\mathrm{#1}}}
+
+  % roman superscript
+  \providecommand*{\rp}[1]{\ensuremath{^\mathrm{#1}}}
 
   % differential (only math)
   \ifSAP@romandiff
@@ -1090,26 +1090,26 @@
   \else
     \providecommand{\di}{\mathop{}\!d}
   \fi
-  
+
   % derivative and partial derivative (only math)
   % see http://www.guit.sssup.it/phpbb/viewtopic.php?p=42199#42199
-  \providecommand{\der}[2]{\begingroup 
-    \@tempswafalse\toks@={}\count@=\z@ 
-    \@for\next:=#2\do 
-      {\expandafter\check@var\next\@nil 
-       \advance\count@\der@exp 
-       \if@tempswa 
-         \toks@=\expandafter{\the\toks@\,}% 
-       \else 
-         \@tempswatrue 
-       \fi 
+  \providecommand{\der}[2]{\begingroup
+    \@tempswafalse\toks@={}\count@=\z@
+    \@for\next:=#2\do
+      {\expandafter\check@var\next\@nil
+       \advance\count@\der@exp
+       \if@tempswa
+         \toks@=\expandafter{\the\toks@\,}%
+       \else
+         \@tempswatrue
+       \fi
        \toks@=\expandafter{\the\expandafter\toks@\expandafter\partial\der@var}}%
-    \frac{\partial\ifnum\count@=\@ne\else^{\number\count@}\fi#1}{\the\toks@}% 
-    \endgroup} 
-  \def\check@var{\@ifstar{\mult@var}{\one@var}} 
-  \def\mult@var#1#2\@nil{\def\der@var{#2^{#1}}\def\der@exp{#1}} 
+    \frac{\partial\ifnum\count@=\@ne\else^{\number\count@}\fi#1}{\the\toks@}%
+    \endgroup}
+  \def\check@var{\@ifstar{\mult@var}{\one@var}}
+  \def\mult@var#1#2\@nil{\def\der@var{#2^{#1}}\def\der@exp{#1}}
   \def\one@var#1\@nil{\def\der@var{#1}\chardef\der@exp\@ne}
-  
+
   \providecommand{\pder}[2]{\begingroup
     \@tempswafalse\toks@={}\count@=\z@
     \@for\next:=#2\do
@@ -1123,12 +1123,12 @@
        \toks@=\expandafter{\the\expandafter\toks@\expandafter\partial\der@var}}%
     \frac{\partial\ifnum\count@=\@ne\else^{\number\count@}\fi#1}{\the\toks@}%
     \endgroup}
-  \def\check@var{\@ifstar{\mult@var}{\one@var}} 
-  \def\mult@var#1#2\@nil{\def\der@var{#2^{#1}}\def\der@exp{#1}} 
+  \def\check@var{\@ifstar{\mult@var}{\one@var}}
+  \def\mult@var#1#2\@nil{\def\der@var{#2^{#1}}\def\der@exp{#1}}
   \def\one@var#1\@nil{\def\der@var{#1}\chardef\der@exp\@ne}
 
   % subscript and superscript in text mode
-  \DeclareRobustCommand*\textsubscript[1]{\@textsubscript{\selectfont#1}} 
+  \DeclareRobustCommand*\textsubscript[1]{\@textsubscript{\selectfont#1}}
   \def\@textsubscript#1{{\m@th\ensuremath{_{\mbox{\fontsize\sf@size\z@#1}}}}}
   \providecommand*{\tb}[1]{\textsubscript{#1}}
   \providecommand*{\tp}[1]{\textsuperscript{#1}}
