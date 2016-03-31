@@ -1,7 +1,7 @@
-\section{OSRKit}
+\section{OSR in LLVM}
 \label{se:eval-osrkit}
 
-In this section we present a preliminar experimental study of \osrkit. In particular, we aim at addressing the following questions:
+In this section we present an experimental study of \osrkit. In particular, we aim at addressing the following questions:
 
 \begin{description}[labelindent=1em ,labelsep*=1em,leftmargin=3.5em,itemsep=3pt,parsep=3pt]
 \item[Q1] How much does a never-firing OSR point impact code quality? What kind of slowdown should we expect?
@@ -189,7 +189,7 @@ On our benchmarks, the overall cost of IR manipulation is in the order of hundre
 
 %\section{On-Stack Replacement \`{a} la Carte}
 %\section{OSR Mapping Generation}
-\section{\texorpdfstring{$\texttt{build\_comp}$}{build\_comp}}
+\section{Building OSR Compensation Code}
 \label{se:eval-OSR-alC}
 
 In this section we present and evaluate an implementation in LLVM of the techniques described in \mysection\ref{se:osr-a-la-carte} for automatic OSR mapping construction. In particular, we discuss how to deal with the presence of memory \load\ and \store\ instructions, and how to implement algorithms \apply\ and \buildcomp\ in a real compiler. We then investigate whether in the presence of a number of common compiler optimizations, \buildcomp\ can offer an extensive ``menu'' of possible program points where OSR can safely occur, generating the possibly required compensation code in an automated fashion. Our experiments suggest that bidirectional OSR transitions can be supported almost everywhere in this setting.

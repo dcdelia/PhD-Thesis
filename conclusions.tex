@@ -32,4 +32,6 @@ We have seen that our approach to OSR mapping generation relies on the live-vari
 
 As a next step on the implementation side, we plan to extend \osrkit\ to generate continuation functions that can be shared by multiple deoptimization points. By adding a dispatcher in the entry block that examines the current OSR source location in order to properly compensate the state and jump to the associated landing pad, a single continuation function might serve more than a deoptimization point. Indeed, when transferring execution to less optimized code we should not worry about a possibly reduced peak performance for the modified continuation function: execution won't likely stay in it for long. Also, in the presence of frequent OSR transitions between pairs of versions, this solution would be very effective when deoptimization does not always occur at the same locations.
 
-We are aware that \osrkit\ is currently being used in a joint academic-industrial research project for the optimization of the runtime for the R language, and we hope to look at other tools that may use it in the future.
+%We are aware that \osrkit\ is currently being used in a joint academic-industrial research project for the optimization of the runtime for the R language, and we hope to look at other tools that may use it in the future.
+
+We are aware that \osrkit\ is currently being used in a joint academic-industrial research project for the optimization of the runtime for the R language~\cite{vitek16}, and we hope to look at other tools that may use it in the future.
