@@ -963,8 +963,8 @@
   \newcommand{\SAP@TFAschoolHeadLabel}{Training done at:}
   \newcommand{\SAP@TFAschoolPrincipalLabel}{Principal}
   \newcommand{\SAP@DeclarationLabel}{A thesis
-  submitted in partial fulfillment of the requirements for\\
-    the degree of Doctor of Philosophy in}
+  submitted in partial fulfillment of the requirements for the\\
+    degree of Doctor of Philosophy in}
   \newcommand{\SAP@ThesisNotDefensedLabel}{Thesis not yet defended}
   \newcommand{\SAP@ThesisDefensedLabelA}{Thesis defended on}
   \newcommand{\SAP@ThesisDefensedLabelB}{in front of a Board of Examiners composed by}
