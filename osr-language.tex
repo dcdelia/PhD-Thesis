@@ -1,18 +1,7 @@
-\subsection{Language Syntax and Semantics}
-\label{ss:osr-language-framework}
-Our discussion is based on a minimal imperative programming whose syntax is reported \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}. In this section we introduce some basic definitions used in our representation of programs, and provide a big-step semantics for the language.
-
-%\subsection{Language Framework}
-
-%In this section we introduce some basic definitions used in our representation of programs and transformations. In particular, we provide a syntax and a big-step semantics for a simple imperative language, and introduce means for reasoning about program properties using computation tree logic operators and for describing program transformations through rewrite rules with side conditions.
-
-%\subsubsection*{Program Syntax and Semantics}
-
-%Our discussion is based on a minimal imperative programming language with instructions and expressions with the syntax \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}.
-
-\ifdefined\noauthorea
-\begin{figure}[t]
-\fi
+\begin{figure}[b]
+\vspace{-2mm}
+\centering
+\begin{minipage}{0.63\textwidth}
 \noindent
 \begin{small}
 $
@@ -30,10 +19,21 @@ $
 \end{array}
 $
 \end{small}
-\ifdefined\noauthorea
+\end{minipage}
 \caption{\label{fig:osr-program-syntax}Program Syntax}
 \end{figure}
-\fi
+
+\subsection{Language Syntax and Semantics}
+\label{ss:osr-language-framework}
+Our discussion is based on a minimal imperative programming whose syntax is reported \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}. In this section we introduce some basic definitions used in our representation of programs, and provide a big-step semantics for the language.
+
+%\subsection{Language Framework}
+
+%In this section we introduce some basic definitions used in our representation of programs and transformations. In particular, we provide a syntax and a big-step semantics for a simple imperative language, and introduce means for reasoning about program properties using computation tree logic operators and for describing program transformations through rewrite rules with side conditions.
+
+%\subsubsection*{Program Syntax and Semantics}
+
+%Our discussion is based on a minimal imperative programming language with instructions and expressions with the syntax \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}.
 
 \begin{definition}[Program]
 \label{de:program}

@@ -141,12 +141,12 @@ To defer the compilation of the continuation function until the comparator is kn
 
 \noindent To generate the continuation function (shown in \myfigure\ref{fig:osr-isordto}) from the optimized version created by the inliner, \osrkit\ replaces the function entry point, removes dead code, replaces live variables with the function parameters, and fixes $\phi$-nodes accordingly. As the OSR transition does not require modifications to the program state, the new entry point does not contain any compensation code. Preserving the SSA form while constructing the continuation function is a challenging task, as it might require inserting new $\phi$-nodes in the control-flow graph in addition to simply updating some of the existing ones as in this example. When generating a continuation function, we use a modified version of LLVM's {\tt SSAUpdater} component to account for the available values -- transferred as parameters or reconstructed in the OSR entrypoint -- of all the variables that are live at the OSR landing pad.
 
-\vspace{4mm}
+%\vspace{-4mm}
 
 %Additions resulting from the IR instrumentation are in grey, while removals are struck-through.
 
 \ifdefined\noauthorea
-\begin{figure}[ht]
+\begin{figure}[t]
 \begin{center}
 \includegraphics[width=0.66\columnwidth]{figures/osr-isordto/osr-isordto.eps}
 \caption{\protect\input{figures/osr-isordto/caption}}
@@ -215,10 +215,19 @@ A more general approach has then been proposed in~\cite{Soman06}, with the OSR i
 In the Graal VM - a modified version of HotSpot centered on the principle of speculative optimizations - execution falls back to the interpreter during deoptimization, while a runtime function restores the stack frames in the interpreter using the metadata associated with the deoptimization point~\cite{Duboscq13,Wurthinger13,Duboscq14}.
 
 \paragraph*{Prospect.} Prospect~\cite{Susskraut10} is an LLVM-based framework for parallelizing a sequential application. The IR is instrumented through two LLVM passes to enable switching at run-time between a slow and a fast variant of the code, which are both compiled statically. Helper methods are used to save and eventually restore registers, while stack-local variables are put on a separate \alloca\ stack rather than on the stack frame so that the two variants result into similar and thus interchangeable stack layouts.
-Speculative variables~\cite{Susskraut09} are introduced when the slow variant needs to track state (e.g., information for out-of-bound checks) that is missing in the fast variant. Switching operations are performed by Prospect at user-specified checkpoints in the original code. Although both Prospect and \osrkit\ support switching execution between two variants of a function, they target different applications.
+%Speculative variables~\cite{Susskraut09} are introduced when the slow variant needs to track state (e.g., information for out-of-bound checks) that is missing in the fast variant.
+Switching operations are performed by Prospect at user-specified checkpoints in the original code. Although both Prospect and \osrkit\ support switching execution between two variants of a function, they target different applications.
+
+\paragraph*{McOSR.} McOSR~\cite{Lameed13} is a library for inserting open OSR points designed specifically for the legacy LLVM JIT, and encodes the OSR machinery entirely in IR as \osrkit\ does. When an OSR is fired, live variables are stored into a pool of globals allocated by the library. McOSR then invokes a user-defined method to transform \fbase\ into \fvariant\ and calls \fbase\ with empty parameters. The new entrypoint inserted by McOSR in \fbase\ checks a global flag to discriminate if the function is being invoked in an OSR transition or as a regular call: in the first case, the state is restored from the pool of global variables before jumping to the OSR landing pad.
+
+\osrkit\ improves upon McOSR in a number of aspects. The presence of a new entrypoint has the potential to disrupt many optimizations: McOSR tries to mitigate this issue by promptly recompiling \fbase\ again once the execution is resumed and \fbase\ has returned, but only future invocations of \fbase\ would benefit from it. In contrast, \osrkit\ generates an optimized, dedicated OSR continuation function to resume the execution: lessons from the Jikes RVM~\cite{Fink03} suggest that our approach is likely to yield better performance. Also, we transfer live variables as arguments to the continuation function, possibly using registers, which is likely to be more efficient than spilling them to a pool of globals.
+%variables maintained by the VM.
+Due to the complexity in preserving the SSA form when updating the IR, McOSR allows the insertion of OSR points only at loop headers (in particular, those with exactly two predecessor blocks), while \osrkit\ can encode them at arbitrary program locations.
+
+Notice also that \osrkit\ introduces a number of features that are absent from McOSR, including: support for compensation code and resolved OSR points; compatibility with MCJIT's design; support for maintaining multiple versions of the same function, which can be very useful in the presence of speculative optimizations and deoptimization.
 
 \paragraph*{Other Related Work.}
-Dynamic Software Updating (DSU) is a methodology for permitting programs to be updated while they run and is thus useful for systems that cannot afford to halt service. DSU techniques (e.g., ~\cite{Neamtiu06,Makris09}) are required to update all functions active on the call stack at the same time, so their code should be instrumented and data types wrapped to support future extensions. Albeit DSU and OSR both manipulate the stack to replace running functions, they target different applications, and the performance constraints they are subject to are dissimilar. 
+Dynamic Software Updating (DSU) is a methodology for permitting programs to be updated while they run and is thus useful for systems that cannot afford to halt service. DSU techniques (e.g., ~\cite{Neamtiu06,Makris09}) are required to update all functions active on the call stack at the same time, so their code should be instrumented and data types wrapped to support future extensions. Albeit DSU and OSR both manipulate the stack to replace running functions, they target dissimilar applications, and the performance constraints they are subject to are different. 
 
 In tracing JIT compilers deoptimization techniques are used to safely leave an optimized trace when a guard fails. SPUR~\cite{Bebenita10} is a trace-based JIT compiler for Microsoft's Common Intermediate Language (CIL) with three levels of JIT-ting plus a transfer-tail JIT used to bridge the execution from an instruction in a block generated at the second or third level to a safe point for deoptimization to the first JIT level. Deoptimization can thus happen without falling back to an interpreter; similarly, our approach enables VM builders to perfom OSR transitions working at native-code level only.
 

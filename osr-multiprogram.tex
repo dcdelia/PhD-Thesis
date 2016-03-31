@@ -99,7 +99,7 @@ To simplify the notation we introduce:
 \end{cases}
 \end{equation*}
 
-\noindent From \ref{eq:mv-big-step} we can write that $\tau[\omega_i]=(p_{\omega_i}, \sigma_{\omega_i},l_{\omega_i-1})$ has been obtained from $\tau[\omega_i-1]=(p_{\omega_i-1}, \sigma_{\omega_i-1}, l_{\omega_i-1})$ with $\sigma_{\omega_i}=\mysem{\chi_{\omega_i-1}}(\sigma_{\omega_i})$. For each OSR transition $\hat{\pi}_i$ has been obtained from $\hat{\pi}_{i-1}$ using \dopasses\ for some sequence $L$ of LVE transformations. Indeed, in order for \ref{eq:mv-big-step} to apply:
+\noindent From \ref{eq:mv-big-step} we can write that $\tau[\omega_i]=(p_{\omega_i}, \sigma_{\omega_i},l_{\omega_i})$ has been obtained from $\tau[\omega_i-1]=(p_{\omega_i-1}, \sigma_{\omega_i-1}, l_{\omega_i-1})$ with $\sigma_{\omega_i}=\mysem{\chi_{\omega_i-1}}(\sigma_{\omega_i})$. For each OSR transition $\hat{\pi}_i$ has been obtained from $\hat{\pi}_{i-1}$ using \dopasses\ for some sequence $L$ of LVE transformations. Indeed, in order for \ref{eq:mv-big-step} to apply:
 \begin{align*}
 (\hat{\pi}_{i-1},\hat{\pi}_i)\in{\cal E} ~\wedge~ \exists L: ~&{\tt do\_passes}(\hat{\pi}_{i-1}, L-1)=(\hat{\pi}_i,\mu_{\hat{\pi}_{i-1}\hat{\pi}_i},{\mu'}_{\hat{\pi}_{i}\hat{\pi}_{i-1}}) ~\wedge~\\
 &M(\hat{\pi}_{i-1},\hat{\pi}_i)=\mu_{\hat{\pi}_{i-1}\hat{\pi}_i}
@@ -113,7 +113,7 @@ M(\hat{\pi}_{i-1},\hat{\pi}_i)(l_{\omega_i-1})=\mu_{\hat{\pi}_{i-1}\hat{\pi}_i}(
 \noindent By \ref{th:osr-trans-correctness} function $\mu_{\hat{\pi}_{i-1}\hat{\pi}_i}$ provides a strict OSR mapping between $\hat{\pi}_{i-1}$ and $\hat{\pi}_i$, as all LVE transformations in L are composed into a strict mapping (\ref{co:compose-strict}). Note also that since $\Delta_I$ is being used to map OSR program points between $\hat{\pi}_{i-1}$ and $\hat{\pi}_i$, it follows that $l_{\omega_i}=l_{\omega_i-1}~\forall i\in[1,k]$.
 We now prove our claim by induction on $i$.
 
-\paragraph*{Base step.} When $i=1$, we know that no OSR transition has been performed till $l_{\omega_1-1}$ and thus $\hat{\pi}_0$ has been executing all the time. Then we can write:
+\paragraph*{Base step.} When $i=1$, we know that no OSR transition has been performed till $l_{\omega_1-1}$ and $\hat{\pi}_0$ has been executing all the time. Then we can write:
 \begin{equation*}
 (1, \sigma, 1)\trans^*_{\Pi}(1,\sigma_{\omega_1-1},l_{\omega_1-1}) \Longleftrightarrow (\sigma, 1) \trans^*_{\hat{\pi}_0} (\sigma_{\omega_1-1},l_{\omega_1-1})
 \end{equation*}
@@ -144,7 +144,7 @@ Since no OSR is performed between $\tau[\omega_{k-1}]$ and $\tau[\omega_k-1]$ we
 (\sigma_{\omega_{k-1}}, l_{\omega_{k-1}}) \trans^*_{\hat{\pi}_{k-1}} \cdots \trans^*_{\hat{\pi}_{k-1}} (\sigma_{\omega_k-1},l_{\omega_k-1})
 \end{gather*}
 
-\noindent in the same number of steps, where $\tilde{\sigma}\vert_{\live(\hat{\pi}_{k-1},\,l_{\omega_k-1})} = \sigma_{\omega_k-1}\vert_{\live(\hat{\pi}_{k-1},\,l_{\omega_k-1})}$ by \ref{le:only-live-count}. Since $(\tilde{\sigma},l_{\omega_k-1})\in\tau_{\hat{\pi}_{k-1}\sigma}$ by the strictness of the OSR mapping $\mu_{\hat{\pi}_{k-1}\hat{\pi}_{k}}$:
+\noindent in the same number of steps, with $\tilde{\sigma}\vert_{\live(\hat{\pi}_{k-1},\,l_{\omega_k-1})} = \sigma_{\omega_k-1}\vert_{\live(\hat{\pi}_{k-1},\,l_{\omega_k-1})}$ by \ref{le:only-live-count}. Since $(\tilde{\sigma},l_{\omega_k-1})\in\tau_{\hat{\pi}_{k-1}\sigma}$ by the strictness of the OSR mapping $\mu_{\hat{\pi}_{k-1}\hat{\pi}_{k}}$:
 \begin{align*}
 \exists s_j=(\sigma_j,l_j)\in\tau_{\hat{\pi}_k\sigma}~\text{s.t.}~&\mu_{\hat{\pi}_{k-1}\hat{\pi}_{k}}(l_{\omega_k-1})=(l_j,\chi)~\wedge \\
 &\mysem{\chi}(\tilde{\sigma}\vert_{\live(\hat{\pi}_{k-1},\,l_{\omega_k-1})})=\sigma_j\vert_{\live(\hat{\pi}_{k},\,l_j)}

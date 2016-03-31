@@ -2,7 +2,7 @@
 
 \label{ss:lve-trans}
 
-In this section, we show that classic compiler optimizations such as constant propagation, dead code elimination, and code hoisting as defined in \myfigure\ref{fig:sample-trans} are all examples of live-variable equivalent transformations. Hence, they are provably correct building blocks of an OSR-aware compilation toolchain based on algorithm $\osrtrans$. These optimizations are representatives of a broad class of transformations that insert, delete, and modify instructions. Further optimizations, which we do not formally discuss in this paper, are evaluated in \missing.
+In this section, we show that classic compiler optimizations such as constant propagation, dead code elimination, and code hoisting as defined in \myfigure\ref{fig:sample-trans} are all examples of live-variable equivalent transformations. Hence, they are provably correct building blocks of an OSR-aware compilation toolchain based on algorithm $\osrtrans$. These optimizations are representatives of a broad class of transformations that insert, delete, and modify instructions. Further optimizations, which we do not formally discuss here, are evaluated in \mysection\ref{se:eval-OSR-alC}.
 
 \begin{theorem}
 \label{th:lve-trans-examples}

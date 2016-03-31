@@ -1,4 +1,5 @@
 \subsection{Program Properties and Transformations}
+\label{ss:osr-reasoning-and-transformations}
 
 In this section we present a formalism based on {\em computation tree logic} (CTL) to reason about program properties operators and describe program transformations through rewrite rules with side conditions~\cite{Clarke86,Lacey04,Kalvala09}.
 
@@ -60,36 +61,6 @@ n \models \overrightarrow{E}(\phi~U~\psi) &\Longleftrightarrow \exists p: p\in C
 
 \noindent Operators $A$ and $E$ are quantifiers over paths, while $X$ and $U$ path-specific quantifiers. Notice that $\phi~U~\psi$ requires that $\phi$ as to hold at least until at some node $\psi$ is satisfied: this implies that $\psi$ will be verified in the future.
 
-\begin{figure}[hb]
-\vspace{-3mm}
-\begin{small}
-\begin{eqnarray*}
-\wdef(\wx) & \triangleq & I_l= \texttt{x:=e} ~~ \vee ~~ I_l= \texttt{in} ~ \cdots ~ \texttt{x} \cdots \\
-%                            &            & I_l= \texttt{in} ~ \cdots ~ \texttt{x} \cdots \\
-                            &            & [\wx ~ \textit{is defined by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
-\wuse(\wx) & \triangleq & I_l= \texttt{y:=e[x]} ~ \vee  \\
-                            &            & I_l= \texttt{if (e[x]) goto m} ~ \vee \ \\
-                            &            & I_l= \texttt{out} ~ \cdots ~ \texttt{x} \cdots \\
-                            &            & [\wx ~ \textit{is used by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
-\wtrans(\we) & \triangleq & I_l= \texttt{x:=e'} ~ \wedge ~ \neg\wfreevar(\wx,\we) ~ \vee \\
-                            &            & I_l\neq\texttt{x:=e'} \\
-%                            &            & [\we ~ \textit{is not affected by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
-                            &            & [\textit{no constituent of}~\we~\textit{is modified by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
-\islive(\wx) & \triangleq & \overleftarrow{AX}\overleftarrow{A}(\text{true} ~ U ~ \wdef(\wx)) ~ \wedge \\
-                            &            & \overrightarrow{E}(\neg\wdef(\wx) ~ U ~ \wuse(\wx)) \\
-                            &            & [\wx ~ \textit{is live at program point} ~ l ~ \textit{in} ~ \pi] \\
-\ureachdef(\wx,l') & \triangleq & \overleftarrow{AX}\overleftarrow{A}(\neg\wdef(\wx) ~ U ~ \point(l')\wedge\wdef(\wx)) \\
-                            &            & [\textit{unique definition of}~\wx~{at}~l'~\textit{reaching}~l~\textit{in} ~ \pi] \\
-\stmt(I) & \triangleq & I=I_l ~~~ [I ~ \textit{is the instruction at} ~ l ~ \textit{in} ~ \pi]\\
-%                 &            & [I ~ \textit{is the instruction at} ~ l ~ \textit{in} ~ \pi] \\
-\point(\texttt{m}) & \triangleq & \texttt{m}=l ~~~ [\textit{program point} ~ \wm ~ \textit{is} ~ l ~ \textit{in} ~ \pi]
-%                           &            & [\textit{program point} ~ \wm ~ \textit{is} ~ l ~ \textit{in} ~ \pi]
-\end{eqnarray*}
-\vspace{-4mm}
-\end{small}
-\caption{\label{fig:osr-loc-pred}Predicates expressing local properties of a point $l\in [1,n]$ in a program $\pi=\langle I_1,\ldots,I_n\rangle$, with meta-variables $\texttt{e},\texttt{e'}\in Expr$, $\texttt{x}, \texttt{y}\in Var$, and $l, \texttt{m}\in Num$.}
-\end{figure}
-
 \myfigure\ref{fig:osr-loc-pred} shows a number of local predicates that will be useful throughout the paper. For instance, $\pi,l\models \ureachdef(\wx, l')$ ({\em unique reaching definition}) holds if and only if variable $\wx$ is defined at $l$ and on all paths in the control flow graph starting from an immediate successor of $l$, $\wx$ is not redefined until point $l'$ is reached, i.e., there is a unique definition of $\wx$ that reaches $l'$, and this definition is at $l$. \ureachdef's formulation relies on nested CTL operators: $\overrightarrow{AX}$ is used to encode a property for all successors of $l$, while the nested $\overrightarrow{A}$ captures all forward paths starting at such nodes.
 
 The following definition will be useful, too:
@@ -122,6 +93,36 @@ Dominance analysis is widely employed in a number of program analysis and optimi
 
 \noindent which captures the idea that there does not exist a path starting at the entry node (i.e, the first instruction in $\pi$) that reaches $m$ without reaching $n$ first.
 \end{example}
+
+\begin{figure}[!ht]
+\vspace{-3mm}
+\begin{small}
+\begin{eqnarray*}
+\wdef(\wx) & \triangleq & I_l= \texttt{x:=e} ~~ \vee ~~ I_l= \texttt{in} ~ \cdots ~ \texttt{x} \cdots \\
+%                            &            & I_l= \texttt{in} ~ \cdots ~ \texttt{x} \cdots \\
+                            &            & [\wx ~ \textit{is defined by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
+\wuse(\wx) & \triangleq & I_l= \texttt{y:=e[x]} ~ \vee  \\
+                            &            & I_l= \texttt{if (e[x]) goto m} ~ \vee \ \\
+                            &            & I_l= \texttt{out} ~ \cdots ~ \texttt{x} \cdots \\
+                            &            & [\wx ~ \textit{is used by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
+\wtrans(\we) & \triangleq & I_l= \texttt{x:=e'} ~ \wedge ~ \neg\wfreevar(\wx,\we) ~ \vee \\
+                            &            & I_l\neq\texttt{x:=e'} \\
+%                            &            & [\we ~ \textit{is not affected by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
+                            &            & [\textit{no constituent of}~\we~\textit{is modified by instruction} ~ I_l ~ \textit{in} ~ \pi] \\
+\islive(\wx) & \triangleq & \overleftarrow{AX}\overleftarrow{A}(\text{true} ~ U ~ \wdef(\wx)) ~ \wedge \\
+                            &            & \overrightarrow{E}(\neg\wdef(\wx) ~ U ~ \wuse(\wx)) \\
+                            &            & [\wx ~ \textit{is live at program point} ~ l ~ \textit{in} ~ \pi] \\
+\ureachdef(\wx,l') & \triangleq & \overleftarrow{AX}\overleftarrow{A}(\neg\wdef(\wx) ~ U ~ \point(l')\wedge\wdef(\wx)) \\
+                            &            & [\textit{unique definition of}~\wx~{at}~l'~\textit{reaching}~l~\textit{in} ~ \pi] \\
+\stmt(I) & \triangleq & I=I_l ~~~ [I ~ \textit{is the instruction at} ~ l ~ \textit{in} ~ \pi]\\
+%                 &            & [I ~ \textit{is the instruction at} ~ l ~ \textit{in} ~ \pi] \\
+\point(\texttt{m}) & \triangleq & \texttt{m}=l ~~~ [\textit{program point} ~ \wm ~ \textit{is} ~ l ~ \textit{in} ~ \pi]
+%                           &            & [\textit{program point} ~ \wm ~ \textit{is} ~ l ~ \textit{in} ~ \pi]
+\end{eqnarray*}
+\vspace{-4mm}
+\end{small}
+\caption{\label{fig:osr-loc-pred}Predicates expressing local properties of a point $l\in [1,n]$ in a program $\pi=\langle I_1,\ldots,I_n\rangle$, with meta-variables $\texttt{e},\texttt{e'}\in Expr$, $\texttt{x}, \texttt{y}\in Var$, and $l, \texttt{m}\in Num$.}
+\end{figure}
 
 \subsubsection*{Program Transformations}
 
@@ -168,7 +169,7 @@ A rewrite rule $T$ is {\em semantics-preserving} if for any program $\pi$ it hol
 \noindent Examples of semantics-preserving rules for classic compiler optimizations (as proven in~\cite{Lacey02,Lacey04}) are given in \myfigure\ref{fig:sample-trans}.
 
 \begin{figure}[ht]
-
+\begin{center}
 \begin{small}
 
 \begin{tabularx}{0.8\textwidth}{|X|}\hline
@@ -195,11 +196,14 @@ ${\tt if} ~~ p \models \overrightarrow{A}(\neg\wuse(\wx) ~ U ~ \wpoint(q)) ~~ \w
 $\hphantom{\texttt{if}} ~~ q \models \overleftarrow{A}((\neg\wdef(\wx)\vee\wpoint(q))\wedge \wtrans(e) ~ U ~ \wpoint(p))$ \\\hline
 \end{tabularx}
 
+\vspace{-2mm}
+
 \end{small}
+\end{center}
 \caption{\label{fig:sample-trans} Rewriting rules for defining CP, DCE, and Hoist transformations.}
 \end{figure}
 
-The constant propagation (CP) rule replaces uses of a variable $v$ at a node $m$ with a constant $c$. Its side condition is satisfied when in all backward paths starting at $m$, the first definition of $v$ we encounter is always $v:=c$.
+\noindent The constant propagation (CP) rule replaces uses of a variable $v$ at a node $m$ with a constant $c$. Its side condition is satisfied when in all backward paths starting at $m$, the first definition of $v$ we encounter is always $v:=c$.
 
 The dead store elimination (DSE) rule deletes an intruction at a node $m$ if the result of its computation will never be used later in the program's execution. As we are not interested in uses of the variable itself at $m$, in the side condition we skip past it with $AX$ and specify that there should not exist a forward path that eventually uses (i.e., reads from) the variable. 
 

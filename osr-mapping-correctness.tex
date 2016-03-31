@@ -1,4 +1,5 @@
 \subsubsection{Algorithm Correctness}
+\label{ss:osr-mapping-correctness}
 
 We now prove the correctness of ${\tt OSR\_trans}$, showing that it yields strict OSR mappings if the applied rewrite rules satisfy the property that variables that are live at corresponding points in the original and rewritten program contain the same values. To characterize this property, we need to introduce some formal machinery based on bisimilarity of programs.
 
@@ -82,7 +83,7 @@ where $(\sigma_i,l_i)=\tau_{\pi\sigma}[i]$, $(\sigma'_i,l_i)=\tau_{\pi'\sigma}[i
 \end{lemma}
 
 \begin{myproof}
-The correctness of ${\tt build\_comp}$ relies on the ability of \reconstruct\ to produce compensation code for each variable that is live at OSR destination, but not at origin. Algorithm $\reconstruct(\wx, \pi, l, \pi', l', l'')$ aims to create a sequence of instructions that assigns \wx\ with the value that it would have assumed at $l''$ in $\pi'$, using as input the values of live variable at $l$ in $\pi$.
+The correctness of ${\tt build\_comp}$ relies on the ability of \reconstruct\ to produce compensation code for each variable that is live at OSR destination, but not at origin. Algorithm $\reconstruct(\wx, \pi, l, \pi', l', l'')$ aims at creating a sequence of instructions that assigns \wx\ with the value that it would have assumed at $l''$ in $\pi'$, using as input the values of live variable at $l$ in $\pi$.
 
 We proceed by induction on the recursive calls of \reconstruct. For the algorithm to succeed, there must be a unique definition {\tt x:=e} at some point $\hat{l}$ that dominates $l''$, otherwise $undef$ is thrown (see \myfigure\ref{fig:osr-reconstruct}). %If it is not unique, say there are two possible definitions {\tt x:=e} and {\tt x:=e'} that reach $l''$, then
 The base case happens when either:
@@ -116,4 +117,4 @@ A program transformation $T$ is {\em live-variable equivalent} (LVE) if for any 
 For any program $\pi$ and live-variable equivalent transformation $T$, if ${\tt apply}(\pi,T)\triangleq(\pi', \Delta_I, \Delta_I)$ where $\pi'=\mysem{T}(\pi)$ and $\Delta_I:[1,|\pi|]\rightarrow [1,|\pi|]$ is the identity mapping between program points, then ${\tt OSR\_trans}(\pi,T)$ $=(\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$ yields a strict OSR mapping $\mu_{\pi\pi'}$ between $\pi$ and $\pi'$ and a strict OSR mapping $\mu_{\pi'\pi}$ between $\pi'$ and $\pi$.
 \end{theorem}
 
-\paragraph*{Discussion.} We remark that the assumption of an identity mapping between program points, which is a necessary condition of live-variable bisimilarity, is without loss of generality as it can  always be enforced by padding programs with \wskip\ statements. For instance, the Hoist transformation of \myfigure\ref{fig:sample-trans}, which we prove to be LVE in \missing, replaces the hoisted instruction with a \wskip, and expects a \wskip\ to already exist at the point where it is moved. As we discuss in \missing, this is not required in a real compiler, as a transformation pass can be instrumented to capture code modifications that require updating the mapping.
+\paragraph*{Discussion.} We remark that the assumption of an identity mapping between program points, which is a necessary condition of live-variable bisimilarity, is without loss of generality as it can  always be enforced by padding programs with \wskip\ statements. For instance, the Hoist transformation of \myfigure\ref{fig:sample-trans}, which we prove to be LVE in the next section, replaces the hoisted instruction with a \wskip, and expects a \wskip\ to already exist at the point where it is moved. As we discuss in \mysection\ref{ss:BC-implementation}, this is not required in a real compiler, as a transformation pass can be instrumented to capture code modifications that require updating the mapping.
