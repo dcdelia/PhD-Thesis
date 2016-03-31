@@ -190,10 +190,11 @@ For a front-end, the choice whether to insert an OSR point into a function for d
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{On-Stack Replacement \`{a} la Carte}
+%\section{On-Stack Replacement \`{a} la Carte}
+\section{OSR Mapping Generation}
 \label{se:eval-OSR-alC}
 
-In this section we present and evaluate an implementation in LLVM of the techniques described in \mysection\ref{ss:osr-a-la-carte}. In particular, we discuss how to deal with the presence of memory \load\ and \store\ instructions, and how to implement algorithms \apply\ and \buildcomp\ in a real compiler. We then investigate whether in the presence of a number of common compiler optimizations, \buildcomp\ can ``offer'' an extensive menu of possible program points where OSR can safely occur, generating the possibly required compensation code in an automated fashion.
+In this section we present and evaluate an implementation in LLVM of the techniques described in \mysection\ref{se:osr-a-la-carte}. In particular, we discuss how to deal with the presence of memory \load\ and \store\ instructions, and how to implement algorithms \apply\ and \buildcomp\ in a real compiler. We then investigate whether in the presence of a number of common compiler optimizations, \buildcomp\ can ``offer'' an extensive menu of possible program points where OSR can safely occur, generating the possibly required compensation code in an automated fashion.
 
 \subsection{Implementation}
 \label{ss:BC-implementation}
