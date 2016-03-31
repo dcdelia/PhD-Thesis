@@ -1,8 +1,10 @@
 \section{HCCT Construction and Accuracy}
+\label{ss:hcct-eval}
 
 In this section, we present an extensive experimental study of our data streaming-based methodology for context-sensitive profiling. We implemented several variants of context-sensitive profilers and we analyzed their performance and the accuracy of the produced $(\phi,\varepsilon)$-HCCT with respect to a number of metrics and using many different parameter settings. Besides the exhaustive approach, where each routine call and return is instrumented, we integrate our solution with previous techniques aimed at reducing time overhead: we focus in particular on static bursting~\cite{Zhuang06}, which offers convenient time-accuracy tradeoffs. The experimental analysis not only confirms, but reinforces the theoretical prediction: the $(\phi,\varepsilon)$-HCCT represents the hot portions of the full CCT very well using only an extremely small percentage of the space required by the entire CCT: all the hottest calling contexts are always identified correctly, their counters are very accurate, and the number of false positives is rather small. With bursting, the running time overhead can be kept under control without affecting accuracy in a substantial way.
 
 \subsection{Implementation}
+\label{ss:hcct-implementation}
 
 \paragraph*{Compiler Plugin.} The \gcc\ compiler provides an instrumentation infrastructure to emit calls to analysis routines at the beginning and at the end of each function, passing as arguments the address of the current function and its calling site. On top of these two primitives, we have built a full-fledged infrastructure for context sensitive profiling of multi-threaded Linux C/C++ applications that ships as a plugin\footnote{Source code and documentation are available at: \url{https://github.com/dcdelia/hcct}} for the GNU Compiler Collection.
 
@@ -99,6 +101,7 @@ quanta & 94 & 13\,881 & 812\,098 & 27\,426\,654 \\
 Experiments were performed on a 2.53GHz Intel Core2 Duo T9400 with 128KB of L1 data cache, 6MB of L2 cache, and 4 GB of main memory DDR3 1066, running Ubuntu 12.04, Linux Kernel 3.5.0, gcc 4.7.2, 32 bit. Performance measurements were collected with negligible background activity, running multiple trials for each benchmark/tool combination and reporting confidence intervals stated at 95\% confidence level.
 
 \subsection{Memory Usage}
+\label{ss:eval-hcct-memory}
 
 We first evaluate how much space can be saved by our approach, reporting the size of the MCCT constructed by the SS algorithm compared to the size of the full CCT as a function of the hotness threshold $\phi$. \myfigure\ref{fig:hcct-space-by-phi} shows the results for a subset of our benchmarks. Notice that the size of the MCCT, hence the space used by the algorithm, decreases with $\phi$. For values of $\phi\ge 10^{-4}$, i.e., contexts that appear at least $0.01\%$ of the times, space usage remains less than $1\%$ than the CCT size for most benchmarks, with a worst case of about $4.1\%$ over all our experiments.
 
