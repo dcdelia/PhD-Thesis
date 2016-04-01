@@ -1,7 +1,7 @@
 \chapter{State of the Art}
 \label{ch:literature}
 
-To address performance challenges faced by modern runtime systems, vendors have invested considerable resources in adaptive optimization technology. Today, mainstream virtual machines come with sophisticated infrastructure for online profiling, run-time compilation, and feedback-directed optimization~\cite{Arnold05}. This chapter aims at providing an overview of the most commonly used techniques in adaptive optimizations systems.
+To address performance challenges faced by modern runtime systems, vendors have invested considerable resources in adaptive optimization technology. Today, mainstream virtual machines come with sophisticated infrastructure for online profiling, run-time compilation, and feedback-directed optimization~\cite{Arnold05}. This chapter aims at providing an overview of the most commonly used techniques in adaptive optimizations systems. We will provide more detailed comparisons to the state of the art in the technical chapters of this dissertation.
 
 \section{Profiling Techniques}
 Motivated by the observation that most programs spend the majority of time in a small fraction of their code, virtual machines typically adopt {\em selective optimization} policies in order to focus their efforts on hot code portions only. Indeed, optimization comes at a cost, and the expected performance gains from it should compensate for the overhead from collecting and processing profiling information and performing associated transformations.
@@ -53,7 +53,7 @@ JIT compilation is used by modern runtime to gain the benefits of both static co
 \section{Feedback-Directed Optimization}
 A fully automatic online Feedback-Directed Optimization (FDO) system is the key for continuous optimization in an adaptive runtime. As highligthed in~\cite{Arnold05}, FDO has several advantages: for instance, it can overcome limitations of static optimizers by exploiting run-time information that cannot be statically inferred, and it allows the runtime to change a decision if and when conditions change.
 
-\noindent The universe of FDO techniques is rather large. For this reason, in the remainder of this section, we will present in more detail those techniques to which the ideas presented in this thesis are more applicable, and briefly mention the others.
+The universe of FDO techniques is rather large. For this reason, in the remainder of this section, we will present in more detail those techniques to which the ideas presented in this thesis are more applicable, and briefly mention the others.
 
 \paragraph*{Inlining.} Replacing a call site with the code of the function it invokes is one of the most widely employed optimization techniques. Inlining can be particularly effective in the context of object-oriented languages, but performing it too aggressively would place a burden on compilation time and code bloat. The implementations of the SELF language~\cite{Holzle92,Holzle96} introduced progressively sophisticated techniques for effective dynamic inlining: in particular, they augmented inlining with type feedback based on types profiled for the receivers.
 
@@ -67,7 +67,7 @@ Specialization is a form of multi-versioning that speculates on run-time facts, 
 
 \paragraph*{Other Relevant Techniques.} Unless otherwise stated, we refer the reader to~\cite{Arnold05} for the techniques mentioned here. Polymorphic Inline Caches (PICs) can be used to perform dynamic dispatching of methods based on previously seen cases. PICs are also used by modern JavaScript engines to optimize object property access~\cite{ChevalierBoisvert16}.
 
-Escape analysis~\cite{Choi99} can permit stack placement of an object: it is typically enabled by other transformations, such as speculative inlining of currently monomorphic call sites, and paves the way to further optimization such as the promotion of an object's fields from memory to registers.
+\noindent Escape analysis~\cite{Choi99} can permit stack placement of an object: it is typically enabled by other transformations, such as speculative inlining of currently monomorphic call sites, and paves the way to further optimization such as the promotion of an object's fields from memory to registers.
 
 Code positioning techniques can be used to improve branch prediction and maximize instruction-cache locality by rearranging the instructions in the code. Production VMs can also dynamically adjust the size of their heap depending on the memory allocation requests of the running application. Garbage collection is typically triggered at {\em safepoints}, at which all threads are suspended and also other tasks such as deoptimization and code cache flushing can be performed.
 

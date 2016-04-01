@@ -9,7 +9,7 @@ A multi-version program is modeled by an edge-labeled graph $\Pi=({\cal V}, {\ca
 and ${\cal M}:{\cal E}\rightarrow OSRMap$ labels each edge $(\pi,\pi')\in {\cal E}$ with an OSR mapping from $\pi$ to $\pi'$.
 \end{definition}
 
-\subsubsection{Semantics}
+\subsubsection*{Semantics}
 
 The state of a multi-version program is similar to the state of a program (\ref{de:prog-state}), but it also includes the index of the currently executed program version:
 
@@ -46,7 +46,7 @@ For any multi-version program $\Pi$, relation $\Rightarrow_{\Pi}\subseteq MState
 
 \noindent The meaning is that at any time, execution can either continue in the current program version (Norm rule), or an OSR transition -- if possible at the current point -- can direct the control to another program version (OSR rule). The choice is non-deterministic, i.e., an oracle can tell the execution engine which rule to apply. In practice, the choice may be based for instance on profile data gathered by the runtime system: a common strategy is to dynamically ``OSR'' to the available version with the best expected performance on the actual workload. Notice that, since $\Rightarrow_{\Pi}$ may be non-deterministic, in general there may be different final stores for the same initial store. However, we are only interested in multi-version programs that deterministically yield a unique result, which guarantees semantic transparency of OSR transitions. 
 
-\noindent To characterize the execution behavior of a multi-version program, we consider the system of traces of an execution transition system that start from a given initial state.
+To characterize the execution behavior of a multi-version program, we consider the system of traces of an execution transition system that start from a given initial state.
 
 \begin{definition}[Trace System of Multi-Version Program]
 \label{de:mvp-exec-system}
@@ -75,7 +75,7 @@ $$
 where $\Rightarrow^{*}_{\Pi}$ is the transitive closure of $\Rightarrow_{\Pi}$.
 \end{definition}
 
-\subsubsection{Generation Algorithm and Correctness}
+\subsubsection*{Generation Algorithm and Correctness}
 
 A natural way to generate a multi-version program consists in starting from a base program $\pi_1$ and constructing a tree of different versions, where each version is derived from its parent by applying one or more transformations. Using this approach and procedure \dopasses\ described in \mysection\ref{ss:trans-compose}, it is straightforward to construct a multi-version program $\Pi=({\cal V}, {\cal E}, {\cal M})$ such that:
 \vspace{-1mm}
@@ -132,7 +132,7 @@ We now prove our claim by induction on $i$.
 
 \noindent which follows directly from \Cref{le:build-comp-corr,le:osr-mapping-comp}.
 
-\paragraph*{Step case.} As inductive hypothesis we assume that $\exists (\hat{\sigma}_{k-1},\hat{l}_{k-1})\in\tau_{\hat{\pi}_{k-1}\sigma}$ s.t.:
+\paragraph*{Inductive step.} As inductive hypothesis we assume that $\exists (\hat{\sigma}_{k-1},\hat{l}_{k-1})\in\tau_{\hat{\pi}_{k-1}\sigma}$ s.t.:
 \begin{equation*}
 \hat{l}_{k-1}=l_{\omega_{k-1}} ~\wedge~ \hat{\sigma}_{k-1}\vert_{\live(\hat{\pi}_{k-1},\,\hat{l}_{k-1})}=\sigma_{\omega_{k-1}}\vert_{\live(\hat{\pi}_{k-1},\,\hat{l}_{k-1})}
 \end{equation*}
