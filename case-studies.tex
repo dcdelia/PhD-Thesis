@@ -1,13 +1,14 @@
+% !TEX root = thesis.tex
 \chapter{Case Studies}
 \label{ch:case-studies}
 
-In this chapter we discuss three cases studies to explore the end-to-end utility of the techniques proposed in \mychapter\ref{ch:profiling} and \mychapter\ref{ch:continuous}. In the first case study, we show an example of profile-driven optimization based on our multi-iteration path profiling techniques. In particular, we show that the code of a masked convolution filter used for image processing can be adapted to exploit the characteristics of the workload, achieving two-digit speedups in our experiments. We also discuss a possible application of multi-iteration path profiles to trace schedulers.
+In this chapter we discuss three case studies to explore the end-to-end utility of the techniques proposed in \mychapter\ref{ch:profiling} and \mychapter\ref{ch:continuous}. In the first case study, we show an example of profile-driven optimization based on our multi-iteration path profiling techniques. In particular, we show that the code of a masked convolution filter used for image processing can be adapted to exploit the characteristics of the workload, achieving two-digit speedups in our experiments. We also discuss a possible application of multi-iteration path profiles to trace schedulers.
 
 The second case study, which has been repeated and endorsed by the joint Artifact Evaluation process of CGO-PPoPP 2016, presents an example of adaptive type specialization enabled by \osrkit. The flexibility offered by its compensation code abstraction allowed us to implement an optimization mechanism for a higher-order construct of the MATLAB language that significantly advances the state of the art compared to previous approaches, nearly matching the performance of code optimized by hand.
 
 %Finally, the third case study illustrates an application of our algorithms to automatically build OSR mappings to the context of source-level debugging of optimized code. On prominent C benchmarks, the \reconstruct\ algorithm is able to recovery the expected source-level values for the vast majority of user variables that become endangered due to the effects of classic compiler optimizations.
 
-Finally, in the third case study we show that our OSR compensation code algorithms provide also useful novel building blocks to integrate in optimized code debuggers. On prominent C benchmarks, the \reconstruct\ algorithm is able to recovery the expected source-level values for the vast majority of user variables that become endangered due to the effects of classic compiler optimizations.
+Finally, in the third case study we show that our OSR compensation code algorithms also provide useful novel building blocks to integrate in optimized code debuggers. On prominent C benchmarks, the \reconstruct\ algorithm is able to recovery the expected source-level values for the vast majority of user variables that become endangered due to the effects of classic compiler optimizations.
 
 %In this section we show that our OSR compensation code techniques provide novel building blocks that could be integrated in optimized code debuggers."
 

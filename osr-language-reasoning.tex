@@ -1,11 +1,13 @@
+% !TEX root = thesis.tex
+
 \subsection{Program Properties and Transformations}
 \label{ss:osr-reasoning-and-transformations}
 
-In this section we present a formalism based on {\em computation tree logic} (CTL) to reason about program properties operators and describe program transformations through rewrite rules with side conditions~\cite{Clarke86,Lacey04,Kalvala09}.
+In this section we present a formalism based on {\em computation tree logic} (CTL) to reason about program properties and describe program transformations through rewrite rules with side conditions~\cite{Clarke86,Lacey04,Kalvala09}.
 
 \subsubsection*{Reasoning about Program Properties}
 
-To analyze properties of a program, we use Boolean formulas with free meta-variables that combine facts that must hold globally or at certain points of a program. Formulas can be checked against concrete programs by a {\em model checker}. For any program $\pi$ and formula $\phi$, the checker verifies if there exists a substitution $\theta$ that binds free meta-variables with program objects so that $\theta(\phi)$ is satisfied in $\pi$. 
+To analyze properties of a program, we use Boolean formulas with free meta-variables that combine facts that must hold globally or at certain points of a program. Formulas can be checked against concrete programs by a {\em model checker}. For any program $\pi$ and formula $\phi$, the checker verifies whether there exists a substitution $\theta$ that binds free meta-variables with program objects so that $\theta(\phi)$ is satisfied in $\pi$. 
 In this thesis, by $\cal{A}\models \phi$ we mean that $\phi$ is true in $\cal{A}$, i.e., formula $\phi$ is satisfied by structure $\cal{A}$ (or equivalently, $\cal{A}$ models $\phi$)~\cite{Clarke86}. %We use notation $\cal{A}\models_{\theta} \phi$ as a shortcut for $\cal{A}\models \theta(\phi)$. 
 
 Two global predicates that we will use later on are ${\tt conlit}(\wc)$, which states that an expression $\wc$ is a constant literal, and ${\tt freevar}(\wx,\we)$, which holds if and only if $\wx$ is a free variable of expression $\we$.
@@ -59,7 +61,7 @@ n \models \overrightarrow{E}(\phi~U~\psi) &\Longleftrightarrow \exists p: p\in C
 \noindent Operators $\overleftarrow{AX}$, $\overleftarrow{EX}$, $\overleftarrow{A}$, and $\overleftarrow{E}$ can be defined similarly on the reverse control flow graph $\overleftarrow{G}$, which is identical to $G$ but with every edge in $\overleftarrow{E}$ flipped.
 \end{definition}
 
-\noindent Operators $A$ and $E$ are quantifiers over paths, while $X$ and $U$ path-specific quantifiers. Notice that $\phi~U~\psi$ requires that $\phi$ as to hold at least until at some node $\psi$ is satisfied: this implies that $\psi$ will be verified in the future.
+\noindent Operators $A$ and $E$ are quantifiers over paths, while $X$ and $U$ path-specific quantifiers. Notice that $\phi~U~\psi$ requires that $\phi$ has to hold at least until at some node $\psi$ is satisfied: this implies that $\psi$ will be verified in the future.
 
 \myfigure\ref{fig:osr-loc-pred} shows a number of local predicates that will be useful throughout this thesis. For instance, $\pi,l\models \ureachdef(\wx, l')$ ({\em unique reaching definition}) holds if and only if variable $\wx$ is defined at $l$ and on all paths in the control flow graph starting from an immediate successor of $l$, $\wx$ is not redefined until point $l'$ is reached, i.e., there is a unique definition of $\wx$ that reaches $l'$, and this definition is at $l$. \ureachdef's formulation relies on nested CTL operators: $\overrightarrow{AX}$ is used to encode a property for all successors of $l$, while the nested $\overrightarrow{A}$ captures all forward paths starting at such nodes.
 
@@ -126,7 +128,7 @@ Dominance analysis is widely employed in a number of program analysis and optimi
 
 \subsubsection*{Program Transformations}
 
-To describe program transformations, we use rewrite rules with side conditions in a similar manner as~\cite{Lacey04,Kundu09}. We consider generalized rules that transform multiple instructions simultaneously, with side conditions drawn from CTL formulas:
+To describe program transformations, we use rewrite rules with side conditions in a similar manner to~\cite{Lacey04,Kundu09}. We consider generalized rules that transform multiple instructions simultaneously, with side conditions drawn from CTL formulas:
 
 \begin{definition}[Rewrite Rule]
 \label{de:rewrite-rule}

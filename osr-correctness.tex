@@ -1,8 +1,10 @@
+% !TEX root = thesis.tex
+
 %\section{Proving On-Stack Replacement Sound}
 \section{Towards a Provably Sound On-Stack Replacement}
 \label{se:osr-a-la-carte}
 
-We have seen that OSR is employed in modern adaptive compilation systems to dynamically switch between different versions of a function depending on program's run-time state. Traditionally, code optimizers are responsible for marking the points where such transitions can take place, and generating required meta-data or ad-hoc code to get the program state to a correct resumption point. OSR is usually at the core of large and complex JIT compilers employed by popular production virtual machines. Indeed, the engineering effort to integrate this technique in a language runtime can be daunting, making it rarely accessible to the research community.
+We have seen that OSR is employed in modern adaptive compilation systems to dynamically switch between different versions of a function depending on the program's run-time state. Traditionally, code optimizers are responsible for marking the points where such transitions can take place, and generating required meta-data or ad-hoc code to get the program state to a correct resumption point. OSR is usually at the core of large and complex JIT compilers employed by popular production virtual machines. Indeed, the engineering effort to integrate this technique in a language runtime can be daunting, making it rarely accessible to the research community.
 
 \paragraph*{Contributions.} In this thesis we investigate how to provide VM builders with a rich ``menu'' of possible program points where OSR can safely occur, relieving code optimizers from the burden of generating all the required machinery to realign the program state during an OSR transition.
 

@@ -1,3 +1,5 @@
+% !TEX root = thesis.tex
+
 \section{OSR in LLVM}
 \label{se:eval-osrkit}
 
@@ -80,7 +82,7 @@ For iterative benchmarks, we insert an OSR point in the body of their hottest lo
 \end{figure}
 \fi
 
-These loops are natural candidates for OSR point insertion: for instance, the Jikes RVM inserts yield points on backward branches to trigger operations such as method recompilation through OSR and thread preemption for garbage collection. In the \shootout\ benchmarks, the number of such loops is typically 1 (2 for {\tt spectral-norm}).
+These loops are natural candidates for OSR point insertion: for instance, Jikes RVM inserts yield points on backward branches to trigger operations such as method recompilation through OSR and thread preemption for garbage collection. In the \shootout\ benchmarks, the number of such loops is typically 1 (2 for {\tt spectral-norm}).
 
 For recursive benchmarks, we insert an OSR point in the body of the method that accounts for the largest {\em self} execution time in the program. Such an OSR point might be useful to trigger recompilation of the code at a higher degree of optimization, enabling for instance multiple levels of inlining for non-tail-recursive functions. The only analyzed benchmark showing a recursive pattern is {\tt b-trees}.
 
@@ -207,7 +209,7 @@ A \store\ instruction writes the content of a virtual register to a given addres
 
 A \load\ instruction assigns to a virtual register the value read from a given address and can be treated as a special case of variable assignment in our setting. This ensures that, under the above assumption for \store\ instructions, given a program location and two program versions, if a live virtual register from one version corresponds to a live register in the other version according to $OSRMap$, then both \load\ instructions would have yielded the same value.
 
-Compiler optimizations presented in this section do not move by default \store\ instructions around. However, enforcing the \store\ hypothesis described above might be restrictive in a different optimization setting: for this reason, we describe a possible extension of our approach to deal with the issue. We can model a hoisted or sunk \store\ instruction as special assignment to a variable that is assumed to be live at each program location reachable in the CFG between the original location and the insertion point. For the sinking case, when performing an OSR at one of the affected points:
+Compiler optimizations presented in this section by default do not move \store\ instructions around. However, enforcing the \store\ hypothesis described above might be restrictive in a different optimization setting: for this reason, we describe a possible extension of our approach to deal with the issue. We can model a hoisted or sunk \store\ instruction as special assignment to a variable that is assumed to be live at each program location reachable in the CFG between the original location and the insertion point. For the sinking case, when performing an OSR at one of the affected points:
 \begin{itemize}[itemsep=0pt,parsep=3pt,partopsep=0pt]
  \item from the less to the more optimized version of the function, no compensation code is required, and executing the sunk \store\ will simply be redundant;
  \item from the more to the less optimized version, we have to realign the memory state by executing the sunk \store\ (not reached yet in the current version).
@@ -264,7 +266,7 @@ We implemented our technique in \tinyvm, introducing a number of features to:
 
 We evaluated our technique on the \speccpu~\cite{Henning06} and the \phoronixpts~\cite{Phoronix} benchmarking suites, reporting data for a subset of their C/C++ benchmarks. We profiled each benchmark to identify the hottest method and generated the IR for it using \clang\ with no optimization enabled other than \memtoreg. Starting from this version of the IR, which we will refer to as {\em base}, we generated an {\em opt} version by applying all our instrumented LLVM optimizations.
 
-The list of benchmarks and transformations that are effective on their hottest method is reported in \mytable\ref{tab:OSR-alC-bench-desc}. Numbers reported in \mytable\ref{tab:OSR-alC-bench-IR} for the IR manipulations performed by the transformations suggest that, while the {\em opt} version is typically shorter than its {\em base} counterpart, it might have a larger number of $\phi$-nodes (most of them are inserted during the LCSSA-form construction). We observed that SCCP was able to eliminate a large number of unreachable blocks for \mytt{ffmpeg}, while for the remaining benchmarks the majority of instruction deletions are performed by CSE, which replaces all the uses of these instructions in the rest of the code with uses of equivalent available instructions.
+The list of benchmarks and transformations that are effective on their hottest method is reported in \mytable\ref{tab:OSR-alC-bench-desc}. Numbers reported in \mytable\ref{tab:OSR-alC-bench-IR} for the IR manipulations performed by the transformations suggest that, while the {\em opt} version is typically shorter than its {\em base} counterpart, it might have a larger number of $\phi$-nodes (most of them are inserted during the LCSSA-form construction). We observed that SCCP was able to eliminate a large number of unreachable blocks for \mytt{ffmpeg}, while for the remaining benchmarks the majority of instruction deletions are performed by CSE, which replaces all of the uses of these instructions in the rest of the code with uses of equivalent available instructions.
 
 \begin{table}[t]
 \begin{center}
@@ -273,7 +275,7 @@ The list of benchmarks and transformations that are effective on their hottest m
         \cline{3-10}
         \multicolumn{2}{l|}{} & \multicolumn{6}{c|}{Optimizations} & \multicolumn{2}{c|}{Utilities} \\
         \hline
-        Suite & Benchmark & \em{ADCE} & \em{CP} & \em{CSE} & \em{SCCP} & \em{LICM} & \em{Sink} & \em{LS} & \em{LCSSA} \\
+        Suite & Benchmark & \em{ADCE} & \em{CP} & \em{CSE} & \em{SCCP} & \em{LICM} & \em{Sink} & \em{LC} & \em{LCSSA} \\
         \hline
         \hline
         \multirow{7}{*}{SPEC} & bzip2 & & & \checkmark & & \checkmark & \checkmark & & \checkmark \\
@@ -467,7 +469,7 @@ For $9$ out of $12$ benchmarks, compensation code can be built using only live v
 %The assignment step of \reconstruct\ produces on average $2.3$ compensation instructions, with a peak of $5.74$ on \mytt{vp8}.
 When the $avail$ version is used, the percentage of feasible OSR points is greater than $90\%$ on all benchmarks and nearly $100\%$ for $9$ out of $12$ of them.
 
-Results for the $alias$ version of \reconstruct\ are not reported, as they do not improve those for $live_{(e)}$. Indeed, aliasing information is useful when a variable to set at destination is aliased by multiple variables at source, which we do not expect to happen in an optimized code.
+Results for the $alias$ version of \reconstruct\ are not reported, as they do not improve those for $live_{(e)}$. Indeed, aliasing information is useful when a variable to set at the destination is aliased by multiple variables at the source, which we do not expect to happen in an optimized code.
 
 \begin{table}[!ht]
 \begin{center}

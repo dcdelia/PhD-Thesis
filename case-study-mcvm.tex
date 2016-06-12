@@ -1,3 +1,5 @@
+% !TEX root = thesis.tex
+
 \section{Optimizing Higher-Order Functions in MATLAB}
 \label{se:CS-matlab}
 
@@ -22,7 +24,7 @@ Another technical difference, which has substantial performance implications, is
 
 The JIT method works on the IIR representation of $f$ and can resort to the full power of type analysis to infer the types of the returned values of $g$, turning the slow generic instructions of $f$ into fast type-specialized instructions in $f'$. When $g$ is one of the parameters of $f$, each call to $f$ can be redirected to a dispatcher that evaluates at run-time the value of the argument to use for the \feval\ and executes either a previously compiled cached code or generates and JIT-compiles a version of the function optimized for the current value.
 
-On the other hand, OSR-based specialization operates on the IR representation of $f$, which prevents the optimizer from exploiting type inference. As a consequence, for $f'$ to be sound, the direct call to $g$ must be guarded by a condition that checks if the type of its parameters remain the same as observed at the time when $f$ was interrupted. If the guard fails, or the \feval\ target $g$ changes, the code falls back to executing the original \feval\ instruction.
+On the other hand, OSR-based specialization operates on the IR representation of $f$, which prevents the optimizer from exploiting type inference. As a consequence, for $f'$ to be sound, the direct call to $g$ must be guarded by a condition that checks whether the type of its parameters remain the same as observed at the time when $f$ was interrupted. If the guard fails, or the \feval\ target $g$ changes, the code falls back to executing the original \feval\ instruction.
 
 JIT-based specialization is substantially faster than OSR-based specialization due to the benefits of type inference, but is less general as it only works if the \feval\ argument $g$ is one of the parameters of $f$. JIT-based specialization thus cannot be applied to scenarios where, e.g.:
 \begin{itemize}[itemsep=0pt,parsep=3pt,partopsep=0pt]
@@ -37,7 +39,7 @@ JIT-based specialization is substantially faster than OSR-based specialization d
 
 In this section, we present a new approach that combines the flexibility of OSR-based specialization with the efficiency of the JIT-based method, answering an open question raised by Lameed and Hendren~\cite{Lameed2013b}.
 
-The key idea is to lift the $f$-to-$f'$ optimization performed by the OSR-based specialization from IR to IIR level. This makes it possible to perform type inference in $f'$, generating a much more efficient code. The main technical challenge of this idea is that the program's state in $f$ at the OSR point may be incompatible with the state of $f'$ from which execution continues. Indeed, some variables may be boxed in $f$ and unboxed in $f'$. Hence, compensation code is needed to adjust the state by performing live variable unboxing during the OSR.
+The key idea is to lift the $f$-to-$f'$ optimization performed by the OSR-based specialization from IR to IIR level. This makes it possible to perform type inference in $f'$, generating much more efficient code. The main technical challenge of this idea is that the program's state in $f$ at the OSR point may be incompatible with the state of $f'$ from which execution continues. Indeed, some variables may be boxed in $f$ and unboxed in $f'$. Hence, compensation code is needed to adjust the state by performing live variable unboxing during the OSR.
 
 \subsubsection*{Implementation}
 
@@ -78,7 +80,7 @@ As a next step, the optimizer asks the IIR compiler to lower \fOptIIR\ to \fOptI
 
 Using this map and the one stored during the lowering of \fIIR, the optimizer constructs a state mapping between \fIR\ and \fOptIR. In particular, for each value in \fOptIR\ live at the continuation block we determine whether we can assign to it a live value passed at the OSR point, or a compensation code is required to set its value.
 
-Notice that, since the type inference engine yields more accurate results for \fOptIIR\ compared to \fIIR, the IIR compiler can in turn generate efficient specialized IR code for representing and manipulating IIR variables, and compensation code is typically required to unbox or downcast some of the live values passed at the OSR point, or to materialize as an IR object an IIR variable previously accessed through \mytt{get}/{\mytt{set} methods from McVM's environment.
+Notice that since the type inference engine yields more accurate results for \fOptIIR\ compared to \fIIR, the IIR compiler can in turn generate efficient specialized IR code for representing and manipulating IIR variables, and compensation code is typically required to unbox or downcast some of the live values passed at the OSR point, or to materialize as an IR object an IIR variable previously accessed through \mytt{get}/{\mytt{set} methods from McVM's environment.
 
 Once a state mapping has been constructed, the optimizer asks \osrkit\ to generate the continuation function for the OSR transition and then executes it, also storing the address of the compiled function in the internal code cache.
 

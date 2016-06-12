@@ -1,3 +1,5 @@
+% !TEX root = thesis.tex
+
 \subsubsection{Algorithm Correctness}
 \label{ss:osr-mapping-correctness}
 
@@ -29,7 +31,7 @@ Let $R$ be a reflexive bisimulation relation between programs $\pi$ and $\pi'$. 
 \end{lemma}
 
 \begin{myproof}
-We prove \eqref{eq:bisim-prop-2} by induction on $i$. The base follows from $\tau_{\pi\sigma}[0]=\tau_{\pi'\sigma}[0]=(\sigma,1)$ and the assumption that $R$ is reflexive. Assume as inductive hypothesis that $\tau_{\pi\sigma}[i]~R~\tau_{\pi'\sigma}[i]$ for any $i<|\tau_{\pi\sigma}|$. Since $|\tau_{\pi\sigma}|>i$ then $\tau_{\pi\sigma}[i] \Rightarrow_{\pi} \tau_{\pi\sigma}[i+1]$ by \ref{de:exec-trace}. It follows by \ref{de:bisimulation} that $\tau_{\pi\sigma}[i+1]~R~\tau_{\pi'\sigma}[i+1]$.
+We prove \eqref{eq:bisim-prop-2} by induction on $i$. The base follows from $\tau_{\pi\sigma}[0]=\tau_{\pi'\sigma}[0]=(\sigma,1)$ and the assumption that $R$ is reflexive. Assume as an inductive hypothesis that $\tau_{\pi\sigma}[i]~R~\tau_{\pi'\sigma}[i]$ for any $i<|\tau_{\pi\sigma}|$. Since $|\tau_{\pi\sigma}|>i$ then $\tau_{\pi\sigma}[i] \Rightarrow_{\pi} \tau_{\pi\sigma}[i+1]$ by \ref{de:exec-trace}. It follows by \ref{de:bisimulation} that $\tau_{\pi\sigma}[i+1]~R~\tau_{\pi'\sigma}[i+1]$.
 
 To prove \eqref{eq:bisim-prop-1}, assume by contradiction that $|\tau_{\pi\sigma}|\neq|\tau_{\pi'\sigma}|$, e.g., $|\tau_{\pi\sigma}|>|\tau_{\pi'\sigma}|=k$. Since $|\tau_{\pi\sigma}|>k$ then $\tau_{\pi\sigma}[k]~R~\tau_{\pi'\sigma}[k]$ by \eqref{eq:bisim-prop-2} and $\tau_{\pi\sigma}[k] \Rightarrow_{\pi} \tau_{\pi\sigma}[k+1]$ by \ref{de:exec-trace}. It follows by \ref{de:bisimulation} that $\tau_{\pi'\sigma}[k] \Rightarrow_{\pi'} \tau_{\pi'\sigma}[k+1]$. Hence $|\tau_{\pi'\sigma}|>k$, contradicting the initial assumption. The proof for the case $|\tau_{\pi'\sigma}|>|\tau_{\pi\sigma}|$ is analogous.
 \end{myproof}
@@ -83,7 +85,7 @@ where $(\sigma_i,l_i)=\tau_{\pi\sigma}[i]$, $(\sigma'_i,l_i)=\tau_{\pi'\sigma}[i
 \end{lemma}
 
 \begin{myproof}
-The correctness of ${\tt build\_comp}$ relies on the ability of \reconstruct\ to produce compensation code for each variable that is live at OSR destination, but not at origin. Algorithm $\reconstruct(\wx, \pi, l, \pi', l', l'')$ aims at creating a sequence of instructions that assigns \wx\ with the value that it would have assumed at $l''$ in $\pi'$, using as input the values of live variable at $l$ in $\pi$.
+The correctness of ${\tt build\_comp}$ relies on the ability of \reconstruct\ to produce compensation code for each variable that is live at the OSR destination, but not at the origin. Algorithm $\reconstruct(\wx, \pi, l, \pi', l', l'')$ aims at creating a sequence of instructions that assigns \wx\ with the value that it would have assumed at $l''$ in $\pi'$, using as input the values of live variable at $l$ in $\pi$.
 
 We proceed by induction on the recursive calls of \reconstruct. For the algorithm to succeed, there must be a unique definition {\tt x:=e} at some point $\hat{l}$ that dominates $l''$, otherwise $undef$ is thrown (see \myfigure\ref{fig:osr-reconstruct}). %If it is not unique, say there are two possible definitions {\tt x:=e} and {\tt x:=e'} that reach $l''$, then
 The base case happens when either:
@@ -117,4 +119,4 @@ A program transformation $T$ is {\em live-variable equivalent} (LVE) if for any 
 For any program $\pi$ and live-variable equivalent transformation $T$, if ${\tt apply}(\pi,T)\triangleq(\pi', \Delta_I, \Delta_I)$ where $\pi'=\mysem{T}(\pi)$ and $\Delta_I:[1,|\pi|]\rightarrow [1,|\pi|]$ is the identity mapping between program points, then ${\tt OSR\_trans}(\pi,T)$ $=(\pi',\mu_{\pi\pi'},\mu_{\pi'\pi})$ yields a strict OSR mapping $\mu_{\pi\pi'}$ between $\pi$ and $\pi'$ and a strict OSR mapping $\mu_{\pi'\pi}$ between $\pi'$ and $\pi$.
 \end{theorem}
 
-\paragraph*{Discussion.} We remark that the assumption of an identity mapping between program points, which is a necessary condition of live-variable bisimilarity, is without loss of generality as it can  always be enforced by padding programs with \wskip\ statements. For instance, the Hoist transformation of \myfigure\ref{fig:sample-trans}, which we prove to be LVE in the next section, replaces the hoisted instruction with a \wskip, and expects a \wskip\ to already exist at the point where it is moved. As we discuss in \mysection\ref{ss:BC-implementation}, this is not required in a real compiler, as a transformation pass can be instrumented to capture code modifications that require updating the mapping.
+\paragraph*{Discussion.} We remark that the assumption of an identity mapping between program points, which is a necessary condition of live-variable bisimilarity, is without loss of generality as it can  always be enforced by padding programs with \wskip\ statements. For instance, the Hoist transformation of \myfigure\ref{fig:sample-trans}, which we prove to be LVE in the next section, replaces the hoisted instruction with a \wskip, and expects a \wskip\ to already exist at the point where it is moved. As we discuss in \mysection\ref{ss:BC-implementation}, this is not required in a real compiler, as a transformation pass can be instrumented to capture code modifications that require an update of the mapping.

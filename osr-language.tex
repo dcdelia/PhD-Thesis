@@ -1,3 +1,5 @@
+% !TEX root = thesis.tex
+
 \begin{figure}[b]
 \vspace{-2mm}
 \centering
@@ -25,7 +27,7 @@ $
 
 \subsection{Language Syntax and Semantics}
 \label{ss:osr-language-framework}
-Our discussion is based on a minimal imperative programming whose syntax is reported \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}. In this section we introduce some basic definitions used in our representation of programs, and provide a big-step semantics for the language.
+Our discussion is based on a minimal imperative programming language whose syntax is reported \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}. In this section we introduce some basic definitions used in our representation of programs, and provide a big-step semantics for the language.
 
 %\subsection{Language Framework}
 
@@ -69,7 +71,7 @@ A {\em memory store} is a total function $\sigma:Var\rightarrow \mathbb{Z}\cup\{
 The {\em state} of a program $\pi=\langle I_1, I_2, \ldots, I_n \rangle$ is described by a pair $(\sigma,l)$, where $\sigma$ is a memory store and $l\in [1,n]$ is the program point of the next instruction to be executed. We denote by $State=\Sigma\times \mathbb{N}$ the set of all possible program states.
 \end{definition}
 
-\noindent We provide a big-step semantics using transition relation $\trans_{\pi}\:\subseteq State\times State$, which specifies how a single instruction of a program $\pi$ affects its state. Our description relies on relation $\Downarrow\subseteq(\Sigma\times Expr)\times \mathbb{Z}$ to describe how expressions are evaluated in a given memory store.
+\noindent We provide a big-step semantics using the transition relation $\trans_{\pi}\:\subseteq State\times State$, which specifies how a single instruction of a program $\pi$ affects its state. Our description relies on the relation $\Downarrow\subseteq(\Sigma\times Expr)\times \mathbb{Z}$ to describe how expressions are evaluated in a given memory store.
 
 
 \begin{definition}[Big-Step Transitions]
@@ -164,16 +166,16 @@ We define the notion of program semantic equivalence as follows:
 Two programs $\pi_1$ and $\pi_2$ are {\em semantically equivalent} iff $\mysem{\pi_1}=\mysem{\pi_2}$.
 \end{definition}
 
-\noindent A notion that will be useful in proving correctness in our framework is that of {\em trace} of a transition system:
+\noindent A notion that will be useful in proving correctness in our framework is that of a {\em trace} of a transition system:
 
 \begin{definition}[Traces]
 \label{de:exec-trace}
 A {\em trace} in a transition system $(S,$ $R\subseteq S^2)$ starting from $s\in S$ is a sequence $\tau=\langle s_0,s_1,\ldots,$ $s_i,\ldots\rangle$ such that $s_0=s$ and $\forall i\ge 0:~s_i\in\tau ~ \wedge ~ s_i~R~s_{i+1}$ $\Longleftrightarrow s_{i+1}\in\tau$. By ${\cal T}_{R,s}$ we denote the system of all traces of $(S,R\subseteq S^2)$ starting from $s$. By $\tau[i]$ we denote the $i$-th state of $\tau$, i.e., $\tau[i]=s_i$. Furthermore, if trace $\tau$ is finite then $|\tau|$ denotes the index of its final state, i.e., $\tau=\langle s_0,s_1,\ldots,s_{|\tau|}\rangle$, otherwise $|\tau|=\infty$. Finally, $dom(\tau)=\{i:s_i\in\tau\}$ denotes the set of indices of states in $\tau$.
 \end{definition}
 
-\noindent Notice that, since $\Rightarrow_{\pi}$ is deterministic in our language, then for any initial store $\sigma$, the system of traces ${\cal T}_{\Rightarrow_{\pi},(\sigma,1)}$ of the execution transition system $(Store,\Rightarrow_{\pi})$ contains a single trace, which we denote by $\tau_{\pi\sigma}$.
+\noindent Notice that since $\Rightarrow_{\pi}$ is deterministic in our language, then for any initial store $\sigma$, the system of traces ${\cal T}_{\Rightarrow_{\pi},(\sigma,1)}$ of the execution transition system $(Store,\Rightarrow_{\pi})$ contains a single trace, which we denote by $\tau_{\pi\sigma}$.
 
-Finally, we provide a formal definition of control flow graph, which will be useful in defining computation tree logic operators for reasoning on program properties:
+Finally, we provide a formal definition of a control flow graph, which will be useful in defining computation tree logic operators for reasoning on program properties:
 
 \begin{definition}[Control Flow Graph]
 \label{de:cfg}

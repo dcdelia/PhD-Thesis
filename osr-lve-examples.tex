@@ -21,7 +21,7 @@ For DCE, $R$ is the identity relation before the eliminated assignment \mytt{x:=
  \item $[\forall j, j<i \Rightarrow l_j\neq \theta(p)] \Rightarrow \sigma_i=\sigma'_i~$ and
  \item $[\exists j, j\leq i \wedge l_j = \theta(p)] \Rightarrow \sigma_i\setminus\texttt{x}=\sigma'_i\setminus\texttt{x}$
 \end{enumerate}
-\noindent where $p$ is the meta-variable for the eliminated assignment in $\pi'$, and $\sigma\setminus\texttt{x}$ is a syntactic sugar for $\sigma\vert_{D(\sigma)}$, where $D(\sigma)=\{v\in Var ~|~ v\neq \texttt{x} ~\wedge~ \sigma(v)\neq\bot\}$ is the set of all the variable identifiers other than \mytt{x} currently defined in $\sigma$.
+\noindent where $p$ is the meta-variable for the eliminated assignment in $\pi'$, and $\sigma\setminus\texttt{x}$ is syntactic sugar for $\sigma\vert_{D(\sigma)}$, where $D(\sigma)=\{v\in Var ~|~ v\neq \texttt{x} ~\wedge~ \sigma(v)\neq\bot\}$ is the set of all the variable identifiers other than \mytt{x} currently defined in $\sigma$.
 
 For Hoist, $R$ is the identity relation before $\theta(p)$ and after $\theta(q)$ (see \myfigure\ref{fig:sample-trans}), and $A(l)=Val\setminus\{\theta(\wx)\}=\live(\pi,l)\cap \live(\pi',l)$ between them. Formally, we have that $\forall i\in[1,t]$ $l_i=l'_i$ and one of the following cases holds:
 \begin{enumerate}
