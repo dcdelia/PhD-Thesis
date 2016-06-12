@@ -139,7 +139,7 @@ reported in \mytable\ref{tab:osr-sameFun}.
 
 \noindent Hot code portions for OSR point insertion have been identified as in the Q1 experiments for code quality. Depending on the characteristics of the hot loop, we either transform its body into a separate function and instrument its entrypoint, or, when the loop calls a method with a high self time, we insert an OSR point at the beginning of that method.
 
-Normalized differences reported in the table represent a reasonable estimate of the average cost of firing an OSR transition.
+Normalized differences reported in the table represent a reasonable estimate of the average cost of firing an OSR transition, which consists in moving live values to stack locations or registers to match the calling convention and then invoking the OSR continuation function.
 %, which in other words is the cost of performing a function call passing the live variables as arguments.
 Reported numbers are in the order of nanoseconds, and might be negative due to instruction cache effects. We remark that for this experiment slicing the loop body is preferable to inserting an OSR point in it, as the continuation function should fire an OSR itself at the very next loop iteration and so on, possibly leading to an undesired stack growth.
 

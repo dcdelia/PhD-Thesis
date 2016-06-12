@@ -116,7 +116,9 @@ Benchmarks {\tt compress}, {\tt scimark.montecarlo}, {\tt heapsort}, and {\tt md
 \end{figure}
 \fi
 
-\noindent Notice that since we never delete either entries from the hash table or nodes from the \ksf, our implementation does not place any additional burden on the garbage collector. The profiler causes memory release operations only when a thread terminates, dumping all of its data structures at once.
+%\noindent Notice that since we never delete either entries from the hash table or nodes from the \ksf, our implementation does not place any additional burden on the garbage collector. The profiler causes memory release operations only when a thread terminates, dumping all of its data structures at once.
+
+\noindent Notice that since we never delete either entries from the hash table or nodes from the \ksf, the only load we place on the garbage collector comes from allocating new nodes when needed. In fact, the profiler causes memory release operations only when a thread terminates, dumping all of its data structures at once.
 
 \ifdefined\noauthorea
 \begin{figure}[!ht]
