@@ -51,12 +51,12 @@ We generate the IR modules for our experiments with \clang\ starting from the C 
 \end{table}
 
 \subsubsection*{Environment}
-\tinyvm\ supports interactive invocations of functions and it can compile LLVM IR either generated at run-time or loaded from disk. The main design goal behind \tinyvm\ is the creation of an interactive environment for IR manipulation and JIT-compilation of functions: for instance, it allows the user to insert OSR points in loaded functions, run optimization passes on them or display their CFGs, repeatedly invoke a function for a specified amount of times and so on.
+\tinyvm\ supports interactive invocations of functions and it can compile LLVM IR either generated at run time or loaded from disk. The main design goal behind \tinyvm\ is the creation of an interactive environment for IR manipulation and JIT-compilation of functions: for instance, it allows the user to insert OSR points in loaded functions, run optimization passes on them or display their CFGs, repeatedly invoke a function for a specified amount of times and so on.
 
-\tinyvm\ supports dynamic library loading and linking, and comes with a helper component for MCJIT that simplifies tasks such as handling multiple IR modules, symbol resolution in the presence of multiple versions of a function, and tracking native code and other machine-level generated object such as Stackmaps. \tinyvm\ is thus an ideal playground to exercise our OSR technique.
+\tinyvm\ supports dynamic library loading and linking, and comes with a helper component for MCJIT that simplifies tasks such as handling multiple IR modules, symbol resolution in the presence of multiple versions of a function, and tracking native code and other machine-level generated object such as Stackmaps (\mysection\ref{ss:osrkit-implementation}). \tinyvm\ is thus an ideal playground to exercise our OSR technique.
 
 \subsubsection*{Platform}
-Experiments were performed on an octa-core 2.3Ghz Intel Xeon E5-4610 v2 with 256+256KB of L1 cache, 2MB of L2 cache, 16MB of shared L3 cache, and 128 GB of DDR3 main memory, running Debian Wheezy 7, Linux kernel 3.2.0, LLVM 3.6.2 (Release build, compiled using gcc 4.7.2), 64 bit. For each benchmark we analyze CPU time performing 10 trials preceded by an initial warm-up iteration; reported confidence intervals are stated at 95\% confidence level.
+We performed our experiments on an octa-core 2.3Ghz Intel Xeon E5-4610 v2 with 256+256KB of L1 cache, 2MB of L2 cache, 16MB of shared L3 cache, and 128 GB of DDR3 main memory, running Debian Wheezy 7, Linux kernel 3.2.0, LLVM 3.6.2 (Release build, compiled using gcc 4.7.2), 64 bit. For each benchmark we analyze CPU time performing 10 trials preceded by an initial warm-up iteration; reported confidence intervals are stated at 95\% confidence level.
 
 \subsection{Impact on Code Quality}
 
@@ -386,7 +386,7 @@ vp8 & 19 & 54 & 17 & 34 & 54 & 0 & 0 \\
 \end{table}
 
 \subsubsection*{Platform}
-Experiments were performed on a machine equipped with an Intel Core i7-3632QM processor, running Ubuntu 14.10, LLVM 3.6.2 (Release build), 64 bit.
+We performed our experiments on a machine equipped with an Intel Core i7-3632QM processor, running Ubuntu 14.10, LLVM 3.6.2 (Release build), 64 bit.
 
 \subsection{OSR to Optimized Version}
 
@@ -452,7 +452,7 @@ In \mytable\ref{tab:OSR-alC-prologue-BtoO} we report the average and peak size o
 
 The assignment step of \reconstruct\ (line 9 in \myalgorithm\ref{alg:osr-reconstruct}, page \pageref{alg:osr-reconstruct}) generates an average number of instructions typically smaller than $20$, with the notable exception of \mytt{perlbench}. Observe that \mytt{perlbench}'s hottest function \mytt{S\_regmatch} is highly amenable to CSE: we found out that no less than $583$ out of its $667$ deleted instructions (thus about $10\%$ of the {\em base} function - see \mytable\ref{tab:OSR-alC-bench-IR}) are removed by this optimization, and we believe that local CSE would shrink the OSR entry block of the continuation function $f'$ as well. However, we would like to remark that the size of $\phi$ is unlikely to affect the performance of $f'$ for a hot method, as compensation code will be located at the beginning of the function and executed only once.
 
-The last two columns of \mytable\ref{tab:OSR-alC-prologue-BtoO} report the average and peak number of variables that are not live at the source location, but for which the $avail$ version of \reconstruct\ would artificially extend liveness to support OSR at more program points (i.e., those represented by the white portions of the bars in \myfigure\ref{fig:osr-BC-BtoO}). We observe that the average number of values to spill on the stack is less than $3$ for $9$ out of $12$ benchmarks, with a maximum of $6.16$ for \mytt{bullet}. $avail$ by default will extend the liveness of an available value only if it is not possible to reconstruct it: this was implemented using a simple backtracking algorithm.
+The last two columns of \mytable\ref{tab:OSR-alC-prologue-BtoO} report the average and peak number of variables that are not live at the source location, but for which the $avail$ version of \reconstruct\ would artificially extend liveness to support OSR at more program points (i.e., those represented by the white portions of the bars in \myfigure\ref{fig:osr-BC-BtoO}). We observe that the average number of values to spill on the stack is less than $3$ for $9$ out of $12$ benchmarks, with a maximum of $6.16$ for \mytt{bullet}. $avail$ by default will extend the liveness of an available value only if it is not possible to reconstruct it: we implemented this strategy using a simple backtracking algorithm.
 
 \subsection{OSR to Base Version}
 
