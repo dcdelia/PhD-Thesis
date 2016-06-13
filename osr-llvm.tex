@@ -234,6 +234,10 @@ Due to the complexity in preserving the SSA form when updating the IR, McOSR all
 
 Notice also that \osrkit\ introduces a number of features that are absent from McOSR, including: support for compensation code and resolved OSR points; compatibility with MCJIT's design; support for maintaining multiple versions of the same function, which can be very useful in the presence of speculative optimizations and deoptimization.
 
+\paragraph*{V8.} The V8 JavaScript engine implements a multi-tier compilation system (a baseline compiler, Full CodeGen, and two optimizing compilers, CrankShaft and TurboFan), with the recent addition of the experimental Ignition interpreter. To capture modifications to the program state, the IR graph is processed in an abstract interpretation fashion, tracking changes incrementally performed by single instructions: this information is then materialized as deoptimization data during the lowering phase only when needed.
+
+CrankShaft performs OSR at loop headers: loops in the IR have a single entrypoint, and a smart naming mechanism is thus adopted for SSA variables involved in an OSR transition. The only limitation with this approach is that the presence of the original entrypoint acts as a barrier to code motion. TurboFan performs more sophisticated optimizations on the IR and supports OSR at loop headers as well, performing loop peeling when required and generating a continuation function specialized to the actual values at the loop entry~\cite{titzer16}.
+
 \paragraph*{Other Related Work.}
 Dynamic Software Updating (DSU) is a methodology for permitting programs to be updated while they run and is thus useful for systems that cannot afford to halt service. DSU techniques (e.g., ~\cite{Neamtiu06,Makris09}) are required to update all functions active on the call stack at the same time, so their code should be instrumented and data types wrapped to support future extensions. Albeit DSU and OSR both manipulate the stack to replace running functions, they target dissimilar applications, and the performance constraints they are subject to are different. 
 
