@@ -1,0 +1,61 @@
+% !TEX root = thesis.tex
+\subsection{LLVM Implementation}
+\label{ss:BC-implementation}
+In this section we present an implementation in LLVM of our techniques for automatic OSR mapping construction. In particular, we discuss how to deal with the presence of memory \load\ and \store\ instructions, and how to implement algorithms \apply\ and \buildcomp\ in a real compiler.
+
+\subsection*{Background}
+The LLVM compiler infrastructure is designed to support transparent, life-long program analysis and transformation for arbitrary programs~\cite{Lattner04}. LLVM is widely used to efficiently compile static languages (e.g., C, C++, Objective C/C++) and, as we have seen in \mysection\ref{ss:osrkit-implementation}, as a JIT compiler for a variety of dynamic languages.
+
+The core of LLVM is its low-level intermediate representation (IR): a front-end for a high-level language can compile a program's source code to LLVM IR; platform-independent optimization passes then manipulate the IR, and a back-end eventually compiles IR to native code, performing architecture-specific further optimizations. Front-end authors can thus benefit from LLVM's shared extensive optimization pipeline to generate better code for their language.
+
+LLVM provides an infinite set of typed {\em virtual registers} that can hold primitive types. Virtual registers are in SSA form~\cite{Cytron91}, and values can be transferred between registers and memory solely via \load\ and \store\ operations. Virtual registers are uniquely assigned by expressions defined on incoming registers, and in the implementation they simply correspond to the instructions assigning to them. When a program variable might assume a different value depending on which way the control flow came from, the SSA form requires the insertion of a $\phi$ function to merge multiple incoming virtual registers into a new one (i.e., a $\phi$-node).
+
+%the SSA form requires the insertion of $\phi$-nodes to merge multiple incoming virtual registers into a new one. In the LLVM programming practice, a virtual register corresponds to the instruction assigning to it.
+
+\subsubsection*{Supporting \texttt{load} and \texttt{store} Instructions}
+A \store\ instruction writes the content of a virtual register to a given address. For live-variable bisimilar versions of a program, a sufficient condition for which the associated multi-program is deterministic is that \store\ instructions are executed at the same program point in all versions.
+
+A \load\ instruction assigns to a virtual register the value read from a given address and can be treated as a special case of variable assignment in our setting. This ensures that, under the above assumption for \store\ instructions, given a program location and two program versions, if a live virtual register from one version corresponds to a live register in the other version according to $OSRMap$, then both \load\ instructions would have yielded the same value.
+
+Common LLVM optimizations such as loop hoisting and code sinking by default do not move \store\ instructions around. However, enforcing the \store\ hypothesis described above might be restrictive in a different optimization setting: for this reason, we describe a possible extension of our approach to deal with the issue. We can model a hoisted or sunk \store\ instruction as special assignment to a variable that is assumed to be live at each program location reachable in the CFG between the original location and the insertion point. For the sinking case, when performing an OSR at one of the affected points:
+\begin{itemize}[itemsep=0pt,parsep=3pt,partopsep=0pt]
+ \item from the less to the more optimized version of the function, no compensation code is required, and executing the sunk \store\ will simply be redundant;
+ \item from the more to the less optimized version, we have to realign the memory state by executing the sunk \store\ (not reached yet in the current version).
+\end{itemize}
+The hoisting case - although \store(s) are typically only sunk - is the converse.
+
+\subsubsection*{Tracking Optimizations}
+Without loss of generality, we can capture the effects of a live-variable equivalent program transformation in terms of six primitive actions:
+\begin{itemize}[parsep=0pt,partopsep=0pt]
+ \item \mytt{add}$(inst, loc)$: insert a new instruction $inst$ at location $loc$;
+ \item \mytt{delete}$(loc)$: delete the instruction at $loc$;
+ \item \mytt{hoist}$(loc, newLoc)$: hoist an instruction from $loc$ to $newLoc$;
+ \item \mytt{sink}$(loc, newLoc)$: sink an instruction from $loc$ to $newLoc$;
+ \item \mytt{replace\_operand}$(inst, old\_op, new\_op)$: replace an operand $old\_op$ for a a given instruction with another operand $new\_op$;
+ \item \mytt{replace\_all}$(old\_op, new\_op)$: replace all uses in the code of an operand with another operand.
+\end{itemize}
+
+\noindent Existing LLVM optimization passes do not need to be rewritten: we simply instrument them at places where a primitive action is performed. Algorithm \apply\ takes as input a function and an optimization, clones the function, optimizes the clone, and finally constructs an OSR mapping between the two versions by processing the history of applied actions.
+
+Tracking actions of the first four kinds is essential in order to maintain mappings between program points from different versions. While programs expressed in our language are padded by an oracle with \mytt{skip} instructions for optimizations, a mapping between LLVM instruction locations for two versions should be explicitly maintained.
+
+An OSR mapping for LLVM programs is defined as a mapping between virtual registers. For each \RAUWfull\ operation we can update the OSR mapping as follows. When all uses of $O$ are replaced with $N$, $O$ becomes trivially dead: as in a LVE transformation $N$ and $O$ yield the same result, any virtual register $O'$ in $OSRMap$ pointing to $O$ can be updated to point to $N$. This is useful for deoptimization, as our experiments suggest that a variable in an optimized program often holds the value of more than one variable in the unoptimized code.
+
+In our experience, to make an LLVM pass OSR-aware we usually needed to insert 5-15 tracking primitive actions, while the hardest part was clearly understanding what each LLVM pass does. Readers familiar with LLVM may notice that most primitive actions mirror typical manipulation utilities used in optimization passes (e.g., \mytt{replace\_all} is equivalent to LLVM's widely employed \mytt{RAUW}).
+
+\subsubsection*{Implementing \mytt{build\_comp}}
+
+We now discuss the implications of implementing the \buildcomp\ algorithm presented in \myalgorithm\ref{alg:osr-trans}
+%\ifauthorea{}{ (page \pageref{alg:osr-trans})}
+for a program written in SSA form. While this form guarantees that the reaching definition for a variable is unique at any point it dominates, \reconstruct\ gives up when attempting to reconstruct an assignment made through a $\phi$ function. As we do not employ alias analysis at the moment, we also conservatively prevent it from inserting \load\ instructions in the compensation code.
+%We also conservatively prevent it from inserting \load\ instructions in the compensation code. %Future extensions to the current implementation may use alias analysis to determine which memory regions are still safe to read from.
+
+Compared to the abstract model described in \mysection\ref{ss:osr-language-framework}, the particular form of IR code generated by LLVM may limit the effectiveness of \reconstruct\ in our context.
+%\ifauthorea{}{ on page \pageref{alg:osr-reconstruct}}
+We have thus implemented four versions of the algorithm, each one extending the previous one. We denote by $P$ the pool of variables at the OSR source that are used to reconstruct the assignments:
+\begin{enumerate}
+ \item The first version, which we will refer to as $live$, is the base version of \myalgorithm\ref{alg:osr-reconstruct} that uses as $P$ only variables that are live at the OSR source.
+ \item An enhanced version $live_{(e)}$ exploits some features of LLVM IR. In particular, this version can recursively reconstruct a $\phi$-assignment that merges together the same value for all CFG paths\footnote{Compilers can place $\phi$-nodes at loop exits for values that are live across the loop boundary, constructing the {\em Loop-Closed} SSA (LCSSA) form.}, and includes in $P$ also non-live function arguments, as they cannot be modified in the IR.
+ \item A third version, which we call $alias$, can also exploit implicit aliasing information deriving from a \RAUW$(O,$ $N)$. Let $O'$ and $N'$ be the corresponding variables according to the OSR mapping for $O$ and $N$, respectively: we can add \mytt{N:=O'} to the compensation code required to reconstruct $N$ when $N'$ is not live at the source location, but $O'$ is.
+ \item Finally, the fourth version $avail$ includes in $P$ also those variables that are not live at the source location, but contain available values that \reconstruct\ can directly assign to the instruction operand (line $7$) or assignment (line $8$) being reconstructed. We exploit the uniqueness of reaching definitions in the SSA form to efficiently identify such variables.
+\end{enumerate}

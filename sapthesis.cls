@@ -953,7 +953,7 @@
   \newcommand{\SAP@ThesisAdvisorLabel}{Thesis Advisor}
   \newcommand{\SAP@ThesisAdvisorsLabel}{Thesis Advisors}
   \newcommand{\SAP@ThesisCoAdvisorLabel}{Co-Advisor}
-  \newcommand{\SAP@ThesisCoAdvisorsLabel}{Co-Advisors}
+  \newcommand{\SAP@ThesisCoAdvisorsLabel}{External Reviewers}
   \newcommand{\SAP@ThesisDirectorLabel}{Director}
   \newcommand{\SAP@ThesisDirectorsLabel}{Directors}
   \newcommand{\SAP@ThesisTutorLabel}{Trainee's Tutor}

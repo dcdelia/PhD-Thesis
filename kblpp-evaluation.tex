@@ -2,6 +2,7 @@
 
 %\section{{\em k-}iteration Path Profiling}
 \section{Multi-iteration Path Profiling}
+\label{ss:kblpp-eval}
 
 In this section, we discuss and evaluate an implementation, which we call \kblpp, of our approach to multi-iteration path profiling in the Jikes Research Virtual Machine (RVM)~\cite{Alpern00}. Our code is publicly available in the Jikes RVM Research Archive\footnote{\url{http://sourceforge.net/p/jikesrvm/research-archive/41/}.} and has been endorsed by the OOPSLA 2013 Artifact Evaluation Committee. The goal of our experimental study is to assess the performance of our profiler compared to previous approaches and to study properties of path profiles that span multiple iterations for several representative benchmarks. The results indicate that our technique can profile paths that extend across many loop iterations in a time comparable with acyclic path profiling on a large variety of industrial-strength benchmarks.
 

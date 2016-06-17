@@ -1,3 +1,4 @@
+% !TEX root = thesis.tex
 \chapter{Performance Profiling Techniques}
 \label{ch:profiling}
 
@@ -8,3 +9,8 @@ In this chapter, we present two run-time analyses for collecting fine-grained pr
 \newpage
 \input{kblpp}
 \fi
+
+\section{Summary}
+Low-overhead profiling mechanisms are a key ingredient for effective adaptive optimization in a runtime system. For some classes of profiling information, the sheer size of the domain might require an analysis routine to maintain a large amount of data in main memory, resulting in a performance penalty from poor access locality or even the exhaustion of available resources. This is the case of context-sensitive profiling, for which we introduce a new data structure, the HCCT, that can be constructed online in small space with strong guarantees in terms of accuracy and recall. We present and evaluate an implementation of a HCCT profiler in \mysection\ref{ss:hcct-eval}.
+
+Another example is cyclic-path profiling, for which extant techniques fail to scale as enumerating paths explicitly results into an explosion in the number of possible sequences already for a few loop iterations. We present an encoding scheme based on a prefix forest, the \kipf, obtainable on demand from an intermediate data structure, the \ksf, that can be constructed online efficiently. We describe and evaluate an implementation of this technique in Jikes RVM in \mysection\ref{ss:kblpp-eval}.
