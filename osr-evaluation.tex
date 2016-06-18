@@ -185,10 +185,12 @@ We now discuss the overhead of the \osrkit\ library for inserting OSR machinery 
 
 Not surprisingly, constructing a continuation function takes longer than the other operations (i.e., up to 1 ms vs. 20-40 us), as it involves cloning and manipulating the body of the target function and thus depends on its size: \mytable\ref{tab:osr-instrTime} hence comes with an additional column in which time is normalized against the number of IR instructions in the target function.
 
-On our benchmarks, the overall cost of IR manipulation is in the order of hundreds of microseconds, and is thus very likely to be dominated by the cost of just-in-time compilation.
+%On our benchmarks, the overall cost of IR manipulation is in the order of hundreds of microseconds, and is thus very likely to be dominated by the cost of just-in-time compilation.
 
-\subsection{Summary}
-\missing\
+\subsection{Discussion}
+Our results suggest that the LLVM MCJIT compiler is able to generate efficient native code for the OSR machinery inserted in performance-critical code sections. The overall cost of IR manipulation for inserting an OSR point insertion and generating a continuation function is in the order of hundreds of microseconds on our benchmarks, and will likely be dominated by the time spent in just-in-time compilation. We present an example of effective optimization enabled by \osrkit\ in \mysection\ref{se:CS-matlab}. 
+
+%Hence, for a front-end the choice of whether to insert an OSR point for optimization essentially depends on the performance gains from recompilation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -197,7 +199,7 @@ On our benchmarks, the overall cost of IR manipulation is in the order of hundre
 \section{Building OSR Compensation Code}
 \label{se:eval-OSR-alC}
 
-In this section we evaluate our LLVM implementation of the techniques for automatic OSR mapping construction described in \mysection\ref{se:osr-a-la-carte}. In particular, we investigate whether in the presence of a number of common compiler optimizations, the algorithm \buildcomp\ can offer an extensive ``menu'' of possible program points where OSR can safely occur, generating the possibly required compensation code in an automated fashion. Our experiments suggest that bidirectional OSR transitions can be supported almost everywhere in this setting.
+In this section we evaluate our implementation in LLVM of the techniques for automatic OSR mapping construction described in \mysection\ref{se:osr-a-la-carte}. In particular, we investigate whether in the presence of a number of common compiler optimizations, the algorithm \buildcomp\ can offer an extensive ``menu'' of possible program points where OSR can safely occur, generating the possibly required compensation code in an automated fashion. Our experiments suggest that bidirectional OSR transitions can be supported almost everywhere in this setting.
 
 \subsection{Experimental Setup}
 \label{ss:bc-exp-setup}
@@ -338,7 +340,7 @@ We performed our experiments on a machine equipped with an Intel Core i7-3632QM 
 
 \subsection{OSR to Optimized Version}
 
-\myfigure\ref{fig:osr-BC-BtoO} shows the fraction of program points that are feasible for an OSR from {\em base} to {\em opt} depending on the version of \reconstruct\ being used.
+\myfigure\ref{fig:osr-BC-BtoO} shows the fraction of program points that are feasible for an OSR from {\em base} to {\em opt} depending on the version of \reconstruct\ being used (\mysection\ref{ss:BC-implementation}).
 
 Locations that can fire an OSR with no need of a compensation code (i.e., $\chi=\langle\rangle$) account for a limited fraction of all the potential OSR points (less than $10\%$ for most benchmarks). This suggests that optimizations can significantly modify a program's live state across program locations.
 
@@ -417,7 +419,7 @@ For $9$ out of $12$ benchmarks, compensation code can be built using only live v
 %The assignment step of \reconstruct\ produces on average $2.3$ compensation instructions, with a peak of $5.74$ on \mytt{vp8}.
 When the $avail$ version is used, the percentage of feasible OSR points is greater than $90\%$ on all benchmarks and nearly $100\%$ for $9$ out of $12$ of them.
 
-Results for the $alias$ version of \reconstruct\ are not reported, as they do not improve those for $live_{(e)}$. Indeed, aliasing information is useful when a variable to set at the destination is aliased by multiple variables at the source, which we do not expect to happen in an optimized code.
+\noindent Results for the $alias$ version of \reconstruct\ are not reported, as they do not improve those for $live_{(e)}$. Indeed, aliasing information is useful when a variable to set at the destination is aliased by multiple variables at the source, which we do not expect to happen in an optimized code.
 
 \begin{table}[!ht]
 \begin{center}
@@ -464,4 +466,11 @@ Mean & {\bf 2.30} & 4.58 & {\bf 2.87} & 7.33 & {\bf 2.00} & 6.67 \\
 
 \noindent In \mytable\ref{tab:OSR-alC-prologue-OtoB} we report the average and peak size of the compensation code $\chi$ generated by the $live_{(e)}$ and $avail$ variants of \reconstruct\ across feasible OSR points, along with the average and peak number of available variables for which $avail$ artificially extends liveness to support OSR at program points represented by white bars in \myfigure\ref{fig:osr-BC-OtoB}. We observe that, compare to the {\em base}-to-{\em opt} case, the size of the compensation code is much smaller, suggesting that shorter portions of executions need to be reconstructed when ``OSR-ing'' to less optimized code.
 
-Note that the $0$ values reported for \mytt{fhourstones} in the $live_{(e)}$ scenario do not imply that state compensation is not needed. In fact, the algorithm detected that each variable $v$ to assign at the OSR landing pad for which no live counterpart was available at the source location, could be initialized with the value of either a (non-live) function argument or some live variable when $v$ is a constant $\phi$-node. In LLVM IR assignments of the form \mytt{x:=y} are not allowed, since all uses of \mytt{x} can simply be replaced with uses of \mytt{y}: for this reason, a \mytt{RAUW(x,y)} operation is performed on the body of the continuation function $f'$, where \mytt{y} is a live value transferred as argument for $f'$, and no instruction is added to the OSR entry block of $f'$.
+Note that the $0$ values reported for \mytt{fhourstones} in the $live_{(e)}$ scenario do not imply that state compensation is not required. In fact, the algorithm detected that each variable $v$ to assign at the OSR landing pad for which no live counterpart was available at the source location, could be initialized with the value of either a (non-live) function argument or some live variable when $v$ is a constant $\phi$-node. In LLVM IR assignments of the form \mytt{x:=y} are not allowed, since all uses of \mytt{x} can simply be replaced with uses of \mytt{y}: for this reason, a \mytt{RAUW(x,y)} operation is performed on the body of the continuation function $f'$, where \mytt{y} is a live value transferred as argument for $f'$, and no instruction is added to the OSR entry block of $f'$.
+
+\subsection{Discussion}
+We have seen that common compiler transformations can significantly affect the live state of a program across its locations. The four versions of algorithm \reconstruct\ that we have implemented are able to generate compensation code automatically by recursively reassembling portions of the state for the target function.
+
+OSR is supported almost anywhere by the $avail$ version of the algorithm. Figures reported in \mytable\ref{tab:OSR-alC-prologue-BtoO,tab:OSR-alC-prologue-OtoB} suggest that the size of the set of virtual registers to preserve for an OSR from all supported locations is small: a compiler may thus spill available values that are not already located on the stack. When \reconstruct\ can resort only to live variables, it enables OSR at more than a half of the program locations. We observed that the reconstruction would often fail on an available value coming from a \load\ instruction: we thus believe that the algorithm may significantly benefit from a simple alias analysis to identify safely repeatable \load\ instructions.
+
+%For our benchmarks, we enable OSR from both unoptimized to optimized code and viceversa at more than a half of the program locations using only live variables at the source location, and almost anywhere when \reconstruct\ can access previously computed results that are still available.
