@@ -242,3 +242,6 @@ The adoption of sampling-based techniques may cause the algorithm to miss some o
 \end{center}
 \end{figure}
 \fi
+
+\subsection{Discussion}
+We have seen that maintaining the $(\phi,\varepsilon)$-HCCT typically requires orders of magnitude less memory compared to the CCT. Although the fraction of cold ancestors varies from one application to another, the space required by the MCCT is typically proportional to the number of monitored contexts, which for a given $\phi$ is constant in Space Saving: for this reason, the $(\phi,\varepsilon)$-HCCT scales very well to larger applications. Theoretical predictions on accuracy are reinforced by experimental results: frequency estimates are very close to the exact counts, and Space Saving achieves good precision as well (i.e., the fraction of false positives is small). An integration with static bursting to reduce the instrumentation overhead seemed like a natural choice: our results suggest that only contexts whose frequency is very close to $\phi N$ may be missed, and the error in frequency estimates due to sampling is reasonable.
