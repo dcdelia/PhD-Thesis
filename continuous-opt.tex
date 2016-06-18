@@ -11,3 +11,6 @@ In the second part, we make a first step towards a provably sound methodological
 
 \input{osrkit}
 \input{osr-correctness}
+
+\section{Summary}
+On-Stack Replacement is a staple of modern adaptive optimization systems, and has tended to be restricted to a few of the most advanced language runtimes that have seen enormous commercial investments. We present an OSR framework that combines some of the best practices in the literature with novel features, and that should allow developers to leverage OSR in their runtimes without the daunting prospect of building the mechanisms from the ground up. We introduce a theoretical framework that might allow the community to make progress in reasoning about the underpinnings of OSR and its soundness in the face of important code transformations. We evaluate an LLVM implementation of our ideas in \mysection\ref{se:eval-osrkit,se:eval-OSR-alC}.

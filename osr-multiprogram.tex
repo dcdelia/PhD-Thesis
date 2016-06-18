@@ -1,3 +1,5 @@
+% !TEX root = thesis.tex
+
 \subsection{Multi-Version Programs}
 
 In this section, we propose a general OSR model where computations are described by a {\em multi-version program}, which consists of different versions of a program along with OSR mappings that allow execution to be transferred between them.
@@ -44,7 +46,9 @@ For any multi-version program $\Pi$, relation $\Rightarrow_{\Pi}\subseteq MState
 \end{footnotesize}
 \end{definition}
 
-\noindent The meaning is that at any time, execution can either continue in the current program version (Norm rule), or an OSR transition -- if possible at the current point -- can direct the control to another program version (OSR rule). The choice is non-deterministic, i.e., an oracle can tell the execution engine which rule to apply. In practice, the choice may be based for instance on profile data gathered by the runtime system: a common strategy is to dynamically ``OSR'' to the available version with the best expected performance on the actual workload. Notice that since $\Rightarrow_{\Pi}$ may be non-deterministic, in general there may be different final stores for the same initial store. However, we are only interested in multi-version programs that deterministically yield a unique result, which guarantees semantic transparency of OSR transitions. 
+\noindent The meaning is that at any time, execution can either continue in the current program version (Norm rule), or an OSR transition -- if possible at the current point -- can direct the control to another program version (OSR rule). The choice is non-deterministic, i.e., an oracle can tell the execution engine which rule to apply.
+
+In practice, the choice may be based for instance on profile data gathered by the runtime system: a common strategy is to dynamically ``OSR'' to the available version with the best expected performance on the actual workload. Notice that since $\Rightarrow_{\Pi}$ may be non-deterministic, in general there may be different final stores for the same initial store. However, we are only interested in multi-version programs that deterministically yield a unique result, which guarantees semantic transparency of OSR transitions. 
 
 To characterize the execution behavior of a multi-version program, we consider the system of traces of an execution transition system that start from a given initial state.
 
@@ -166,7 +170,7 @@ Let $\Pi$ $=({\cal V}, {\cal E}, {\cal M})$ be a multi-version program construct
 \begin{myproof}
 To prove that $\Pi$ is deterministic, we need to show that, given any initial store $\sigma$ on which $\pi_1\in\Pi$ terminates on some final state $\sigma'=\mysem{\pi_1}(\sigma)$, any execution trace $\tau\in{\cal T}_{\Pi,\sigma}$ terminates with $\sigma'$.
 
-Let $\omega_1,\ldots,\omega_k$ be the indices of $\tau$ where an OSR transition has just occurred, i.e., for any $i\in[1,k]$, state $\tau[\omega_i]$ is obtained from $\tau[\omega_i-1]$ by applying compensation code $\chi_{\omega_i-1}$ on store $\sigma_{\omega_i-1}$, which yields a store $\sigma_{\omega_i}$. The transition leads from a point $l_{\omega_i-1}$ in version $\pi_{p_{\omega_i-1}}$ to a point $l_{\omega_i}=l_{\omega_i-1}$ in version $\pi_{p_{\omega_{i}}}$ in $\Pi$. 
+\noindent Let $\omega_1,\ldots,\omega_k$ be the indices of $\tau$ where an OSR transition has just occurred, i.e., for any $i\in[1,k]$, state $\tau[\omega_i]$ is obtained from $\tau[\omega_i-1]$ by applying compensation code $\chi_{\omega_i-1}$ on store $\sigma_{\omega_i-1}$, which yields a store $\sigma_{\omega_i}$. The transition leads from a point $l_{\omega_i-1}$ in version $\pi_{p_{\omega_i-1}}$ to a point $l_{\omega_i}=l_{\omega_i-1}$ in version $\pi_{p_{\omega_{i}}}$ in $\Pi$. 
 
 By \mylemma\ref{le:comp-lemma}, $\forall i\in[1,k]$ there exists a state $(\hat{\sigma}_i,\hat{l}_i)$ in the trace of $\hat{\pi}_i=\pi_{p_{\omega_{i}}}$ starting from the initial store $\sigma$ such that $\hat{l}_i=l_{\omega_i}$ and $\hat{\sigma}_i\vert_{\live(\hat{\pi}_i,\hat{l}_i)}=\sigma_{\omega_i}\vert_{\live(\hat{\pi}_i,\hat{l}_i)}$. Hence, since no OSR is fired after $\omega_k$, by \myequation\ref{eq:mv-big-step} it holds: 
 \begin{equation*}

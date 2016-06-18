@@ -37,7 +37,7 @@ Without loss of generality, we can capture the effects of a live-variable equiva
 
 \noindent Existing LLVM optimization passes do not need to be rewritten: we simply instrument them at places where a primitive action is performed. Algorithm \apply\ takes as input a function and an optimization, clones the function, optimizes the clone, and finally constructs an OSR mapping between the two versions by processing the history of applied actions.
 
-Tracking actions of the first four kinds is essential in order to maintain mappings between program points from different versions. While programs expressed in our language are padded by an oracle with \mytt{skip} instructions for optimizations, a mapping between LLVM instruction locations for two versions should be explicitly maintained.
+\noindent Tracking actions of the first four kinds is essential in order to maintain mappings between program points from different versions. While programs expressed in our language are padded by an oracle with \mytt{skip} instructions for optimizations, a mapping between LLVM instruction locations for two versions should be explicitly maintained.
 
 An OSR mapping for LLVM programs is defined as a mapping between virtual registers. For each \RAUWfull\ operation we can update the OSR mapping as follows. When all uses of $O$ are replaced with $N$, $O$ becomes trivially dead: as in a LVE transformation $N$ and $O$ yield the same result, any virtual register $O'$ in $OSRMap$ pointing to $O$ can be updated to point to $N$. This is useful for deoptimization, as our experiments suggest that a variable in an optimized program often holds the value of more than one variable in the unoptimized code.
 

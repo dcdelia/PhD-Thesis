@@ -27,7 +27,8 @@ $
 
 \subsection{Language Syntax and Semantics}
 \label{ss:osr-language-framework}
-Our discussion is based on a minimal imperative programming language whose syntax is reported \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}. In this section we introduce some basic definitions used in our representation of programs, and provide a big-step semantics for the language.
+Our discussion is based on a minimal imperative language whose syntax is reported \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}. In this section we introduce some basic definitions used in our representation of programs, and provide a big-step semantics for the language.
+%Our discussion is based on a minimal imperative programming language whose syntax is reported \ifauthorea{below}{in \myfigure\ref{fig:osr-program-syntax}}. In this section we introduce some basic definitions used in our representation of programs, and provide a big-step semantics for the language.
 
 %\subsection{Language Framework}
 
@@ -58,7 +59,7 @@ where:
 
 \noindent Instruction \texttt{in}, which must appear at the beginning of a program, specifies the variables that must be defined prior to entering the program. Similarly, \texttt{out} occurs at the end and specifies the variables that are returned as output. 
 
-By \texttt{e[x]} we indicate that \texttt{x} is a variable of expression \texttt{e}\,$\in Expr$. We also denote by $vars($\texttt{e}$)$ the set of variables that occur in expression \texttt{e}. By $|\pi|=n$ we indicate the number of instructions in $\pi=\langle I_1, I_2, \ldots, I_n \rangle$.
+\noindent By \texttt{e[x]} we indicate that \texttt{x} is a variable of expression \texttt{e}\,$\in Expr$. We also denote by $vars($\texttt{e}$)$ the set of variables that occur in expression \texttt{e}. By $|\pi|=n$ we indicate the number of instructions in $\pi=\langle I_1, I_2, \ldots, I_n \rangle$.
 
 \begin{definition}[Memory Store]
 A {\em memory store} is a total function $\sigma:Var\rightarrow \mathbb{Z}\cup\{\bot\}$ that associates integer values to defined variables, and $\bot$ to undefined variables. We denote by $\Sigma$ the set of all possible memory stores. 

@@ -4,7 +4,7 @@
 \section{Towards a Provably Sound On-Stack Replacement}
 \label{se:osr-a-la-carte}
 
-We have seen that OSR is employed in modern adaptive compilation systems to dynamically switch between different versions of a function depending on the program's run-time state. Traditionally, code optimizers are responsible for marking the points where such transitions can take place, and generating required meta-data or ad-hoc code to get the program state to a correct resumption point. OSR is usually at the core of large and complex JIT compilers employed by popular production virtual machines. Indeed, the engineering effort to integrate this technique in a language runtime can be daunting, making it rarely accessible to the research community.
+We have seen that OSR is employed in modern adaptive compilation systems to dynamically switch between different versions of a function depending on the program's run-time state. Traditionally, code optimizers are responsible for marking the points where such transitions can take place, and generating required meta-data or ad-hoc code to get the program state to a correct resumption point. OSR is usually at the core of large and complex JIT compilers employed by popular production virtual machines. The engineering effort to implement OSR in a language runtime can be daunting, thus making it rarely accessible to the research community.%Indeed, the engineering effort to integrate this technique in a language runtime can be daunting, making it rarely accessible to the research community.
 
 \paragraph*{Contributions.} In this thesis we investigate how to provide VM builders with a rich ``menu'' of possible program points where OSR can safely occur, relieving code optimizers from the burden of generating all the required machinery to realign the program state during an OSR transition.
 
@@ -15,7 +15,8 @@ One of the goals of our work is to characterize sufficient conditions for a mult
 In our formalization, we distill the essence of OSR to an abstract program morphing problem over a simple imperative calculus with an operational semantics. %We show how to make single transformations OSR-aware in isolation, and then flexibly combine them by exploiting the composability of glue code. 
 Using program bisimulation, we prove that an OSR can correctly divert execution from one program version to the other if they are {\em live-variable bisimilar}, i.e., the live variables they have in common at any corresponding execution states are equal. As prominent examples of how bisimulation can be used to prove this property, we consider classic optimizations that eliminate or move code around, such as dead code elimination, constant propagation, and code hoisting.
 
-We show how to construct OSR machinery by devising an algorithm that automatically generates compensation code to reconstruct the values of variables that are live at the OSR target, but not at the source. We thus make single transformations OSR-aware in isolation, and then flexibly combine them by exploiting the composability of compensation code.
+We show how to construct OSR machinery by devising an algorithm that automatically generates compensation code to reconstruct the values of the variables that are live at the OSR target, but not at the source. We make single transformations OSR-aware in isolation, and flexibly combine them by exploiting the composability of compensation code. Finally, we discuss an implementation of these ideas in LLVM.
+%We thus make single transformations OSR-aware in isolation, and then flexibly combine them by exploiting the composability of compensation code.
 
 \input{osr-language}
 \input{osr-language-reasoning}

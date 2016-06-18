@@ -10,7 +10,7 @@ In this section we present a formalism based on {\em computation tree logic} (CT
 To analyze properties of a program, we use Boolean formulas with free meta-variables that combine facts that must hold globally or at certain points of a program. Formulas can be checked against concrete programs by a {\em model checker}. For any program $\pi$ and formula $\phi$, the checker verifies whether there exists a substitution $\theta$ that binds free meta-variables with program objects so that $\theta(\phi)$ is satisfied in $\pi$. 
 In this thesis, by $\cal{A}\models \phi$ we mean that $\phi$ is true in $\cal{A}$, i.e., formula $\phi$ is satisfied by structure $\cal{A}$ (or equivalently, $\cal{A}$ models $\phi$)~\cite{Clarke86}. %We use notation $\cal{A}\models_{\theta} \phi$ as a shortcut for $\cal{A}\models \theta(\phi)$. 
 
-Two global predicates that we will use later on are ${\tt conlit}(\wc)$, which states that an expression $\wc$ is a constant literal, and ${\tt freevar}(\wx,\we)$, which holds if and only if $\wx$ is a free variable of expression $\we$.
+\noindent Two global predicates that we will use later on are ${\tt conlit}(\wc)$, which states that an expression $\wc$ is a constant literal, and ${\tt freevar}(\wx,\we)$, which holds if and only if $\wx$ is a free variable of expression $\we$.
 
 %To support analyses based on facts that involve finite maximal paths in the control flow graph (CFG), such as liveness and dominance, we use formulas based on {\em computation tree logic} (CTL) operators~\cite{Clarke86,Lacey04,Kalvala09}. In order to introduce these operators, we need to formalize the concept of finite maximal paths first.
 To support analyses based on facts that involve finite maximal paths in the control flow graph (CFG), such as liveness and dominance, we use formulas based on CTL operators. In order to introduce these operators, we need to formalize the concept of finite maximal paths first.
@@ -148,7 +148,7 @@ T = & m_1: \hat{I}_1 \Longrightarrow \hat{I'}_1 %& m_2: I_2 \Longrightarrow I'_2
 
 \noindent An elementary example of rewrite rule with meta-variables $\wm$, $\wx$, and $\wy$ is: $$m: ~ {\tt y:=2*x} ~~ \Longrightarrow ~~ {\tt y:=x+x} ~~~ {\tt if} ~ true$$ which implements a peephole optimization based on a weak form of operator strength reduction~\cite{Cooper01}.
 
-Rules can be applied to concrete programs by a transformation engine based on model checking: when the checker finds a substitution $\theta$ that binds free meta-variables with program objects so that $\theta(\phi)$ is satisfied in $\pi$ and $\theta(\hat{I}_k)=I_{\theta(m_k)}\in \pi$ for some $k\in[1,t]$, then $I_{\theta(m_k)}$ is replaced with $\theta(\hat{I'}_k)=I'_{\theta(m_k)}\in \pi'$, as formalized next:
+\noindent Rules can be applied to concrete programs by a transformation engine based on model checking: when the checker finds a substitution $\theta$ that binds free meta-variables with program objects so that $\theta(\phi)$ is satisfied in $\pi$ and $\theta(\hat{I}_k)=I_{\theta(m_k)}\in \pi$ for some $k\in[1,t]$, then $I_{\theta(m_k)}$ is replaced with $\theta(\hat{I'}_k)=I'_{\theta(m_k)}\in \pi'$, as formalized next:
 
 \begin{definition}[Rule Semantics]
 \label{de:trans-func}
@@ -205,7 +205,7 @@ $\hphantom{\texttt{if}} ~~ q \models \overleftarrow{A}((\neg\wdef(\wx)\vee\wpoin
 \caption{\label{fig:sample-trans} Rewriting rules for defining CP, DCE, and Hoist transformations.}
 \end{figure}
 
-\noindent The constant propagation (CP) rule replaces uses of a variable $v$ at a node $m$ with a constant $c$. Its side condition is satisfied when in all backward paths starting at $m$, the first definition of $v$ we encounter is always $v:=c$.
+The constant propagation (CP) rule replaces uses of a variable $v$ at a node $m$ with a constant $c$. Its side condition is satisfied when in all backward paths starting at $m$, the first definition of $v$ we encounter is always $v:=c$.
 
 The dead code elimination (DCE) rule deletes an instruction at a node $m$ if the result of its computation will never be used later in the program's execution. As we are not interested in uses of the variable itself at $m$, in the side condition we skip past it with $AX$ and specify that there should not exist a forward path that eventually uses (i.e., reads from) the variable. 
 
