@@ -216,7 +216,7 @@ We implemented our technique in \tinyvm, introducing a number of features to:
 
 We evaluated our technique on the \speccpu~\cite{Henning06} and the \phoronixpts~\cite{Phoronix} benchmarking suites, reporting data for a subset of their C/C++ benchmarks. We profiled each benchmark to identify the hottest method and generated the IR for it using \clang\ with no optimization enabled other than \memtoreg. Starting from this version of the IR, which we will refer to as {\em base}, we generated an {\em opt} version by applying all our instrumented LLVM optimizations.
 
-The list of benchmarks and transformations that are effective on their hottest method is reported in \mytable\ref{tab:OSR-alC-bench-desc}. Numbers reported in \mytable\ref{tab:OSR-alC-bench-IR} for the IR manipulations performed by the transformations suggest that, while the {\em opt} version is typically shorter than its {\em base} counterpart, it might have a larger number of $\phi$-nodes (most of them are inserted during the LCSSA-form construction). We observed that SCCP was able to eliminate a large number of unreachable blocks for \mytt{ffmpeg}, while for the remaining benchmarks the majority of instruction deletions are performed by CSE, which replaces all of the uses of these instructions in the rest of the code with uses of equivalent available instructions.
+The list of benchmarks and transformations that are effective on their hottest method is reported in \mytable\ref{tab:OSR-alC-bench-desc}. Numbers reported in \mytable\ref{tab:OSR-alC-bench-IR} for the IR manipulations performed by the transformations suggest that, while the {\em opt} version is typically shorter than its {\em base} counterpart, it might have a larger number of $\phi$-nodes (most of them are inserted during the LCSSA-form construction). We observed that SCCP was able to eliminate a large number of unreachable blocks for \mytt{ffmpeg}, while for the remaining benchmarks the majority of instruction deletions are performed by CSE, which replaces all of the uses of these instructions in the function with uses of equivalent available instructions.
 
 \begin{table}[t]
 \begin{center}
@@ -342,7 +342,7 @@ We performed our experiments on a machine equipped with an Intel Core i7-3632QM 
 
 \myfigure\ref{fig:osr-BC-BtoO} shows the fraction of program points that are feasible for an OSR from {\em base} to {\em opt} depending on the version of \reconstruct\ being used (\mysection\ref{ss:BC-implementation}).
 
-Locations that can fire an OSR with no need of a compensation code (i.e., $\chi=\langle\rangle$) account for a limited fraction of all the potential OSR points (less than $10\%$ for most benchmarks). This suggests that optimizations can significantly modify a program's live state across program locations.
+Locations that can fire an OSR with no need for a compensation code (i.e., $\chi=\langle\rangle$) account for a limited fraction of all the potential OSR points (less than $10\%$ for most benchmarks). This suggests that optimizations can significantly modify a program's live state across program locations.
 
 \begin{figure}[!t]
 \begin{center}

@@ -15,3 +15,6 @@ Finally, in the third case study we show that our OSR compensation code algorith
 \input{case-study-kblpp}
 \input{case-study-mcvm}
 \input{case-study-debugging}
+
+\section{Summary}
+The series of case studies illustrated in this chapter give further evidence of the utility of our performance profiling and continuous program optimization techniques. Improved profile accuracy is useful to enhance the program understanding and optimization process: multi-iteration path profiles can reveal interesting optimization opportunities that an acyclic profiler would miss. On-stack replacement is essential technology for dynamic optimization and debugging: our OSR with compensation code abstraction enables transformations that change the program state deeply, while our algorithms for automatic OSR mapping construction can help debuggers in providing expected behavior for an optimized program to the user.
