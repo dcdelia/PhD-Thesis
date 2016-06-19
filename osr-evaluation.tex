@@ -18,7 +18,7 @@ In this section we present an experimental study of \osrkit. In particular, we a
 \subsubsection*{Benchmarks}
 We address questions Q1-Q3 by analyzing the performance of \osrkit\ on a selection of the \shootout\ benchmarks, also known as the Computer Language Benchmarks Game~\cite{shootout}, running in \tinyvm. In particular, we focus on single-threaded benchmarks that do not rely on external libraries to perform their core computations. Benchmarks and their description are reported in \mytable\ref{tab:osr-shootout}; four of them ({\tt b-trees}, {\tt mbrot}, {\tt n-body} and {\tt sp-norm}) are evaluated against two workloads of different size.
 
-We generate the IR modules for our experiments with \clang\ starting from the C version of the \shootout\ suite. To cover scenarios where OSR machinery is inserted in programs with different optimization levels, we consider two versions: 1) {\em unoptimized}, where the only LLVM optimization we perform is \memtoreg\ to promote stack references to registers and construct the SSA form; 2) {\em optimized}, where we apply {\tt opt} {\tt -O1} to the unoptimized version.
+We generate the IR modules for our experiments with \clang\ starting from the C version of the \shootout\ suite. To cover scenarios where OSR machinery is inserted in programs with different optimization levels, we consider two versions: 1) {\em unoptimized}, where the only LLVM optimization we perform is \memtoreg\ to promote stack references to registers and construct the static single assignment (SSA) form; 2) {\em optimized}, where we apply {\tt opt} {\tt -O1} to the unoptimized version.
 
 \begin{table}[!hb]
 \begin{center}

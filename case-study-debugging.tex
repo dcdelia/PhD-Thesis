@@ -25,7 +25,7 @@ As in most recent works on optimized code debugging, we focus on identifying and
 
 Debugging metadata are transparent to optimization passes, do not prevent optimizations from happening, and are designed to be agnostic about both the source language in which the original program is written and the target debugging information representation (e.g., DWARF, stabs). Two intrinsics are used to associate IR virtual registers with source-level variables:
 \begin{itemize}[itemsep=0pt,parsep=3pt]
- \item \mytt{llvm.dbg.declare} typically associates a source variable with an \alloca\footnote{\alloca\ is used to allocate space on the stack of the current function to be automatically released when the function returns. Front-ends are not required to generate code in SSA form, but they can manipulate local variables created with \alloca\ using \load\ and \store\ instruction. Then the SSA form can be constructed using \memtoreg.} buffer;
+ \item \mytt{llvm.dbg.declare} typically associates a source variable with an \alloca\footnote{\alloca\ is used to allocate space on the stack of the current function to be automatically released when the function returns. Front-ends are not required to generate code in static single assignment (SSA) form, but they can manipulate local variables created with \alloca\ using \load\ and \store\ instructions. The SSA form can then be constructed using \memtoreg.} buffer;
  \item \mytt{llvm.dbg.value} informs that a source variable is being set to the value held by the virtual register.
 \end{itemize}
 
