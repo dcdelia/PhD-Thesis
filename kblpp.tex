@@ -260,7 +260,7 @@ $
 \rangle$.
 \end{example}
 
-\paragraph*{k-SF construction algorithm.} Given a stream $\Sigma$ formed by BL path IDs and $*$ markers, which we remind the reader denote routine entry events, the \ksf\ of $\Sigma$ can be constructed by calling the procedure {\tt process\_bl\_path\_id}$(r)$ shown in \myalgorithm\ref{alg:kblpp-ksf-algorithm} on each item $r$ of $\Sigma$. The stream processing algorithm, which is a variant of the \ksf\ construction algoritm given in~\cite{Ausiello12} for the different setting of bounded-length calling contexts, keeps the following information:
+\paragraph*{k-SF construction algorithm.} Given a stream $\Sigma$ formed by BL path IDs and $*$ markers, which we remind the reader denote routine entry events, the \ksf\ of $\Sigma$ can be constructed by calling the procedure {\tt process\_bl\_path\_id}$(r)$ shown in \myalgorithm\ref{alg:kblpp-ksf-algorithm} on each item $r$ of $\Sigma$. The stream processing algorithm, which is a variant of the \ksf\ construction algorithm given in~\cite{Ausiello12} for the different setting of bounded-length calling contexts, keeps the following information:
 
 \begin{itemize}[parsep=0pt]
 \item a hash table $R$, initially empty, containing pointers to the roots of the trees in the \ksf, hashed by node labels; since no two roots have the same label, the lookup operation {\tt find}$(R, r)$ returns the pointer to the root containing label $r$, or {\tt null} if no such root exists;

@@ -12,11 +12,11 @@ Transformations CP, DCE, and Hoist of \myfigure\ref{fig:sample-trans} are live-v
 \end{theorem}
 
 \begin{myproof}
-In \cite{Lacey02}, CP, DCE, and Hoist are proven correct, each using a different bisimulation relation $R$. 
+In \cite{Lacey02}, CP, DCE, and Hoist are proved correct, each using a different bisimulation relation $R$. 
 %We propose a unifying approach based on live-variable bisimilarity.
 For CP, $R$ is simply the identity relation, hence $A(l)=Val\supseteq \live(\pi,l)\cap \live(\pi',l)$ in \mydefinition\ref{de:state-equiv-relation}.
 
-For the other two transformations, $R$ is piecewise-defined on the indices of the traces. For any initial store $\sigma\in \Sigma$, let $\tau_{\pi\sigma}[i]=(\sigma_i,l_i)$, $\tau_{\pi'\sigma}[i]=(\sigma'_i,l'_i)$, and $t$ be the index of the final state in both traces (note that $|\tau_{\pi\sigma}|=|\tau_{\pi'\sigma}|$ from \ref{le:bisim-prop}). Let also $\theta$ be a substitution that bounds free meta-variables with concrete program objects so that a rule's side-condition is satisfied.
+For the other two transformations, $R$ is piecewise-defined on the indexes of the traces. For any initial store $\sigma\in \Sigma$, let $\tau_{\pi\sigma}[i]=(\sigma_i,l_i)$, $\tau_{\pi'\sigma}[i]=(\sigma'_i,l'_i)$, and $t$ be the index of the final state in both traces (note that $|\tau_{\pi\sigma}|=|\tau_{\pi'\sigma}|$ from \ref{le:bisim-prop}). Let also $\theta$ be a substitution that bounds free meta-variables with concrete program objects so that a rule's side-condition is satisfied.
 
 For DCE, $R$ is the identity relation before the eliminated assignment \mytt{x:=e}, and $A(l)=Val\setminus\{\theta(\wx)\}=\live(\pi,l)\cap \live(\pi',l)$ after it. $R$ is a bisimulation such that $\forall i\in[1,t]$ $l_i=l'_i$ and both the following conditions hold:
 \begin{enumerate}
